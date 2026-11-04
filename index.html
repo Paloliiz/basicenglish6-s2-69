@@ -52,95 +52,31 @@
             overflow-x: hidden;
         }
 
-        .cosmic-card {
-            background: linear-gradient(145deg, rgba(21, 15, 46, 0.88), rgba(13, 9, 29, 0.94));
-            border: 1px solid rgba(168, 85, 247, 0.35);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 0 18px rgba(168, 85, 247, 0.08);
-            backdrop-filter: blur(12px);
-        }
-
-        .cosmic-card-active {
-            border: 1px solid rgba(192, 132, 252, 0.65);
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.25), inset 0 0 15px rgba(168, 85, 247, 0.12);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .cosmic-card-active:hover {
-            transform: translateY(-4px);
-            border-color: #e879f9;
-            box-shadow: 0 10px 28px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(232, 121, 249, 0.18);
-        }
-
-        .locked-card {
-            background: linear-gradient(145deg, rgba(18, 16, 28, 0.85), rgba(11, 10, 18, 0.95));
-            border: 1px solid rgba(100, 116, 139, 0.25);
-            filter: grayscale(85%);
-            opacity: 0.72;
-            transition: all 0.3s ease;
-        }
-
-        .locked-card:hover {
-            opacity: 0.88;
-        }
-
-        .btn-portal {
-            background: linear-gradient(90deg, #9333ea 0%, #c026d3 50%, #7e22ce 100%);
-            background-size: 200% auto;
-            color: #ffffff;
-            box-shadow: 0 0 16px rgba(192, 38, 211, 0.45);
-            transition: all 0.3s ease;
-        }
-
-        .btn-portal:hover:not(:disabled) {
-            background-position: right center;
-            box-shadow: 0 0 24px rgba(232, 121, 249, 0.75);
-            transform: scale(1.02);
-        }
-
-        .btn-portal:disabled {
-            background: #1e293b;
-            color: #64748b;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        .xp-track {
-            background: rgba(9, 6, 20, 0.85);
-            border: 1px solid rgba(168, 85, 247, 0.4);
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
-        }
-
-        .xp-fill {
-            background: linear-gradient(90deg, #7e22ce, #c084fc, #f472b6);
-            box-shadow: 0 0 16px rgba(192, 132, 252, 0.85);
-            transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
+        .cosmic-card { background: linear-gradient(145deg, rgba(21, 15, 46, 0.88), rgba(13, 9, 29, 0.94)); border: 1px solid rgba(168, 85, 247, 0.35); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 0 18px rgba(168, 85, 247, 0.08); backdrop-filter: blur(12px); }
+        .cosmic-card-active { border: 1px solid rgba(192, 132, 252, 0.65); box-shadow: 0 0 20px rgba(168, 85, 247, 0.25), inset 0 0 15px rgba(168, 85, 247, 0.12); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .cosmic-card-active:hover { transform: translateY(-4px); border-color: #e879f9; box-shadow: 0 10px 28px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(232, 121, 249, 0.18); }
+        .locked-card { background: linear-gradient(145deg, rgba(18, 16, 28, 0.85), rgba(11, 10, 18, 0.95)); border: 1px solid rgba(100, 116, 139, 0.25); filter: grayscale(85%); opacity: 0.72; transition: all 0.3s ease; }
+        .locked-card:hover { opacity: 0.88; }
+        .btn-portal { background: linear-gradient(90deg, #9333ea 0%, #c026d3 50%, #7e22ce 100%); background-size: 200% auto; color: #ffffff; box-shadow: 0 0 16px rgba(192, 38, 211, 0.45); transition: all 0.3s ease; }
+        .btn-portal:hover:not(:disabled) { background-position: right center; box-shadow: 0 0 24px rgba(232, 121, 249, 0.75); transform: scale(1.02); }
+        .btn-portal:disabled { background: #1e293b; color: #64748b; box-shadow: none; cursor: not-allowed; }
+        .xp-track { background: rgba(9, 6, 20, 0.85); border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8); }
+        .xp-fill { background: linear-gradient(90deg, #7e22ce, #c084fc, #f472b6); box-shadow: 0 0 16px rgba(192, 132, 252, 0.85); transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #070510; }
         ::-webkit-scrollbar-thumb { background: #3b276b; border-radius: 9999px; }
         ::-webkit-scrollbar-thumb:hover { background: #a855f7; }
-
-        @keyframes floatSlow {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
-        }
+        @keyframes floatSlow { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
         .animate-float { animation: floatSlow 4s ease-in-out infinite; }
-
-        .nav-btn-active {
-            background: linear-gradient(90deg, rgba(147, 51, 234, 0.85) 0%, rgba(219, 39, 119, 0.65) 100%);
-            color: #ffffff !important;
-            border: 1px solid rgba(216, 180, 254, 0.6);
-            box-shadow: 0 0 18px rgba(168, 85, 247, 0.4);
-        }
+        .nav-btn-active { background: linear-gradient(90deg, rgba(147, 51, 234, 0.85) 0%, rgba(219, 39, 119, 0.65) 100%); color: #ffffff !important; border: 1px solid rgba(216, 180, 254, 0.6); box-shadow: 0 0 18px rgba(168, 85, 247, 0.4); }
     </style>
 </head>
 <body class="selection:bg-purple-500 selection:text-white pb-20 lg:pb-0">
 
-    <!-- ================= TOAST NOTIFICATION CONTAINER ================= -->
+    <!-- ================= TOAST NOTIFICATION ================= -->
     <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
-    <!-- ================= LOGIN OVERLAY SCREEN ================= -->
+    <!-- ================= LOGIN SCREEN ================= -->
     <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#070510]/95 backdrop-blur-xl overflow-y-auto">
         <div class="cosmic-card cosmic-card-active rounded-3xl max-w-md w-full p-6 sm:p-8 relative overflow-hidden my-auto">
             <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-600/30 rounded-full blur-3xl pointer-events-none"></div>
@@ -197,13 +133,12 @@
         </div>
     </div>
 
-    <!-- ================= MAIN 3-COLUMN DASHBOARD LAYOUT ================= -->
+    <!-- ================= MAIN DASHBOARD ================= -->
     <div class="min-h-screen flex flex-col lg:flex-row max-w-[1650px] mx-auto">
 
-        <!-- 1. LEFT SIDEBAR NAVIGATION -->
+        <!-- 1. LEFT SIDEBAR -->
         <aside class="w-full lg:w-68 xl:w-72 cosmic-card border-b lg:border-b-0 lg:border-r border-purple-500/25 p-4 lg:p-6 flex flex-col justify-between flex-shrink-0">
             <div>
-                <!-- Brand Header -->
                 <div class="flex items-center justify-between lg:flex-col lg:items-center lg:text-center mb-4 lg:mb-7">
                     <div class="flex items-center gap-3 lg:flex-col">
                         <div class="w-11 h-11 lg:w-16 lg:h-16 rounded-2xl bg-gradient-to-br from-purple-700/60 to-fuchsia-700/40 border border-purple-400/50 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)]">
@@ -220,73 +155,50 @@
                     </div>
                 </div>
 
-                <!-- หมวดหมู่หลัก (ล็อกไว้ชั่วคราวยกเว้น Missions) -->
                 <div class="text-[11px] font-scifi uppercase tracking-wider text-purple-300/60 mb-2 hidden lg:block px-2">
                     Dimension Modules
                 </div>
                 <nav class="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0">
                     <button onclick="switchModule('missions')" id="nav-missions" class="module-nav-btn nav-btn-active flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap">
-                        <span class="flex items-center gap-2.5">
-                            <span class="text-base">🏠</span>
-                            <span>แบบฝึกหัด (Missions)</span>
-                        </span>
+                        <span class="flex items-center gap-2.5"><span class="text-base">🏠</span><span>แบบฝึกหัด (Missions)</span></span>
                         <span id="badge-nav-missions" class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-purple-950/90 border border-purple-400/40 text-[10px] font-scifi text-purple-200">6</span>
                     </button>
 
-                    <!-- ล็อกหมวดหมู่แกรมม่า -->
                     <button onclick="showToast('🔒 โมดูลคัมภีร์แกรมม่ากำลังอยู่ระหว่างการเตรียมเนื้อหา เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
-                        <span class="flex items-center gap-2.5">
-                            <span class="text-base grayscale">📘</span>
-                            <span>สรุปแกรมม่า (Grammar)</span>
-                        </span>
+                        <span class="flex items-center gap-2.5"><span class="text-base grayscale">📘</span><span>สรุปแกรมม่า (Grammar)</span></span>
                         <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
                     </button>
 
-                    <!-- ล็อกหมวดหมู่ฝึกพูดคำศัพท์ -->
                     <button onclick="showToast('🔒 โมดูล Voice Lab กำลังอยู่ระหว่างการเชื่อมต่อระบบเสียง เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
-                        <span class="flex items-center gap-2.5">
-                            <span class="text-base grayscale">🎙️</span>
-                            <span>ฝึกพูดคำศัพท์ (Voice Lab)</span>
-                        </span>
+                        <span class="flex items-center gap-2.5"><span class="text-base grayscale">🎙️</span><span>ฝึกพูดคำศัพท์ (Voice Lab)</span></span>
                         <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
                     </button>
 
-                    <!-- ล็อกหมวดหมู่จำลองข้อสอบ A-Level -->
                     <button onclick="showToast('🔒 สนามจำลองข้อสอบ A-Level กำลังรวบรวมคลังข้อสอบ เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
-                        <span class="flex items-center gap-2.5">
-                            <span class="text-base grayscale">🎯</span>
-                            <span>จำลองสอบ A-Level</span>
-                        </span>
+                        <span class="flex items-center gap-2.5"><span class="text-base grayscale">🎯</span><span>จำลองสอบ A-Level</span></span>
                         <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
                     </button>
 
-                    <!-- ล็อกหมวดหมู่แก้ข้อสอบกลางภาค -->
                     <button onclick="showToast('🔒 ระบบซ่อมข้อสอบกลางภาค จะเปิดให้ใช้งานหลังประกาศผลสอบ', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
-                        <span class="flex items-center gap-2.5">
-                            <span class="text-base grayscale">📊</span>
-                            <span>แก้ข้อสอบกลางภาค</span>
-                        </span>
+                        <span class="flex items-center gap-2.5"><span class="text-base grayscale">📊</span><span>แก้ข้อสอบกลางภาค</span></span>
                         <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
                     </button>
                 </nav>
 
                 <div class="hidden lg:block mt-5 pt-4 border-t border-purple-500/20 space-y-1.5">
                     <button onclick="openWardrobeModal()" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-purple-200 hover:text-white hover:bg-purple-900/40 transition">
-                        <span>🦊</span>
-                        <span>Avatar Skins (ตู้เสื้อผ้า)</span>
+                        <span>🦊</span><span>Avatar Skins (ตู้เสื้อผ้า)</span>
                     </button>
                     <button onclick="logoutPortal()" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-rose-300 hover:text-rose-200 hover:bg-rose-950/40 transition">
-                        <span>🚪</span>
-                        <span>Logout (ออกจากระบบ)</span>
+                        <span>🚪</span><span>Logout (ออกจากระบบ)</span>
                     </button>
                 </div>
             </div>
         </aside>
 
-        <!-- 2. CENTER MAIN CONTENT AREA -->
+        <!-- 2. CENTER MAIN CONTENT -->
         <main class="flex-grow p-4 sm:p-6 lg:p-7 space-y-6 overflow-y-auto min-w-0">
 
-            <!-- Hero Banner -->
             <section class="cosmic-card cosmic-card-active rounded-3xl p-5 sm:p-6 relative overflow-hidden">
                 <div class="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-5">
                     <div class="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 w-full xl:w-auto text-center sm:text-left">
@@ -302,16 +214,9 @@
                         <div class="space-y-1.5 flex-grow max-w-lg">
                             <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                                 <h2 id="student-name-display" class="text-xl sm:text-2xl font-bold text-white tracking-wide">กำลังโหลดข้อมูล...</h2>
-                                <span id="student-id-badge" class="px-2.5 py-0.5 rounded-md bg-purple-900/70 border border-purple-400/40 font-scifi text-xs text-purple-200">
-                                    ID: -----
-                                </span>
+                                <span id="student-id-badge" class="px-2.5 py-0.5 rounded-md bg-purple-900/70 border border-purple-400/40 font-scifi text-xs text-purple-200">ID: -----</span>
                             </div>
-
-                            <p class="text-xs text-purple-200/80">
-                                <span id="student-class-display">ชั้น ม.3/1</span>
-                                <span class="mx-2 text-purple-500">|</span>
-                                <span>ร.ร. เขาฉกรรจ์วิทยาคม</span>
-                            </p>
+                            <p class="text-xs text-purple-200/80"><span id="student-class-display">ชั้น ม.3/1</span><span class="mx-2 text-purple-500">|</span><span>ร.ร. เขาฉกรรจ์วิทยาคม</span></p>
 
                             <div class="pt-1.5 flex flex-col sm:flex-row items-center gap-3">
                                 <div class="px-3 py-1 rounded-xl bg-gradient-to-r from-purple-900 to-indigo-900 border border-purple-300/60 font-scifi font-bold text-xs sm:text-sm text-white flex-shrink-0">
@@ -330,7 +235,6 @@
                         </div>
                     </div>
 
-                    <!-- ปุ่มมุมขวาบน (เพิ่มปุ่ม Logout สำหรับหน้าจอมือถือ) -->
                     <div class="flex flex-row xl:flex-col items-center xl:items-end justify-center gap-3 border-t xl:border-t-0 border-purple-500/20 pt-3 xl:pt-0 w-full xl:w-auto">
                         <button onclick="refreshStudentData()" id="sync-btn" class="px-4 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-400/40 text-xs text-purple-200 flex items-center gap-1.5 transition">
                             <span>🔄 ซิงค์ข้อมูล</span>
@@ -342,7 +246,6 @@
                 </div>
             </section>
 
-            <!-- ================= MODULE 1: MISSIONS ================= -->
             <section id="module-missions" class="module-section cosmic-card rounded-3xl p-5 sm:p-7 space-y-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
@@ -350,13 +253,10 @@
                             <span class="text-2xl">🏠</span>
                             <h3 class="font-scifi text-xl sm:text-2xl font-bold text-white tracking-wide">Term 2 Missions</h3>
                         </div>
-                        <p class="text-xs sm:text-sm text-purple-200/75 mt-1">
-                            เริ่มต้นผจญภัยเทอม 2 นำรหัสลับจากการทำใบงาน/เว็บแอพมาปลดล็อกด่านถัดไป
-                        </p>
+                        <p class="text-xs sm:text-sm text-purple-200/75 mt-1">เริ่มต้นผจญภัยเทอม 2 นำรหัสลับจากการทำใบงาน/เว็บแอพมาปลดล็อกด่านถัดไป</p>
                     </div>
 
                     <div class="flex flex-col md:flex-row items-end md:items-center gap-2">
-                        <!-- ปุ่มกรองสถานะ -->
                         <div class="flex items-center gap-1 bg-cosmic-950/90 p-1 rounded-xl border border-purple-500/30">
                             <button onclick="setMissionFilter('ALL')" id="filter-ALL" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-600 text-white shadow">All</button>
                             <button onclick="setMissionFilter('UNLOCKED')" id="filter-UNLOCKED" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-medium text-purple-200">Unlocked</button>
@@ -365,7 +265,6 @@
                     </div>
                 </div>
                 
-                <!-- แถบเลือกบทเรียนของเทอม 2 -->
                 <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-purple-500/20 mb-2">
                     <span class="text-xs text-purple-300 font-medium whitespace-nowrap">เลือกบทเรียน (เทอม 2):</span>
                     <button onclick="setMissionUnitFilter('ALL')" id="unit-filter-ALL" class="unit-pill px-3 py-1 rounded-lg text-xs font-medium bg-fuchsia-600/80 text-white border border-fuchsia-400/50 whitespace-nowrap">ทุกบท</button>
@@ -378,25 +277,19 @@
             </section>
         </main>
 
-        <!-- 3. RIGHT SIDEBAR WIDGETS -->
+        <!-- 3. RIGHT SIDEBAR -->
         <aside class="w-full lg:w-80 xl:w-84 p-4 sm:p-6 lg:py-7 lg:pr-7 lg:pl-0 space-y-6 flex-shrink-0">
-            <!-- Widget: announcements -->
             <div class="cosmic-card rounded-3xl p-5 space-y-3">
-                <h4 class="font-scifi font-bold text-sm tracking-wider text-white flex items-center gap-2">
-                    <span>📢</span> SYSTEM ANNOUNCEMENT
-                </h4>
+                <h4 class="font-scifi font-bold text-sm tracking-wider text-white flex items-center gap-2"><span>📢</span> SYSTEM ANNOUNCEMENT</h4>
                 <div class="p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/90 to-indigo-950/80 border border-purple-400/30 flex items-start gap-3">
                     <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-lg flex-shrink-0">🚧</div>
                     <div class="text-xs space-y-1">
                         <p class="font-semibold text-purple-100">ประกาศต้อนรับเทอม 2</p>
-                        <p class="text-slate-300 leading-relaxed">
-                            ขณะนี้เปิดให้ผจญภัยเริ่มจาก <b>Unit 3 (M01)</b> เป็นต้นไป หมวดอื่นๆ จะทยอยปลดล็อกเมื่อเนื้อหาพร้อมครับ!
-                        </p>
+                        <p class="text-slate-300 leading-relaxed">ขณะนี้เปิดให้ผจญภัยเริ่มจาก <b>Unit 3 (M01)</b> เป็นต้นไป หมวดอื่นๆ จะทยอยปลดล็อกเมื่อเนื้อหาพร้อมครับ!</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Widget: Next Mission -->
             <div class="cosmic-card cosmic-card-active rounded-3xl p-5 space-y-4">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-fuchsia-400 animate-ping"></span>
@@ -405,12 +298,9 @@
                 <div id="next-mission-box" class="p-3.5 rounded-2xl bg-cosmic-950/70 border border-purple-500/30 space-y-3"></div>
             </div>
             
-            <!-- Widget: Skins -->
             <div class="cosmic-card rounded-3xl p-5 space-y-4">
                 <div class="flex items-center justify-between">
-                    <h4 class="font-scifi font-bold text-sm tracking-wider text-white flex items-center gap-2">
-                        <span>🦊</span> AVATAR SKINS
-                    </h4>
+                    <h4 class="font-scifi font-bold text-sm tracking-wider text-white flex items-center gap-2"><span>🦊</span> AVATAR SKINS</h4>
                     <button onclick="openWardrobeModal()" class="text-xs text-purple-300 hover:text-white underline">เปิดตู้เสื้อผ้า</button>
                 </div>
                 <div id="sidebar-skins-list" class="grid grid-cols-3 gap-2.5"></div>
@@ -418,27 +308,23 @@
         </aside>
     </div>
 
-    <!-- ================= MOBILE BOTTOM NAVIGATION BAR ================= -->
+    <!-- ================= MOBILE BOTTOM NAV ================= -->
     <div class="lg:hidden fixed bottom-0 inset-x-0 z-40 cosmic-card border-t border-purple-500/40 px-2 py-1.5 flex items-center justify-around">
         <button onclick="switchModule('missions')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-purple-200">
-            <span class="text-base">🏠</span>
-            <span>ภารกิจ</span>
+            <span class="text-base">🏠</span><span>ภารกิจ</span>
         </button>
         <button onclick="showToast('🔒 โมดูลสรุปแกรมม่ากำลังเตรียมเนื้อหา', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
-            <span class="text-base grayscale">📘</span>
-            <span>แกรมม่า</span>
+            <span class="text-base grayscale">📘</span><span>แกรมม่า</span>
         </button>
         <button onclick="showToast('🔒 โมดูล Voice Lab กำลังเตรียมระบบเสียง', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
-            <span class="text-base grayscale">🎙️</span>
-            <span>พูดคำศัพท์</span>
+            <span class="text-base grayscale">🎙️</span><span>พูดคำศัพท์</span>
         </button>
         <button onclick="showToast('🔒 สนามสอบจำลอง A-Level กำลังรวบรวมข้อสอบ', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
-            <span class="text-base grayscale">🎯</span>
-            <span>A-Level</span>
+            <span class="text-base grayscale">🎯</span><span>A-Level</span>
         </button>
     </div>
 
-    <!-- ================= MODAL 1: กรอกรหัสผ่านใบงาน (MISSION PASSCODE MODAL) ================= -->
+    <!-- ================= MISSION MODAL ================= -->
     <div id="mission-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
         <div class="cosmic-card cosmic-card-active rounded-3xl max-w-md w-full p-6 sm:p-7 relative">
             <button onclick="closeMissionModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200 flex items-center justify-center">✕</button>
@@ -469,18 +355,14 @@
         </div>
     </div>
 
-    <!-- ================= MODAL 2: ตู้เสื้อผ้าสกิน (WARDROBE) ================= -->
+    <!-- ================= WARDROBE MODAL ================= -->
     <div id="wardrobe-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
         <div class="cosmic-card cosmic-card-active rounded-3xl max-w-4xl w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeWardrobeModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200">✕</button>
             <h3 class="font-scifi text-xl sm:text-2xl font-bold text-white mb-6 flex items-center gap-2"><span>🦊</span> DIMENSION WARDROBE</h3>
             
-            <!-- Grid สำหรับสกินที่ระบบมีให้ -->
             <div id="wardrobe-modal-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6"></div>
 
-            <!-- ---------------------------------------------------- -->
-            <!-- ลูกเล่นใหม่: เพิ่มสกิน Custom Avatar ด้วยรูปภาพจากลิงก์ -->
-            <!-- ---------------------------------------------------- -->
             <div class="mt-6 pt-5 border-t border-purple-500/30">
                 <h4 class="font-scifi font-bold text-sm text-cyan-300 mb-3">✨ สร้างตัวละครของคุณเอง (Custom Hologram)</h4>
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -489,15 +371,14 @@
                 </div>
                 <p class="text-[10px] text-slate-400 mt-2">คำแนะนำ: คัดลอกลิงก์รูปภาพ (Image Address) ที่ไม่มีพื้นหลัง (Transparent PNG) สัดส่วน 1:1 เพื่อความสวยงาม</p>
             </div>
-            <!-- ---------------------------------------------------- -->
         </div>
     </div>
 
-    <!-- ================= MODAL 3: คู่มือครู ================= -->
+    <!-- ================= TEACHER GUIDE MODAL ================= -->
     <div id="teacher-guide-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
         <div class="cosmic-card cosmic-card-active rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative">
             <button onclick="closeTeacherGuideModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200">✕</button>
-            <h3 class="font-scifi text-lg font-bold text-white mb-4">📋 คู่มือทดสอบสำหรับครู</h3>
+            <h3 class="font-scifi text-lg font-bold text-white mb-4">📋 คู่มือใช้งานสำหรับครู</h3>
             <div class="text-xs text-slate-300 space-y-2 mb-4">
                 <p>คุณครูสามารถนำรหัสนักเรียนและรหัส PIN จาก Google Sheets (แผ่นงาน Users) มาล็อกอินเข้าใช้งานระบบได้เลยครับ</p>
                 <p>และสามารถนำรหัสผ่านมิติของแต่ละด่าน (จากแผ่นงาน Missions) มากรอกเพื่อดูการปลดล็อกสกินได้ทันที</p>
@@ -521,7 +402,7 @@
         };
 
         const MISSION_META_PRESETS = {
-            "M01": { unit: "Unit 3", subtitle: "ฟังเสียงและทำแบบฝึกหัด Fitness Plan (หน้า 34-35) ผ่านระบบ Web App", category: "Listening & Vocab", difficulty: "Medium", xp: 100, demoPasscode: "U3-222EC", artType: "corridor", isWebLink: true, linkUrl: "mission_3_1.html" },
+            "M01": { unit: "Unit 3", subtitle: "ฟังเสียงและทำแบบฝึกหัด Fitness Plan (หน้า 34-35) ผ่านระบบ Web App", category: "Listening & Vocab", difficulty: "Medium", xp: 100, demoPasscode: "U3-222EC", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_1.html" },
             "M02": { unit: "Unit 3", subtitle: "เติมคำเชื่อมเหตุการณ์เวลา (ใบงาน 3.2) เพื่อซ่อมแซมนาฬิกามิติ", category: "Reading", difficulty: "Medium", xp: 100, demoPasscode: "ECLIPSE02", artType: "book", isWebLink: false },
             "M03": { unit: "Unit 4", subtitle: "แก้โจทย์ไวยากรณ์ The Mirror Truth (ใบงาน 4.1)", category: "Grammar", difficulty: "Hard", xp: 100, demoPasscode: "DIMENSION03", artType: "mirror", isWebLink: false },
             "M04": { unit: "Unit 4", subtitle: "หาคำศัพท์จากบริบท The Final Portal (หนังสือหน้า 48)", category: "Vocabulary", difficulty: "Hard", xp: 100, demoPasscode: "INFINITY04", artType: "castle", isWebLink: false },
@@ -555,7 +436,6 @@
             }
         });
 
-        // ฟังก์ชันสำหรับเปิดปิดรหัสผ่าน (Toggle Password Visibility)
         function togglePasswordVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
@@ -768,12 +648,9 @@
                     </button>`;
             };
             
-            // แสดงเฉพาะสกินเริ่มต้น 3 ตัวแรกใน sidebar
             list.innerHTML = Object.values(SKIN_CATALOG).slice(0, 3).map(s => renderFn(s, false)).join(""); 
-            // แสดงทุกสกินใน Modal
             grid.innerHTML = Object.values(SKIN_CATALOG).map(s => renderFn(s, true)).join("");
             
-            // นำค่าลิงก์รูปภาพมาแสดงในช่อง Input ของ Custom Avatar
             const customInput = document.getElementById("custom-avatar-url");
             if (customInput) customInput.value = appState.customAvatarUrl || "";
         }
@@ -849,7 +726,6 @@
             document.getElementById("modal-mission-id").textContent = mId;
             document.getElementById("modal-mission-title").textContent = appState.missions.find(m=>m.missionId===mId)?.title;
             
-            // รีเซ็ตช่องใส่รหัสผ่านและปุ่มตา
             const passInput = document.getElementById("modal-passcode-input");
             passInput.value = "";
             passInput.type = "password";
