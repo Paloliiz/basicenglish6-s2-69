@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallel Dimension - Khaochakan Wittayakhom School</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                        scifi: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        cosmic: {
+                            950: '#070510',
+                            900: '#0d091d',
+                            800: '#150f2e',
+                            700: '#211844',
+                            600: '#2f2260'
+                        },
+                        neon: {
+                            purple: '#a855f7',
+                            light: '#d8b4fe',
+                            pink: '#ec4899',
+                            cyan: '#38bdf8',
+                            green: '#34d399'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #070510;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.16) 0%, transparent 40%),
+                radial-gradient(circle at 85% 20%, rgba(236, 72, 153, 0.14) 0%, transparent 45%),
+                radial-gradient(circle at 50% 85%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .cosmic-card {
+            background: linear-gradient(145deg, rgba(21, 15, 46, 0.88), rgba(13, 9, 29, 0.94));
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 0 18px rgba(168, 85, 247, 0.08);
+            backdrop-filter: blur(12px);
+        }
+
+        .cosmic-card-active {
+            border: 1px solid rgba(192, 132, 252, 0.65);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.25), inset 0 0 15px rgba(168, 85, 247, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cosmic-card-active:hover {
+            transform: translateY(-4px);
+            border-color: #e879f9;
+            box-shadow: 0 10px 28px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(232, 121, 249, 0.18);
+        }
+
+        .locked-card {
+            background: linear-gradient(145deg, rgba(18, 16, 28, 0.85), rgba(11, 10, 18, 0.95));
+            border: 1px solid rgba(100, 116, 139, 0.25);
+            filter: grayscale(85%);
+            opacity: 0.72;
+            transition: all 0.3s ease;
+        }
+
+        .locked-card:hover {
+            opacity: 0.88;
+        }
+
+        .btn-portal {
+            background: linear-gradient(90deg, #9333ea 0%, #c026d3 50%, #7e22ce 100%);
+            background-size: 200% auto;
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(192, 38, 211, 0.45);
+            transition: all 0.3s ease;
+        }
+
+        .btn-portal:hover:not(:disabled) {
+            background-position: right center;
+            box-shadow: 0 0 24px rgba(232, 121, 249, 0.75);
+            transform: scale(1.02);
+        }
+
+        .btn-portal:disabled {
+            background: #1e293b;
+            color: #64748b;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .xp-track {
+            background: rgba(9, 6, 20, 0.85);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .xp-fill {
+            background: linear-gradient(90deg, #7e22ce, #c084fc, #f472b6);
+            box-shadow: 0 0 16px rgba(192, 132, 252, 0.85);
+            transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #070510; }
+        ::-webkit-scrollbar-thumb { background: #3b276b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a855f7; }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float { animation: floatSlow 4s ease-in-out infinite; }
+
+        .nav-btn-active {
+            background: linear-gradient(90deg, rgba(147, 51, 234, 0.85) 0%, rgba(219, 39, 119, 0.65) 100%);
+            color: #ffffff !important;
+            border: 1px solid rgba(216, 180, 254, 0.6);
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.4);
+        }
+    </style>
+</head>
+<body class="selection:bg-purple-500 selection:text-white pb-20 lg:pb-0">
+
+    <!-- ================= TOAST NOTIFICATION CONTAINER ================= -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- ================= LOGIN OVERLAY SCREEN ================= -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#070510]/95 backdrop-blur-xl overflow-y-auto">
+        <div class="cosmic-card cosmic-card-active rounded-3xl max-w-md w-full p-6 sm:p-8 relative overflow-hidden my-auto">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-600/30 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-pink-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="text-center mb-6 relative">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-purple-950/80 border border-purple-400/50 shadow-[0_0_25px_rgba(168,85,247,0.4)] mb-3 animate-float">
+                    <svg class="w-11 h-11 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="12" cy="12" r="9" class="text-purple-500" stroke-dasharray="4 2"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9 4.03-9 9-9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" class="text-pink-400" d="M13 7L9 13h5l-1 4 4-6h-5l1-4z" />
+                    </svg>
+                </div>
+                <h1 class="font-scifi text-2xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-fuchsia-300 to-cyan-300">
+                    PARALLEL DIMENSION
+                </h1>
+                <p class="text-xs font-scifi tracking-widest text-purple-300/80 mt-1">TERM 2 • STUDY TODAY, LEVEL UP TOMORROW</p>
+                <p class="text-xs text-slate-400 mt-1">โรงเรียนเขาฉกรรจ์วิทยาคม (English Department)</p>
+            </div>
+
+            <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4 relative">
+                <div>
+                    <label class="block text-xs font-medium text-purple-200 mb-1.5">รหัสประจำตัวนักเรียน (Student ID)</label>
+                    <input type="text" id="login-student-id" required placeholder="เช่น 10001"
+                        class="w-full px-4 py-3 rounded-xl bg-cosmic-950/90 border border-purple-500/40 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30 font-scifi tracking-wider text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-purple-200 mb-1.5">รหัสผ่านมิติ (PIN 4 หลัก)</label>
+                    <input type="password" id="login-pin" required placeholder="เช่น 1234"
+                        class="w-full px-4 py-3 rounded-xl bg-cosmic-950/90 border border-purple-500/40 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30 font-scifi tracking-widest text-sm">
+                </div>
+
+                <div id="login-error-box" class="hidden p-3 rounded-xl bg-red-950/80 border border-red-500/50 text-xs text-red-200 leading-relaxed"></div>
+
+                <button type="submit" id="login-submit-btn" class="btn-portal w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
+                    <span>เชื่อมต่อเข้าสู่มิติ (Login)</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                </button>
+            </form>
+
+            <div class="mt-6 pt-5 border-t border-purple-500/20 space-y-2.5">
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                    <span>สถานะ API: <span class="text-emerald-400 font-medium">● เชื่อมต่อแล้ว</span></span>
+                    <button type="button" onclick="openTeacherGuideModal()" class="text-purple-300 hover:text-purple-200 underline">คู่มือครู</button>
+                </div>
+                <button type="button" onclick="startDemoMode()" class="w-full py-2.5 px-4 rounded-xl bg-purple-950/60 hover:bg-purple-900/70 border border-purple-400/30 text-purple-200 text-xs font-medium transition flex items-center justify-center gap-2">
+                    <span>✨ ทดลองระบบทันที (Demo Mode)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MAIN 3-COLUMN DASHBOARD LAYOUT ================= -->
+    <div class="min-h-screen flex flex-col lg:flex-row max-w-[1650px] mx-auto">
+
+        <!-- 1. LEFT SIDEBAR NAVIGATION -->
+        <aside class="w-full lg:w-68 xl:w-72 cosmic-card border-b lg:border-b-0 lg:border-r border-purple-500/25 p-4 lg:p-6 flex flex-col justify-between flex-shrink-0">
+            <div>
+                <!-- Brand Header -->
+                <div class="flex items-center justify-between lg:flex-col lg:items-center lg:text-center mb-4 lg:mb-7">
+                    <div class="flex items-center gap-3 lg:flex-col">
+                        <div class="w-11 h-11 lg:w-16 lg:h-16 rounded-2xl bg-gradient-to-br from-purple-700/60 to-fuchsia-700/40 border border-purple-400/50 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                            <span class="font-scifi font-black text-lg lg:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-300">PD</span>
+                        </div>
+                        <div>
+                            <h1 class="font-scifi font-bold text-base lg:text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-fuchsia-200 to-cyan-200">
+                                PARALLEL DIMENSION
+                            </h1>
+                            <p class="text-[10px] font-scifi tracking-widest text-purple-300/70 hidden sm:block">
+                                TERM 2 • STUDY TODAY, LEVEL UP TOMORROW
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- หมวดหมู่หลัก (ล็อกไว้ชั่วคราวยกเว้น Missions) -->
+                <div class="text-[11px] font-scifi uppercase tracking-wider text-purple-300/60 mb-2 hidden lg:block px-2">
+                    Dimension Modules
+                </div>
+                <nav class="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0">
+                    <button onclick="switchModule('missions')" id="nav-missions" class="module-nav-btn nav-btn-active flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap">
+                        <span class="flex items-center gap-2.5">
+                            <span class="text-base">🏠</span>
+                            <span>แบบฝึกหัด (Missions)</span>
+                        </span>
+                        <span id="badge-nav-missions" class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-purple-950/90 border border-purple-400/40 text-[10px] font-scifi text-purple-200">6</span>
+                    </button>
+
+                    <!-- ล็อกหมวดหมู่แกรมม่า -->
+                    <button onclick="showToast('🔒 โมดูลคัมภีร์แกรมม่ากำลังอยู่ระหว่างการเตรียมเนื้อหา เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
+                        <span class="flex items-center gap-2.5">
+                            <span class="text-base grayscale">📘</span>
+                            <span>สรุปแกรมม่า (Grammar)</span>
+                        </span>
+                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
+                    </button>
+
+                    <!-- ล็อกหมวดหมู่ฝึกพูดคำศัพท์ -->
+                    <button onclick="showToast('🔒 โมดูล Voice Lab กำลังอยู่ระหว่างการเชื่อมต่อระบบเสียง เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
+                        <span class="flex items-center gap-2.5">
+                            <span class="text-base grayscale">🎙️</span>
+                            <span>ฝึกพูดคำศัพท์ (Voice Lab)</span>
+                        </span>
+                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
+                    </button>
+
+                    <!-- ล็อกหมวดหมู่จำลองข้อสอบ A-Level -->
+                    <button onclick="showToast('🔒 สนามจำลองข้อสอบ A-Level กำลังรวบรวมคลังข้อสอบ เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
+                        <span class="flex items-center gap-2.5">
+                            <span class="text-base grayscale">🎯</span>
+                            <span>จำลองสอบ A-Level</span>
+                        </span>
+                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
+                    </button>
+
+                    <!-- ล็อกหมวดหมู่แก้ข้อสอบกลางภาค -->
+                    <button onclick="showToast('🔒 ระบบซ่อมข้อสอบกลางภาค จะเปิดให้ใช้งานหลังประกาศผลสอบ', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
+                        <span class="flex items-center gap-2.5">
+                            <span class="text-base grayscale">📊</span>
+                            <span>แก้ข้อสอบกลางภาค</span>
+                        </span>
+                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
+                    </button>
+                </nav>
+
+                <div class="hidden lg:block mt-5 pt-4 border-t border-purple-500/20 space-y-1.5">
+                    <button onclick="openWardrobeModal()" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-purple-200 hover:text-white hover:bg-purple-900/40 transition">
+                        <span>🦊</span>
+                        <span>Avatar Skins (ตู้เสื้อผ้า)</span>
+                    </button>
+                    <button onclick="logoutPortal()" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-rose-300 hover:text-rose-200 hover:bg-rose-950/40 transition">
+                        <span>🚪</span>
+                        <span>Logout (ออกจากระบบ)</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 2. CENTER MAIN CONTENT AREA -->
+        <main class="flex-grow p-4 sm:p-6 lg:p-7 space-y-6 overflow-y-auto min-w-0">
+
+            <!-- Hero Banner -->
+            <section class="cosmic-card cosmic-card-active rounded-3xl p-5 sm:p-6 relative overflow-hidden">
+                <div class="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-5">
+                    <div class="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 w-full xl:w-auto text-center sm:text-left">
+                        <div class="relative group flex-shrink-0">
+                            <div id="hero-avatar-container" onclick="openWardrobeModal()" title="คลิกเปลี่ยนสกิน"
+                                class="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-cosmic-900 border-2 border-purple-300 overflow-hidden cursor-pointer flex items-center justify-center shadow-2xl">
+                            </div>
+                            <button onclick="openWardrobeModal()" class="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-0.5 rounded-full bg-purple-950 border border-purple-300 text-[10px] font-medium text-purple-100 shadow-lg">
+                                ✨ <span id="current-skin-badge">Skin01</span>
+                            </button>
+                        </div>
+
+                        <div class="space-y-1.5 flex-grow max-w-lg">
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                <h2 id="student-name-display" class="text-xl sm:text-2xl font-bold text-white tracking-wide">กำลังโหลดข้อมูล...</h2>
+                                <span id="student-id-badge" class="px-2.5 py-0.5 rounded-md bg-purple-900/70 border border-purple-400/40 font-scifi text-xs text-purple-200">
+                                    ID: -----
+                                </span>
+                            </div>
+
+                            <p class="text-xs text-purple-200/80">
+                                <span id="student-class-display">ชั้น ม.3/1</span>
+                                <span class="mx-2 text-purple-500">|</span>
+                                <span>ร.ร. เขาฉกรรจ์วิทยาคม</span>
+                            </p>
+
+                            <div class="pt-1.5 flex flex-col sm:flex-row items-center gap-3">
+                                <div class="px-3 py-1 rounded-xl bg-gradient-to-r from-purple-900 to-indigo-900 border border-purple-300/60 font-scifi font-bold text-xs sm:text-sm text-white flex-shrink-0">
+                                    Lv. <span id="student-level-display">1</span>
+                                </div>
+                                <div class="w-full sm:w-64 md:w-72">
+                                    <div class="flex justify-between text-[10px] font-scifi text-purple-200 mb-1">
+                                        <span>PORTAL ENERGY</span>
+                                        <span><strong id="student-xp-display" class="text-fuchsia-300">0</strong> / <span id="next-level-xp-display">500</span> XP</span>
+                                    </div>
+                                    <div class="w-full h-3 xp-track rounded-full overflow-hidden p-0.5">
+                                        <div id="xp-bar-fill" class="xp-fill h-full rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ปุ่มมุมขวาบน (เพิ่มปุ่ม Logout สำหรับหน้าจอมือถือ) -->
+                    <div class="flex flex-row xl:flex-col items-center xl:items-end justify-center gap-3 border-t xl:border-t-0 border-purple-500/20 pt-3 xl:pt-0 w-full xl:w-auto">
+                        <button onclick="refreshStudentData()" id="sync-btn" class="px-4 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-400/40 text-xs text-purple-200 flex items-center gap-1.5 transition">
+                            <span>🔄 ซิงค์ข้อมูล</span>
+                        </button>
+                        <button onclick="logoutPortal()" class="px-4 py-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-400/40 text-xs text-rose-200 flex items-center gap-1.5 transition lg:hidden">
+                            <span>🚪 ออกจากระบบ</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= MODULE 1: MISSIONS ================= -->
+            <section id="module-missions" class="module-section cosmic-card rounded-3xl p-5 sm:p-7 space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">🏠</span>
+                            <h3 class="font-scifi text-xl sm:text-2xl font-bold text-white tracking-wide">Term 2 Missions</h3>
+                        </div>
+                        <p class="text-xs sm:text-sm text-purple-200/75 mt-1">
+                            เริ่มต้นผจญภัยเทอม 2 นำรหัสลับจากการทำใบงาน/เว็บแอพมาปลดล็อกด่านถัดไป
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row items-end md:items-center gap-2">
+                        <!-- ปุ่มกรองสถานะ -->
+                        <div class="flex items-center gap-1 bg-cosmic-950/90 p-1 rounded-xl border border-purple-500/30">
+                            <button onclick="setMissionFilter('ALL')" id="filter-ALL" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-600 text-white shadow">All</button>
+                            <button onclick="setMissionFilter('UNLOCKED')" id="filter-UNLOCKED" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-medium text-purple-200">Unlocked</button>
+                            <button onclick="setMissionFilter('LOCKED')" id="filter-LOCKED" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-medium text-purple-200">Locked</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- แถบเลือกบทเรียนของเทอม 2 -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-purple-500/20 mb-2">
+                    <span class="text-xs text-purple-300 font-medium whitespace-nowrap">เลือกบทเรียน (เทอม 2):</span>
+                    <button onclick="setMissionUnitFilter('ALL')" id="unit-filter-ALL" class="unit-pill px-3 py-1 rounded-lg text-xs font-medium bg-fuchsia-600/80 text-white border border-fuchsia-400/50 whitespace-nowrap">ทุกบท</button>
+                    <button onclick="setMissionUnitFilter('Unit 3')" id="unit-filter-Unit 3" class="unit-pill px-3 py-1 rounded-lg text-xs font-medium bg-cosmic-950 text-purple-200 border border-purple-500/30 whitespace-nowrap">Unit 3</button>
+                    <button onclick="setMissionUnitFilter('Unit 4')" id="unit-filter-Unit 4" class="unit-pill px-3 py-1 rounded-lg text-xs font-medium bg-cosmic-950 text-purple-200 border border-purple-500/30 whitespace-nowrap">Unit 4</button>
+                    <button onclick="setMissionUnitFilter('Unit 5')" id="unit-filter-Unit 5" class="unit-pill px-3 py-1 rounded-lg text-xs font-medium bg-cosmic-950 text-purple-200 border border-purple-500/30 whitespace-nowrap">Unit 5</button>
+                </div>
+
+                <div id="missions-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+            </section>
+        </main>
+
+        <!-- 3. RIGHT SIDEBAR WIDGETS -->
+        <aside class="w-full lg:w-80 xl:w-84 p-4 sm:p-6 lg:py-7 lg:pr-7 lg:pl-0 space-y-6 flex-shrink-0">
+            <!-- Widget: announcements -->
+            <div class="cosmic-card rounded-3xl p-5 space-y-3">
+                <h4 class="font-scifi font-bold text-sm tracking-wider text-white flex items-center gap-2">
+                    <span>📢</span> SYSTEM ANNOUNCEMENT
+                </h4>
+                <div class="p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/90 to-indigo-950/80 border border-purple-400/30 flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-lg flex-shrink-0">🚧</div>
+                    <div class="text-xs space-y-1">
+                        <p class="font-semibold text-purple-100">ประกาศต้อนรับเทอม 2</p>
+                        <p class="text-slate-300 leading-relaxed">
+                            ขณะนี้เปิดให้ผจญภัยเริ่มจาก <b>Unit 3 (M01)</b> เป็นต้นไป หมวดอื่นๆ จะทยอยปลดล็อกเมื่อเนื้อหาพร้อมครับ!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget: Next Mission -->
+            <div class="cosmic-card cosmic-card-active rounded-3xl p-5 space-y-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-fuchsia-400 animate-ping"></span>
+                    <h4 class="font-scifi font-bold text-sm tracking-wider text-white">NEXT MISSION</h4>
+                </div>
+                <div id="next-mission-box" class="p-3.5 rounded-2xl bg-cosmic-950/70 border border-purple-500/30 space-y-3"></div>
+            </div>
+            
+            <!-- Widget: Skins -->
+            <div class="cosmic-card rounded-3xl p-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-scifi font-bold text-sm tracking-wider text-white flex items-center gap-2">
+                        <span>🦊</span> AVATAR SKINS
+                    </h4>
+                    <button onclick="openWardrobeModal()" class="text-xs text-purple-300 hover:text-white underline">เปิดตู้เสื้อผ้า</button>
+                </div>
+                <div id="sidebar-skins-list" class="grid grid-cols-3 gap-2.5"></div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ================= MOBILE BOTTOM NAVIGATION BAR ================= -->
+    <div class="lg:hidden fixed bottom-0 inset-x-0 z-40 cosmic-card border-t border-purple-500/40 px-2 py-1.5 flex items-center justify-around">
+        <button onclick="switchModule('missions')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-purple-200">
+            <span class="text-base">🏠</span>
+            <span>ภารกิจ</span>
+        </button>
+        <button onclick="showToast('🔒 โมดูลสรุปแกรมม่ากำลังเตรียมเนื้อหา', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
+            <span class="text-base grayscale">📘</span>
+            <span>แกรมม่า</span>
+        </button>
+        <button onclick="showToast('🔒 โมดูล Voice Lab กำลังเตรียมระบบเสียง', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
+            <span class="text-base grayscale">🎙️</span>
+            <span>พูดคำศัพท์</span>
+        </button>
+        <button onclick="showToast('🔒 สนามสอบจำลอง A-Level กำลังรวบรวมข้อสอบ', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
+            <span class="text-base grayscale">🎯</span>
+            <span>A-Level</span>
+        </button>
+    </div>
+
+    <!-- ================= MODAL 1: กรอกรหัสผ่านใบงาน (MISSION PASSCODE MODAL) ================= -->
+    <div id="mission-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="cosmic-card cosmic-card-active rounded-3xl max-w-md w-full p-6 sm:p-7 relative">
+            <button onclick="closeMissionModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200 flex items-center justify-center">✕</button>
+
+            <div class="flex items-center gap-2 mb-2">
+                <span id="modal-mission-id" class="px-2.5 py-1 rounded-lg bg-purple-900 border border-purple-400 font-scifi text-xs text-purple-200 font-bold">M01</span>
+                <span class="text-xs text-emerald-300 font-medium">● ปลดล็อกรับ XP</span>
+            </div>
+
+            <h3 id="modal-mission-title" class="text-xl sm:text-2xl font-bold text-white mb-1">Mission Title</h3>
+            
+            <form onsubmit="submitMissionPasscode(event)" class="space-y-4 mt-5">
+                <div>
+                    <label class="block text-xs font-medium text-purple-200 mb-2">🔑 กรอกรหัสลับที่ได้จากใบงาน / เว็บภารกิจย่อย</label>
+                    <input type="text" id="modal-passcode-input" required placeholder="เช่น U3-222EC"
+                        class="w-full px-4 py-3.5 rounded-xl bg-cosmic-950 border-2 border-purple-500/50 text-center font-scifi text-base sm:text-lg tracking-widest text-white uppercase focus:outline-none focus:border-fuchsia-400">
+                </div>
+                <div id="modal-error-msg" class="hidden p-3 rounded-xl bg-rose-950/90 border border-rose-500/50 text-xs text-rose-200 text-center"></div>
+                <button type="submit" id="modal-submit-btn" class="w-full btn-portal py-3 rounded-xl font-semibold text-sm">
+                    ⚡ ยืนยันรหัสปลดล็อกมิติ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 2: ตู้เสื้อผ้าสกิน (WARDROBE) ================= -->
+    <div id="wardrobe-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="cosmic-card cosmic-card-active rounded-3xl max-w-4xl w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeWardrobeModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200">✕</button>
+            <h3 class="font-scifi text-xl sm:text-2xl font-bold text-white mb-6 flex items-center gap-2"><span>🦊</span> DIMENSION WARDROBE</h3>
+            
+            <!-- Grid สำหรับสกินที่ระบบมีให้ -->
+            <div id="wardrobe-modal-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6"></div>
+
+            <!-- ---------------------------------------------------- -->
+            <!-- ลูกเล่นใหม่: เพิ่มสกิน Custom Avatar ด้วยรูปภาพจากลิงก์ -->
+            <!-- ---------------------------------------------------- -->
+            <div class="mt-6 pt-5 border-t border-purple-500/30">
+                <h4 class="font-scifi font-bold text-sm text-cyan-300 mb-3">✨ สร้างตัวละครของคุณเอง (Custom Hologram)</h4>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="url" id="custom-avatar-url" placeholder="วางลิงก์รูปภาพ (เช่น PNG จาก Canva หรือ Imgur)" class="flex-grow px-4 py-2.5 rounded-xl bg-cosmic-950 border border-purple-500/40 text-xs text-white focus:border-cyan-400 focus:outline-none">
+                    <button onclick="saveCustomAvatar()" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold whitespace-nowrap shadow-[0_0_10px_rgba(6,182,212,0.4)]">บันทึก & สวมใส่รูปนี้</button>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-2">คำแนะนำ: คัดลอกลิงก์รูปภาพ (Image Address) ที่ไม่มีพื้นหลัง (Transparent PNG) สัดส่วน 1:1 เพื่อความสวยงาม</p>
+            </div>
+            <!-- ---------------------------------------------------- -->
+        </div>
+    </div>
+
+    <!-- ================= MODAL 3: คู่มือครู ================= -->
+    <div id="teacher-guide-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="cosmic-card cosmic-card-active rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative">
+            <button onclick="closeTeacherGuideModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200">✕</button>
+            <h3 class="font-scifi text-lg font-bold text-white mb-4">📋 คู่มือทดสอบสำหรับครู</h3>
+            <div class="text-xs text-slate-300 space-y-2 mb-4">
+                <p>กดเปิด <b>โหมดทดลอง (Demo Mode)</b> ด้านล่าง เพื่อจำลองการเข้าระบบในฐานะนักเรียน</p>
+                <p>คุณครูสามารถคลิกที่ปุ่มภารกิจ และกรอกรหัสทดสอบเพื่อดูการปลดล็อกสกินได้เลยครับ</p>
+            </div>
+            <button onclick="startDemoMode(); closeTeacherGuideModal();" class="w-full btn-portal py-3 rounded-xl font-semibold">✨ เปิดโหมดทดลอง</button>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+
+        // คลังสกินสำเร็จรูป (เพิ่ม Skin06, Skin07 และ Skin99 สำหรับ Custom)
+        const SKIN_CATALOG = {
+            "Skin01": { id: "Skin01", name: "Skin 01: Rookie", subtitle: "ชุดนักเรียนเขาฉกรรจ์วิทยาคม", unlockHint: "ปลดล็อกตั้งแต่เริ่มต้น", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#3b276b"/><circle cx="100" cy="100" r="40" fill="#f8fafc"/></svg>` },
+            "Skin02": { id: "Skin02", name: "Skin 02: Explorer", subtitle: "แจ็คเก็ตเรโทรยุค 80s", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M01", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#581c87"/><circle cx="100" cy="100" r="40" fill="#f8fafc"/></svg>` },
+            "Skin03": { id: "Skin03", name: "Skin 03: Mastermind", subtitle: "ชุดนักสำรวจมิติพิศวง", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M03", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#090514"/><circle cx="100" cy="100" r="40" fill="#faf5ff"/></svg>` },
+            "Skin04": { id: "Skin04", name: "Skin 04: Cyber Ninja", subtitle: "นินจาไซเบอร์แห่งมิติเวลา", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M05", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#064e3b"/><circle cx="100" cy="100" r="40" fill="#34d399"/><path d="M70,100 L130,100" stroke="#022c22" stroke-width="8"/></svg>` },
+            "Skin05": { id: "Skin05", name: "Skin 05: Galactic Scholar", subtitle: "นักปราชญ์จักรวาลคู่ขนาน", unlockHint: "ปลดล็อกเมื่อเคลียร์ทุกด่าน", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#172554"/><circle cx="100" cy="100" r="40" fill="#fef08a"/><circle cx="100" cy="100" r="30" fill="#ffffff" opacity="0.8"/></svg>` },
+            "Skin06": { id: "Skin06", name: "Skin 06: Time Warden", subtitle: "ผู้พิทักษ์กาลเวลา", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M02", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#451a03"/><circle cx="100" cy="100" r="45" fill="none" stroke="#fef08a" stroke-width="6" stroke-dasharray="10 5"/><path d="M100,65 L100,100 L120,115" stroke="#fef08a" stroke-width="5" fill="none"/></svg>` },
+            "Skin07": { id: "Skin07", name: "Skin 07: Void Walker", subtitle: "ผู้ท่องความว่างเปล่า", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M04", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#000000"/><circle cx="100" cy="100" r="40" fill="#1e293b"/><rect x="70" y="80" width="15" height="5" fill="#ec4899"/><rect x="110" y="70" width="20" height="4" fill="#06b6d4"/></svg>` },
+            "Skin99": { id: "Skin99", name: "Custom Avatar", subtitle: "ตัวละครที่คุณสร้างเอง", unlockHint: "ปลดล็อกเมื่อใส่ลิงก์รูปภาพ", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#070510"/><rect x="40" y="40" width="120" height="120" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="8 8"/><circle cx="100" cy="100" r="20" fill="#38bdf8" opacity="0.5" class="animate-ping"/></svg>` }
+        };
+
+        // ข้อมูลภารกิจเทอม 2 เริ่มต้นที่ Unit 3 (M01)
+        const MISSION_META_PRESETS = {
+            "M01": { unit: "Unit 3", subtitle: "ฟังเสียงและทำแบบฝึกหัด Fitness Plan (หน้า 34-35) ผ่านระบบ Web App", category: "Listening & Vocab", difficulty: "Medium", xp: 100, demoPasscode: "U3-222EC", artType: "corridor", isWebLink: true, linkUrl: "mission_3_1.html" },
+            "M02": { unit: "Unit 3", subtitle: "เติมคำเชื่อมเหตุการณ์เวลา (ใบงาน 3.2) เพื่อซ่อมแซมนาฬิกามิติ", category: "Reading", difficulty: "Medium", xp: 100, demoPasscode: "ECLIPSE02", artType: "book", isWebLink: false },
+            "M03": { unit: "Unit 4", subtitle: "แก้โจทย์ไวยากรณ์ The Mirror Truth (ใบงาน 4.1)", category: "Grammar", difficulty: "Hard", xp: 100, demoPasscode: "DIMENSION03", artType: "mirror", isWebLink: false },
+            "M04": { unit: "Unit 4", subtitle: "หาคำศัพท์จากบริบท The Final Portal (หนังสือหน้า 48)", category: "Vocabulary", difficulty: "Hard", xp: 100, demoPasscode: "INFINITY04", artType: "castle", isWebLink: false },
+            "M05": { unit: "Unit 5", subtitle: "ฝึกฟังสำเนียงต้นฉบับ Cyber Core (หน้า 55)", category: "Listening", difficulty: "Medium", xp: 120, demoPasscode: "CYBER05", artType: "corridor", isWebLink: false },
+            "M06": { unit: "Unit 5", subtitle: "อ่านสรุปใจความสำคัญเพื่อเผชิญหน้ากับ Galactic Scholar", category: "Reading", difficulty: "Boss", xp: 200, demoPasscode: "SCHOLAR06", artType: "castle", isWebLink: false }
+        };
+
+        let appState = {
+            isDemoMode: false,
+            activeModule: "missions",
+            studentPin: "",
+            currentFilter: "ALL",
+            currentUnitFilter: "ALL",
+            activeModalMissionId: null,
+            customAvatarUrl: localStorage.getItem("pd_custom_avatar") || "",
+            user: null,
+            missions: []
+        };
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedSession = localStorage.getItem("pd_portal_session");
+            if (savedSession) {
+                try {
+                    const parsed = JSON.parse(savedSession);
+                    appState = {...appState, ...parsed};
+                    appState.customAvatarUrl = localStorage.getItem("pd_custom_avatar") || "";
+                    document.getElementById("login-screen").classList.add("hidden");
+                    renderAllModules();
+                } catch (e) {
+                    localStorage.removeItem("pd_portal_session");
+                }
+            }
+        });
+
+        function getSkinVisualHtml(skinId) {
+            if (skinId === "Skin99" && appState.customAvatarUrl) {
+                return `<img src="${appState.customAvatarUrl}" alt="Custom Avatar" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150/090514/38bdf8?text=ERROR'; showToast('ลิงก์รูปภาพไม่ถูกต้อง หรือรูปนี้ป้องกันการแสดงผล', 'error');">`;
+            }
+            const skinObj = SKIN_CATALOG[skinId] || SKIN_CATALOG["Skin01"];
+            return skinObj.svg;
+        }
+
+        function openExternalMission(missionId) {
+            const preset = MISSION_META_PRESETS[missionId];
+            if(preset && preset.isWebLink && preset.linkUrl) {
+                const sid = appState.user ? appState.user.studentId : "GUEST";
+                window.open(preset.linkUrl + '?sid=' + sid, '_blank');
+            }
+        }
+
+        async function callPortalApi(payload) {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+            return await response.json();
+        }
+
+        async function handleLoginSubmit(event) {
+            event.preventDefault();
+            const sid = document.getElementById("login-student-id").value.trim();
+            const pin = document.getElementById("login-pin").value.trim();
+            const btn = document.getElementById("login-submit-btn");
+            const err = document.getElementById("login-error-box");
+            err.classList.add("hidden"); btn.disabled = true; btn.innerHTML = "กำลังตรวจสอบ...";
+
+            try {
+                const res = await callPortalApi({ action: "login", studentId: sid, pin: pin });
+                if (res.status === "success") {
+                    appState.isDemoMode = false; appState.studentPin = pin;
+                    appState.user = res.user; appState.missions = res.missions || [];
+                    if (appState.customAvatarUrl && !appState.user.unlockedSkins.includes("Skin99")) {
+                        appState.user.unlockedSkins.push("Skin99"); // ให้ใช้สกินสร้างเองได้ถ้าเคยเซฟลิงก์ไว้
+                    }
+                    saveSession();
+                    document.getElementById("login-screen").classList.add("hidden");
+                    renderAllModules();
+                    showToast(`ยินดีต้อนรับ ${res.user.name} เข้าสู่มิติคู่ขนาน!`, "success");
+                } else {
+                    err.innerHTML = `⚠️ ${res.message}`; err.classList.remove("hidden");
+                }
+            } catch (e) {
+                err.innerHTML = `⚠️ เชื่อมต่อขัดข้อง กดเปิดโหมดทดลองได้เลยครับ`; err.classList.remove("hidden");
+            } finally {
+                btn.disabled = false; btn.innerHTML = "เชื่อมต่อเข้าสู่มิติ (Login)";
+            }
+        }
+
+        function startDemoMode() {
+            appState.isDemoMode = true; appState.studentPin = "1234";
+            appState.user = { studentId: "10001", name: "น.ส. รักเรียน เพียรศึกษา", className: "ม.3/1", currentSkin: "Skin02", totalXp: 400, unlockedSkins: ["Skin01", "Skin02"] };
+            if (appState.customAvatarUrl) appState.user.unlockedSkins.push("Skin99");
+            
+            // จำลองว่ากำลังอยู่ที่ด่าน M01
+            appState.missions = [
+                { missionId: "M01", title: "Unit 3: Fitness Plan", prerequisite: "", rewardSkin: "Skin02", state: "UNLOCKED" },
+                { missionId: "M02", title: "Unit 3: The Broken Clock", prerequisite: "M01", rewardSkin: "Skin06", state: "LOCKED" },
+                { missionId: "M03", title: "Unit 4: The Mirror Truth", prerequisite: "M02", rewardSkin: "Skin03", state: "LOCKED" },
+                { missionId: "M04", title: "Unit 4: The Final Portal", prerequisite: "M03", rewardSkin: "Skin07", state: "LOCKED" },
+                { missionId: "M05", title: "Unit 5: Cyber Core", prerequisite: "M04", rewardSkin: "Skin04", state: "LOCKED" },
+                { missionId: "M06", title: "Unit 5: Galactic Scholar", prerequisite: "M05", rewardSkin: "Skin05", state: "LOCKED" }
+            ];
+            
+            saveSession();
+            document.getElementById("login-screen").classList.add("hidden");
+            renderAllModules();
+            showToast("เข้าสู่โหมดทดลอง (Demo Mode) เริ่มลุยภารกิจแรกกันเลย!", "info");
+        }
+
+        function logoutPortal() {
+            localStorage.removeItem("pd_portal_session");
+            location.reload();
+        }
+
+        async function refreshStudentData() {
+            if (appState.isDemoMode) return showToast("โหมดทดลอง: อัปเดตข้อมูลจำลองสำเร็จ", "success");
+            showToast("กำลังซิงค์...", "info");
+            try {
+                const res = await callPortalApi({ action: "login", studentId: appState.user.studentId, pin: appState.studentPin });
+                if (res.status === "success") {
+                    appState.user = res.user; appState.missions = res.missions || [];
+                    if (appState.customAvatarUrl && !appState.user.unlockedSkins.includes("Skin99")) {
+                        appState.user.unlockedSkins.push("Skin99");
+                    }
+                    saveSession(); renderAllModules();
+                    showToast("ซิงค์สำเร็จ!", "success");
+                }
+            } catch(e) { showToast("ซิงค์ล้มเหลว", "error"); }
+        }
+
+        function saveSession() {
+            localStorage.setItem("pd_portal_session", JSON.stringify(appState));
+        }
+
+        function renderAllModules() {
+            renderProfileHeader(); renderMissionsGrid(); renderRightWidgets(); renderWardrobeItems();
+        }
+
+        function renderProfileHeader() {
+            if (!appState.user) return;
+            document.getElementById("student-name-display").textContent = appState.user.name;
+            document.getElementById("student-id-badge").textContent = `ID: ${appState.user.studentId}`;
+            document.getElementById("student-class-display").textContent = appState.user.className;
+            
+            const totalXp = Number(appState.user.totalXp) || 0;
+            const level = Math.floor(totalXp / 500) + 1;
+            const xpPercent = Math.min(100, Math.round(((totalXp % 500) / 500) * 100));
+            
+            document.getElementById("student-level-display").textContent = level;
+            document.getElementById("student-xp-display").textContent = totalXp;
+            document.getElementById("next-level-xp-display").textContent = level * 500;
+            document.getElementById("xp-bar-fill").style.width = `${xpPercent}%`;
+            
+            const curSkin = appState.user.currentSkin || "Skin01";
+            document.getElementById("hero-avatar-container").innerHTML = getSkinVisualHtml(curSkin);
+            document.getElementById("current-skin-badge").textContent = SKIN_CATALOG[curSkin].name;
+        }
+
+        function renderMissionsGrid() {
+            const grid = document.getElementById("missions-grid");
+            const missions = appState.missions || [];
+            
+            const filtered = missions.filter(m => {
+                const preset = MISSION_META_PRESETS[m.missionId] || { unit: "Unit 3" };
+                const matchStatus = appState.currentFilter === "ALL" || m.state === appState.currentFilter;
+                const matchUnit = appState.currentUnitFilter === "ALL" || preset.unit === appState.currentUnitFilter;
+                return matchStatus && matchUnit;
+            });
+
+            grid.innerHTML = filtered.map((m, idx) => {
+                const preset = MISSION_META_PRESETS[m.missionId] || { unit: "Unit 3", subtitle: "ภารกิจ", category: "Mission", difficulty: "Normal", xp: 100 };
+                const isLocked = m.state === "LOCKED";
+                const isUnlocked = m.state === "UNLOCKED";
+                const isCompleted = m.state === "COMPLETED";
+
+                let btnHtml = "";
+                if (isCompleted) {
+                    btnHtml = `<span class="text-emerald-400 text-xs font-bold">ผ่านด่านแล้ว ✓</span>`;
+                } else if (isUnlocked) {
+                    if (preset.isWebLink) {
+                        btnHtml = `
+                            <div class="flex flex-col gap-2 w-full sm:w-auto">
+                                <button onclick="openExternalMission('${m.missionId}')" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold border border-purple-400 transition shadow-[0_0_10px_rgba(168,85,247,0.4)]">
+                                    🚀 ทำภารกิจหน้าเว็บ
+                                </button>
+                                <button onclick="openMissionModal('${m.missionId}')" class="btn-portal px-4 py-2 rounded-xl text-xs font-semibold">
+                                    🔑 ส่งรหัสรับ XP
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        btnHtml = `
+                            <button onclick="openMissionModal('${m.missionId}')" class="btn-portal px-4 py-2 rounded-xl text-xs font-semibold w-full sm:w-auto">
+                                🔑 ส่งรหัสลับ
+                            </button>
+                        `;
+                    }
+                } else {
+                    btnHtml = `<span class="text-slate-500 text-[11px]">ต้องผ่านด่าน ${m.prerequisite || 'ก่อนหน้า'} ก่อน</span>`;
+                }
+
+                const rewardBadge = m.rewardSkin ? `<span class="px-2 py-0.5 rounded bg-pink-900/80 border border-pink-400/50 text-[9px] text-pink-200">🎁 แจก ${m.rewardSkin}</span>` : "";
+
+                return `
+                    <article class="${isLocked ? 'locked-card' : 'cosmic-card cosmic-card-active'} rounded-2xl overflow-hidden flex flex-col p-3.5">
+                        <div class="h-28 bg-cosmic-900 rounded-xl mb-3 border border-purple-500/30 flex items-center justify-center relative">
+                            ${isLocked ? '<span class="text-2xl">🔒</span>' : '<span class="text-2xl">🪐</span>'}
+                            <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-cosmic-950 border border-purple-400/40 text-[10px] text-purple-200">${m.missionId}</div>
+                            <div class="absolute top-2 right-2">${rewardBadge}</div>
+                        </div>
+                        <div class="space-y-1 mb-3">
+                            <h4 class="font-bold text-white text-sm line-clamp-1">${m.title}</h4>
+                            <p class="text-xs text-slate-300 line-clamp-2 leading-relaxed">${preset.subtitle}</p>
+                        </div>
+                        <div class="mt-auto pt-3 border-t border-purple-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <span class="font-scifi text-xs font-bold text-amber-300">⭐ +${preset.xp} XP</span>
+                            ${btnHtml}
+                        </div>
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function renderRightWidgets() {
+            const missions = appState.missions || [];
+            const nextMission = missions.find(m => m.state === "UNLOCKED");
+            const box = document.getElementById("next-mission-box");
+            if (nextMission) {
+                const preset = MISSION_META_PRESETS[nextMission.missionId] || { xp: 100 };
+                box.innerHTML = `
+                    <div class="flex justify-between items-center mb-2"><span class="px-2 py-0.5 rounded bg-purple-900 text-xs">${nextMission.missionId}</span><span class="text-xs text-amber-300">⭐ +${preset.xp} XP</span></div>
+                    <p class="font-bold text-white text-sm mb-3">${nextMission.title}</p>
+                    <button onclick="document.getElementById('nav-missions').scrollIntoView({behavior: 'smooth'})" class="w-full btn-portal py-2 rounded-xl text-xs font-semibold">ลุยภารกิจเลย</button>
+                `;
+            } else {
+                box.innerHTML = `<p class="text-xs text-center text-slate-400 py-3">ยังไม่มีภารกิจที่เปิดอยู่</p>`;
+            }
+        }
+
+        function renderWardrobeItems() {
+            const list = document.getElementById("sidebar-skins-list");
+            const grid = document.getElementById("wardrobe-modal-grid");
+            const unlocked = (appState.user && appState.user.unlockedSkins) || ["Skin01"];
+            const curSkin = (appState.user && appState.user.currentSkin) || "Skin01";
+            
+            const renderFn = (skin, showName = true) => {
+                const isUnl = unlocked.includes(skin.id);
+                const isEq = curSkin === skin.id;
+                return `
+                    <button onclick="${isUnl ? `selectSkin('${skin.id}')` : `showToast('🔒 สกินนี้ถูกล็อก: ${skin.unlockHint}', 'info')`}" 
+                        class="p-2 rounded-xl border flex flex-col items-center justify-between gap-2 h-full ${isEq ? 'bg-purple-900/60 border-fuchsia-400' : isUnl ? 'bg-cosmic-950/70 border-purple-500/30 hover:border-purple-400' : 'bg-cosmic-950/40 border-slate-800 grayscale opacity-50'}">
+                        <div class="w-14 h-14 rounded-full overflow-hidden bg-cosmic-900 border border-purple-400/50 flex-shrink-0">${getSkinVisualHtml(skin.id)}</div>
+                        <div class="flex flex-col items-center">
+                            ${showName ? `<span class="text-[10px] text-white font-bold leading-tight line-clamp-1">${skin.name.split(': ')[1] || skin.id}</span>` : `<span class="text-[10px] text-white font-bold">${skin.id}</span>`}
+                            ${isEq ? `<span class="text-[9px] text-emerald-400 mt-1">● ใส่อยู่</span>` : ""}
+                        </div>
+                    </button>`;
+            };
+            
+            // แสดงเฉพาะสกินเริ่มต้น 3 ตัวแรกใน sidebar
+            list.innerHTML = Object.values(SKIN_CATALOG).slice(0, 3).map(s => renderFn(s, false)).join(""); 
+            // แสดงทุกสกินใน Modal
+            grid.innerHTML = Object.values(SKIN_CATALOG).map(s => renderFn(s, true)).join("");
+            
+            // นำค่าลิงก์รูปภาพมาแสดงในช่อง Input ของ Custom Avatar
+            const customInput = document.getElementById("custom-avatar-url");
+            if (customInput) customInput.value = appState.customAvatarUrl || "";
+        }
+
+        function saveCustomAvatar() {
+            const urlInput = document.getElementById("custom-avatar-url").value.trim();
+            if (!urlInput) {
+                showToast("กรุณาใส่ลิงก์รูปภาพก่อนบันทึกครับ", "error");
+                return;
+            }
+            
+            appState.customAvatarUrl = urlInput;
+            localStorage.setItem("pd_custom_avatar", urlInput);
+            
+            if (!appState.user.unlockedSkins.includes("Skin99")) {
+                appState.user.unlockedSkins.push("Skin99");
+            }
+            
+            showToast("สร้างตัวละคร Custom สำเร็จ!", "success");
+            selectSkin("Skin99"); // เลือกใส่ให้เลยอัตโนมัติ
+        }
+
+        async function selectSkin(skinId) {
+            if(!appState.user.unlockedSkins.includes(skinId)) return;
+            const prev = appState.user.currentSkin;
+            appState.user.currentSkin = skinId;
+            saveSession(); renderProfileHeader(); renderWardrobeItems();
+            
+            if(!appState.isDemoMode) {
+                try {
+                    await callPortalApi({ action: "updateSkin", studentId: appState.user.studentId, skin: skinId });
+                } catch(e) {
+                    appState.user.currentSkin = prev;
+                    saveSession(); renderProfileHeader(); renderWardrobeItems();
+                    showToast("ไม่สามารถอัปเดตสกินกับระบบฐานข้อมูลได้", "error");
+                }
+            } else {
+                showToast(`เปลี่ยนชุดสำเร็จ!`, "success");
+            }
+        }
+
+        function setMissionFilter(f) { 
+            appState.currentFilter = f;
+            document.querySelectorAll(".filter-pill").forEach(btn => btn.className = "filter-pill px-2.5 py-1 rounded-lg text-xs font-medium text-purple-200 transition");
+            document.getElementById(`filter-${f}`).className = "filter-pill px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-600 text-white shadow transition";
+            renderMissionsGrid(); 
+        }
+
+        function setMissionUnitFilter(u) {
+            appState.currentUnitFilter = u;
+            document.querySelectorAll(".unit-pill").forEach(btn => btn.className = "unit-pill px-3 py-1 rounded-lg text-xs font-medium bg-cosmic-950 text-purple-200 border border-purple-500/30 whitespace-nowrap transition");
+            document.getElementById(`unit-filter-${u}`).className = "unit-pill px-3 py-1 rounded-lg text-xs font-medium bg-fuchsia-600/80 text-white border border-fuchsia-400/50 whitespace-nowrap transition";
+            renderMissionsGrid();
+        }
+
+        function openWardrobeModal() { renderWardrobeItems(); document.getElementById("wardrobe-modal").classList.remove("hidden"); document.getElementById("wardrobe-modal").classList.add("flex"); }
+        function closeWardrobeModal() { document.getElementById("wardrobe-modal").classList.add("hidden"); document.getElementById("wardrobe-modal").classList.remove("flex"); }
+        function openTeacherGuideModal() { document.getElementById("teacher-guide-modal").classList.remove("hidden"); document.getElementById("teacher-guide-modal").classList.add("flex"); }
+        function closeTeacherGuideModal() { document.getElementById("teacher-guide-modal").classList.add("hidden"); document.getElementById("teacher-guide-modal").classList.remove("flex"); }
+        
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            const borderColors = { success: "border-emerald-400 bg-cosmic-900/95 text-emerald-100", error: "border-rose-400 bg-rose-950/95 text-rose-100", info: "border-purple-400 bg-cosmic-900/95 text-purple-100" };
+            const icons = { success: "✨", error: "⚠️", info: "🪐" };
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-2xl border-l-4 shadow-[0_10px_25px_rgba(0,0,0,0.6)] backdrop-blur-md text-xs sm:text-sm font-medium transition-all duration-300 transform translate-x-full opacity-0 ${borderColors[type] || borderColors.info}`;
+            toast.innerHTML = `<span class="text-base">${icons[type] || "🪐"}</span><span class="leading-snug">${message}</span>`;
+            
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove("translate-x-full", "opacity-0"));
+            setTimeout(() => { toast.classList.add("translate-x-full", "opacity-0"); setTimeout(() => toast.remove(), 300); }, 3800);
+        }
+
+        function openMissionModal(mId) {
+            appState.activeModalMissionId = mId;
+            document.getElementById("modal-mission-id").textContent = mId;
+            document.getElementById("modal-mission-title").textContent = appState.missions.find(m=>m.missionId===mId)?.title;
+            document.getElementById("modal-passcode-input").value = "";
+            document.getElementById("modal-error-msg").classList.add("hidden");
+            const modal = document.getElementById("mission-modal");
+            modal.classList.remove("hidden"); modal.classList.add("flex");
+        }
+        
+        function closeMissionModal() {
+            document.getElementById("mission-modal").classList.add("hidden");
+            document.getElementById("mission-modal").classList.remove("flex");
+        }
+
+        async function submitMissionPasscode(e) {
+            e.preventDefault();
+            const code = document.getElementById("modal-passcode-input").value.trim();
+            const btn = document.getElementById("modal-submit-btn");
+            const err = document.getElementById("modal-error-msg");
+            err.classList.add("hidden"); btn.disabled = true; btn.innerHTML = "กำลังตรวจ...";
+            
+            try {
+                if(appState.isDemoMode) {
+                    await new Promise(r=>setTimeout(r,500));
+                    const target = appState.missions.find(m=>m.missionId===appState.activeModalMissionId);
+                    const preset = MISSION_META_PRESETS[appState.activeModalMissionId] || {};
+                    if(code.toUpperCase() !== preset.demoPasscode) throw new Error(`โค้ดสำหรับโหมดทดลองคือ: ${preset.demoPasscode}`);
+                    
+                    target.state = "COMPLETED"; appState.user.totalXp += preset.xp;
+                    
+                    if (target.rewardSkin && !appState.user.unlockedSkins.includes(target.rewardSkin)) {
+                        appState.user.unlockedSkins.push(target.rewardSkin);
+                        appState.user.currentSkin = target.rewardSkin;
+                        showToast(`🎁 ยินดีด้วย! ปลดล็อกสกิน ${target.rewardSkin} สำเร็จ!`, "success");
+                    }
+
+                    appState.missions.forEach(m => { if(m.prerequisite === target.missionId) m.state = "UNLOCKED"; });
+                    saveSession(); renderAllModules(); closeMissionModal();
+                    if(!target.rewardSkin) showToast("ปลดล็อกสำเร็จ!", "success");
+                } else {
+                    const res = await callPortalApi({ action: "submitMission", studentId: appState.user.studentId, missionId: appState.activeModalMissionId, passcode: code });
+                    if(res.status==="success") {
+                        appState.user.totalXp = res.totalXp;
+                        if(res.currentSkin) appState.user.currentSkin = res.currentSkin;
+                        if(res.unlockedSkins) appState.user.unlockedSkins = res.unlockedSkins;
+                        appState.missions = res.missions;
+                        saveSession(); renderAllModules(); closeMissionModal();
+                        showToast(res.message, "success");
+                    } else throw new Error(res.message);
+                }
+            } catch(error) {
+                err.textContent = error.message; err.classList.remove("hidden");
+            } finally {
+                btn.disabled = false; btn.innerHTML = "⚡ ยืนยันรหัสปลดล็อกมิติ";
+            }
+        }
+    </script>
+</body>
+</html>
