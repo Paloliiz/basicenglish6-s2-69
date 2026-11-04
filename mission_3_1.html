@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mission 3.1: Fitness Plan | CHRONOS HQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ================= CSS VARIABLES & GLOBALS ================= */
+        :root {
+            --bg-space: #020617; --bg-panel: #0f172a; --bg-card: #1e293b;
+            --unit-green: #22c55e; --unit-green-light: #4ade80;
+            --neon-cyan: #06b6d4; --neon-blue: #3b82f6; --neon-green: #10b981; 
+            --neon-orange: #f59e0b; --neon-red: #ef4444; --gold: #facc15;
+            --text-main: #f8fafc; --text-muted: #94a3b8; --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Kanit', sans-serif; background-color: var(--bg-space); color: var(--text-main); 
+            display: flex; flex-direction: column; min-height: 100vh; padding: 15px;
+            background-image: radial-gradient(circle at 50% 10%, rgba(34, 197, 94, 0.1) 0%, transparent 60%);
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--bg-panel); border-top: 4px solid var(--unit-green); border-radius: var(--radius);
+            padding: 20px; max-width: 750px; width: 100%; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease; position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Poppins', 'Kanit', sans-serif; }
+        .text-cyan { color: var(--neon-cyan); }
+        .text-center { text-align: center; }
+        .section-title { background: var(--unit-green); color: white; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;}
+        
+        .card { background: var(--bg-card); border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 20px; animation: fadeIn 0.4s ease-out; }
+
+        /* ================= FORM & INPUTS ================= */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 5px; }
+        
+        select, input[type="text"], input[type="number"] {
+            font-size: 16px !important; width: 100%; padding: 12px 10px; border-radius: 6px; 
+            border: 1px solid #475569; background: #020617; color: #fff; font-family: 'Kanit';
+        }
+        select:focus, input:focus { border-color: var(--neon-cyan); outline: none; }
+        select:disabled, input:disabled { opacity: 0.8; cursor: not-allowed; border-color: var(--neon-green); color: var(--neon-green);}
+
+        /* ช่องเติมคำแบบขีดเส้นใต้ */
+        input[type="text"].blank-input {
+            border: none; border-bottom: 2px solid var(--neon-cyan);
+            background: transparent; color: var(--gold);
+            text-align: center; padding: 2px 5px; border-radius: 0;
+            display: inline-block; font-weight: bold; width: 150px;
+        }
+        input[type="text"].blank-input:focus { border-bottom-color: var(--neon-green); outline: none; }
+        
+        input[type="text"].sentence-input {
+            width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #475569; border-radius: 6px;
+            background: #020617; color: var(--gold); font-size: 0.95rem !important;
+        }
+
+        button {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; font-family: 'Kanit'; margin-top: 10px; transition: all 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        .btn-check { background: var(--unit-green); color: white; }
+        .btn-check:hover { background: var(--unit-green-light); }
+        .btn-next { background: var(--neon-cyan); color: #000; animation: pulse 1.5s infinite;}
+        .btn-back { background: transparent; border: 1px solid #475569; color: #cbd5e1; margin-top: 15px; }
+
+        /* ================= MISSION UI ================= */
+        .header-mission { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #334155; padding-bottom: 15px; margin-bottom: 20px; }
+        .header-mission h2 { font-family: 'Poppins', sans-serif; color: var(--unit-green-light); margin: 0; font-size: 1.5rem;}
+        
+        .question { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+        .question:last-child { border-bottom: none; }
+        .q-text { font-size: 1rem; margin-bottom: 10px; color: #f8fafc;}
+
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        @media (min-width: 600px) { .vocab-grid { grid-template-columns: repeat(4, 1fr); } }
+        .vocab-item { background: rgba(2, 6, 23, 0.5); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #475569; font-weight: bold; font-size: 1rem; color: var(--neon-cyan);}
+        .vocab-item input { width: 100%; margin-top: 10px; text-align: center; font-size: 0.95rem !important;}
+
+        .word-bank { background: rgba(2, 6, 23, 0.5); border: 1px dashed var(--neon-cyan); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .word-chip { background: #1e293b; color: var(--neon-cyan); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; border: 1px solid #334155; }
+
+        .audio-container { background: #020617; border: 1px solid #475569; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        audio { width: 100%; height: 40px; outline: none; margin-bottom: 5px; }
+
+        /* ================= TABS & FEEDBACK ================= */
+        .tab-container { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;}
+        .tab-btn { background: #1e293b; color: var(--text-muted); border: 1px solid #475569; font-size: 0.8rem; margin: 0; padding: 8px 5px; flex: 1; min-width: 55px; border-radius: 6px; cursor: pointer; font-family: 'Kanit'; transition: 0.3s;}
+        .tab-btn.active { background: var(--neon-cyan); color: #000; border-color: var(--neon-cyan); font-weight: bold;}
+        .tab-btn:hover { transform: none; background: #334155;}
+
+        .master-feedback { display: none; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; text-align: center; font-weight: bold; line-height: 1.6;}
+        .correct { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); }
+        .wrong { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); }
+
+        footer { text-align: center; font-size: 0.85rem; color: #64748b; margin-top: auto; padding: 30px 0 20px 0; }
+        .hidden { display: none !important; }
+        
+        .grammar-slide { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #475569; border-radius: 12px; padding: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.2); margin-bottom: 20px;}
+        .future-simple-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 600px) { .future-simple-grid { grid-template-columns: 1fr 1fr; } }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div id="view-mission" class="container">
+    
+    <div id="miniCodeBanner" class="hidden" style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-weight: bold; letter-spacing: 1px;">CODE: U3-XXX</div>
+
+    <!-- MISSION NAV -->
+    <div id="missionNav" class="tab-container">
+        <button id="tab1" class="tab-btn active" onclick="goToPhase(1)">Vocab (34)</button>
+        <button id="tab2" class="tab-btn" onclick="goToPhase(2)">Grammar</button>
+        <button id="tab3" class="tab-btn" onclick="goToPhase(3)">Ex 4</button>
+        <button id="tab4" class="tab-btn" onclick="goToPhase(4)">Listen (35)</button>
+    </div>
+
+    <div class="header-mission" id="mainHeader">
+        <h2>Mission 3.1</h2>
+        <span id="pageBadge" style="background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;">Page 34-35</span>
+    </div>
+
+    <!-- PHASE 1: VOCABULARY (Page 34) -->
+    <div id="phase1">
+        <div class="section-title">A. Listening: Vocabulary</div>
+        <div class="card">
+            <p style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 0.95rem;"><b>1. Listen and number. (ฟังเสียงและใส่ตัวเลข 1-8 ลงในช่อง)</b></p>
+            
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 3-01</span>
+                <audio controls><source src="3-01.mp3" type="audio/mpeg"></audio>
+            </div>
+
+            <div class="vocab-grid" style="margin-bottom: 30px;">
+                <div class="vocab-item">adjust <input type="number" id="v34_1" placeholder="No."></div>
+                <div class="vocab-item">balance <input type="number" id="v34_2" placeholder="No."></div>
+                <div class="vocab-item">crucial <input type="number" id="v34_3" placeholder="No."></div>
+                <div class="vocab-item">current <input type="number" id="v34_4" placeholder="No."></div>
+                <div class="vocab-item">enable <input type="number" id="v34_5" placeholder="No."></div>
+                <div class="vocab-item">eventually <input type="number" id="v34_6" placeholder="No."></div>
+                <div class="vocab-item">maintain <input type="number" id="v34_7" placeholder="No."></div>
+                <div class="vocab-item">monitor <input type="number" id="v34_8" placeholder="No."></div>
+            </div>
+
+            <p style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>2. Fill in the blanks with the best vocabulary words.</b></p>
+            
+            <div class="word-bank">
+                <span class="word-chip">adjust</span>
+                <span class="word-chip">balance</span>
+                <span class="word-chip">crucial</span>
+                <span class="word-chip">current</span>
+                <span class="word-chip">enable</span>
+                <span class="word-chip">eventually</span>
+                <span class="word-chip">maintain</span>
+                <span class="word-chip">monitor</span>
+            </div>
+
+            <div class="question"><div class="q-text">1. Having a trainer will <input type="text" id="f34_1" class="blank-input" placeholder="คำตอบ"> you to work out more effectively.</div></div>
+            <div class="question"><div class="q-text">2. The most <input type="text" id="f34_2" class="blank-input" placeholder="คำตอบ"> thing in weightlifting is to have the correct body position.</div></div>
+            <div class="question"><div class="q-text">3. Roberta <input type="text" id="f34_3" class="blank-input" placeholder="คำตอบ"> her healthy diet even though everyone around her eats junk food.</div></div>
+            <div class="question"><div class="q-text">4. To grow muscle, you need a good <input type="text" id="f34_4" class="blank-input" placeholder="คำตอบ"> of proteins, fats, and carbohydrates.</div></div>
+            <div class="question"><div class="q-text">5. If you continue dieting like this, you will <input type="text" id="f34_5" class="blank-input" placeholder="คำตอบ"> reach your target weight.</div></div>
+            <div class="question" style="border-bottom: none;"><div class="q-text">6. Franco plans to <input type="text" id="f34_6" class="blank-input" placeholder="คำตอบ"> his workout to include more running.</div></div>
+
+            <div id="fb-p1" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-1" onclick="checkPhase1()">ตรวจคำตอบ</button>
+            <button class="btn-next hidden" id="btn-next-1" onclick="goToPhase(2)">➔ ไปด่าน Grammar</button>
+        </div>
+    </div>
+
+    <!-- PHASE 2: GRAMMAR (Page 34) -->
+    <div id="phase2" class="hidden">
+        <div class="section-title">Grammar: Future Forms</div>
+        <p style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 1.1rem; text-align: center;"><b>3. ศึกษาโครงสร้างและเทคนิค (Study & Understand)</b></p>
+
+        <div class="grammar-slide" style="border-color: var(--unit-green-light);">
+            <h3 style="color: var(--gold); text-align: center; margin-bottom: 20px; font-size: 1.3rem;">เจาะลึกวิถีแห่งอนาคต (Future Forms) 🚀</h3>
+            
+            <!-- 1. Future Simple (Will vs Going to) -->
+            <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid var(--neon-cyan); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: var(--neon-cyan); font-size: 1.1rem; margin-bottom: 12px; border-bottom: 1px solid rgba(6, 182, 212, 0.3); padding-bottom: 5px;">1. Future Simple (อนาคตทั่วไป)</h4>
+                
+                <div class="future-simple-grid" style="font-size: 0.9rem; color: #f8fafc;">
+                    <!-- Will -->
+                    <div style="background: rgba(2,6,23,0.6); padding: 12px; border-radius: 8px; border-left: 3px solid var(--gold);">
+                        <b style="color: var(--gold); font-size: 1rem;">✨ will + V.inf (กริยาช่อง 1 ไม่เติม s/es/ing)</b><br>
+                        <ul style="margin-left: 15px; margin-top: 5px; margin-bottom: 10px; color: #cbd5e1; list-style-type: circle;">
+                            <li><b>คิดปุ๊บทำปั๊บ</b> ตัดสินใจเดี๋ยวนั้น (Quick decision)</li>
+                            <li><b>เสนอตัวช่วย / สัญญา / ขู่</b> (Offer/Promise/Threat)</li>
+                            <li><b>เดาล้วนๆ ไม่มีหลักฐาน</b> (Predict)</li>
+                        </ul>
+                        <div style="background: rgba(24acc1, 0.15); padding: 8px; border-radius: 6px; font-size: 0.85rem;">
+                            <span style="color: var(--gold);">💡 ทริค:</span> มักเจอคู่กับคำว่า <i>I think, I hope, probably, maybe</i><br>
+                            <i style="color: #94a3b8;">Ex: "I will answer the phone." (เดี๋ยวฉันรับสายเอง - เพิ่งตัดสินใจตอนกริ่งดัง)</i>
+                        </div>
+                    </div>
+
+                    <!-- Be going to -->
+                    <div style="background: rgba(2,6,23,0.6); padding: 12px; border-radius: 8px; border-left: 3px solid var(--unit-green-light);">
+                        <b style="color: var(--unit-green-light); font-size: 1rem;">✨ is/am/are going to + V.inf</b><br>
+                        <ul style="margin-left: 15px; margin-top: 5px; margin-bottom: 10px; color: #cbd5e1; list-style-type: circle;">
+                            <li><b>คิดมาแล้ว / วางแผนมาแล้ว</b> ตั้งใจแน่วแน่ (Prior plan)</li>
+                            <li><b>เดาแบบมีหลักฐาน</b> เห็นเค้าลางมาแต่ไกล (Evidence)</li>
+                        </ul>
+                        <div style="background: rgba(74, 222, 128, 0.15); padding: 8px; border-radius: 6px; font-size: 0.85rem;">
+                            <span style="color: var(--unit-green-light);">💡 ทริค:</span> จะเกิดแน่นอนกว่า will เพราะมีข้อมูลสนับสนุน<br>
+                            <i style="color: #94a3b8;">Ex: "Look at those dark clouds! It is going to rain." (ดูเมฆดำนั่นสิ! ฝนกำลังจะตกแหงๆ - หลักฐานคือเมฆดำ)</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Present Continuous -->
+            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--neon-blue); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 8px;">2. Present Continuous <span style="font-size: 0.9rem; color: #94a3b8; font-weight: normal;">(is/am/are + V.ing)</span></h4>
+                <p style="font-size: 0.95rem; color: #e2e8f0; margin-bottom: 8px;">
+                    • ใช้บอกอนาคตในกรณีที่เป็น <b>"การนัดหมายที่ชัวร์ 100%" (Arrangements)</b> มักระบุเวลาหรือสถานที่ชัดเจน
+                </p>
+                <div style="background: rgba(2,6,23,0.5); padding: 10px; border-radius: 6px; font-size: 0.85rem;">
+                    <span style="color: var(--gold);">💡 ทริคแยกความต่าง:</span> Present Cont. จะชัวร์กว่า going to (Going to = แค่ตั้งใจจะทำ แต่ Present Cont. = นัดเพื่อนแล้ว ซื้อตั๋วแล้ว โอกาสพลาดแทบไม่มี)<br>
+                    <i style="color: #94a3b8; display: block; margin-top: 5px;">Ex: "I am seeing the dentist at 3 PM tomorrow." (ฉันมีนัดหมอฟันพรุ่งนี้บ่าย 3 - นัดไว้เรียบร้อยแล้ว)</i>
+                </div>
+            </div>
+
+            <!-- 3. Future Continuous -->
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--neon-green); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: var(--neon-green); font-size: 1.1rem; margin-bottom: 8px;">3. Future Continuous <span style="font-size: 0.9rem; color: #94a3b8; font-weight: normal;">(will be + V.ing)</span></h4>
+                <p style="font-size: 0.95rem; color: #e2e8f0; margin-bottom: 8px;">
+                    • ใช้บอกว่า <b>"ณ จุดเวลาหนึ่งในอนาคต ฉันจะกำลังทำสิ่งนี้อยู่พอดี"</b>
+                </p>
+                <div style="background: rgba(2,6,23,0.5); padding: 10px; border-radius: 6px; font-size: 0.85rem;">
+                    <span style="color: var(--gold);">💡 จุดสังเกตในข้อสอบ:</span> มักมีคำบอกเวลาแบบเจาะจงเป๊ะๆ ในอนาคต เช่น <i>at 8 PM tomorrow, this time next week, tonight</i><br>
+                    <i style="color: #94a3b8; display: block; margin-top: 5px;">Ex: "At 8 PM tonight, we will be playing soccer." (ตอน 2 ทุ่มคืนนี้ พวกเราคงกำลังเตะบอลกันอยู่พอดี)</i>
+                </div>
+            </div>
+
+            <!-- 4. Future Perfect -->
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--neon-orange); padding: 15px; border-radius: 8px;">
+                <h4 style="color: var(--neon-orange); font-size: 1.1rem; margin-bottom: 8px;">4. Future Perfect <span style="font-size: 0.9rem; color: #94a3b8; font-weight: normal;">(will have + V.3)</span></h4>
+                <p style="font-size: 0.95rem; color: #e2e8f0; margin-bottom: 8px;">
+                    • ใช้บอกว่า <b>"เมื่อถึงเวลานั้นในอนาคต เหตุการณ์นี้จะทำเสร็จสมบูรณ์ไปแล้ว"</b>
+                </p>
+                <div style="background: rgba(2,6,23,0.5); padding: 10px; border-radius: 6px; font-size: 0.85rem;">
+                    <span style="color: var(--gold);">💡 คีย์เวิร์ดสำคัญ (เจอแล้วกาเลย):</span> มักจะเจอคำว่า <b style="color: var(--neon-red);">By + เวลาในอนาคต</b> (แปลว่า ภายใน..., ก่อนจะถึง...) เช่น <i>by tomorrow, by next year, by the time...</i><br>
+                    <i style="color: #94a3b8; display: block; margin-top: 5px;">Ex: "By tomorrow, Sandra will have completed her homework." (ภายในพรุ่งนี้ ซานดร้าคงจะทำการบ้านเสร็จเรียบร้อยแล้ว)</i>
+                </div>
+                
+                <div style="margin-top: 12px; font-size: 0.75rem; color: #f87171; border-top: 1px dashed rgba(248, 113, 113, 0.3); padding-top: 8px; line-height: 1.4;">
+                    <b>⚠️ หมายเหตุจากหนังสือเรียน:</b> ในตารางของหนังสืออาจพิมพ์ชื่อ Tense สับสนเล็กน้อยระหว่าง Future Perfect กับ Future Perfect Continuous ให้นักเรียนยึดหลักจำง่ายๆ ว่า ถ้าเน้นว่า "ทำเสร็จ" ให้ใช้ <b style="color: white;">will have + V.3</b> เสมอนะครับ!
+                </div>
+            </div>
+
+        </div>
+
+        <button class="btn-next" style="margin-top: 15px;" onclick="goToPhase(3)">สแกนข้อมูลเรียบร้อย ➔ ทำแบบฝึกหัด 4</button>
+    </div>
+
+    <!-- PHASE 3: GRAMMAR EXERCISE (Page 34 Ex 4) -->
+    <div id="phase3" class="hidden">
+        <div class="section-title">Grammar Exercise</div>
+        <div class="card">
+            <p style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.95rem;"><b>4. Use the given words to write sentences in the given tenses.</b></p>
+            <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--neon-orange); padding: 10px; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;">
+                <b>💡 คำแนะนำ:</b> พิมพ์ประโยคให้สมบูรณ์ <span style="color:var(--neon-orange);">ไม่ต้องใส่จุด (Full stop) ต่อท้ายประโยค</span>
+            </div>
+            
+            <div class="question">
+                <div class="q-text">1. (I) (think) (rain) (this afternoon) <br><span style="font-size:0.85rem; color:var(--gold);">(future simple)</span></div>
+                <input type="text" id="g34_1" class="sentence-input" placeholder="พิมพ์ประโยค...">
+            </div>
+            <div class="question">
+                <div class="q-text">2. (We) (play) (soccer) (tonight) <br><span style="font-size:0.85rem; color:var(--gold);">(future continuous)</span></div>
+                <input type="text" id="g34_2" class="sentence-input" placeholder="พิมพ์ประโยค...">
+            </div>
+            <div class="question">
+                <div class="q-text">3. (By tomorrow,) (Sandra) (complete) (her homework) <br><span style="font-size:0.85rem; color:var(--gold);">(future perfect)</span></div>
+                <input type="text" id="g34_3" class="sentence-input" placeholder="พิมพ์ประโยค...">
+            </div>
+            <div class="question">
+                <div class="q-text">4. (My brother) (not do) (anything) (all weekend) <br><span style="font-size:0.85rem; color:var(--gold);">(future simple)</span></div>
+                <input type="text" id="g34_4" class="sentence-input" placeholder="พิมพ์ประโยค...">
+            </div>
+            <div class="question">
+                <div class="q-text">5. (I) (compete) (in) (a triathlon) (next month) <br><span style="font-size:0.85rem; color:var(--gold);">(present continuous)</span></div>
+                <input type="text" id="g34_5" class="sentence-input" placeholder="พิมพ์ประโยค...">
+            </div>
+            <div class="question" style="border-bottom: none;">
+                <div class="q-text">6. (The plane) (land) (by the time) (school) (finish) <br><span style="font-size:0.85rem; color:var(--gold);">(future perfect)</span></div>
+                <input type="text" id="g34_6" class="sentence-input" placeholder="พิมพ์ประโยค...">
+            </div>
+            
+            <div id="fb-p3" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-3" onclick="checkPhase3()">ตรวจคำตอบ</button>
+            <button class="btn-next hidden" id="btn-next-3" onclick="goToPhase(4)">➔ ไปด่านสุดท้าย</button>
+            <button class="btn-back" onclick="goToPhase(2)">⬅️ ย้อนกลับไปอ่านคำอธิบาย</button>
+        </div>
+    </div>
+
+    <!-- PHASE 4: LISTENING (Page 35 Ex 5,6,7) -->
+    <div id="phase4" class="hidden">
+        <div class="section-title">Listen Up / Challenge</div>
+        <div class="card">
+            
+            <!-- Ex 5 -->
+            <p style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 0.95rem;"><b>5. Listen to the conversations. Then answer the questions.</b></p>
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 3-02</span>
+                <audio controls><source src="3-02.mp3" type="audio/mpeg"></audio>
+            </div>
+            <div class="question"><div class="q-text">1. What is NOT on Grace's shopping list?</div><select id="l35_1"><option value="">-- เลือกคำตอบ --</option><option value="a">a. blueberries</option><option value="b">b. mushrooms</option><option value="c">c. meat</option><option value="d">d. carrots</option></select></div>
+            <div class="question"><div class="q-text">2. What is true about Sarah?</div><select id="l35_2"><option value="">-- เลือกคำตอบ --</option><option value="a">a. She will start training Marco.</option><option value="b">b. She doesn't think working out is important.</option><option value="c">c. She thinks a good diet is the best way to lose weight.</option><option value="d">d. She thinks jogging is better than cycling.</option></select></div>
+            <div class="question"><div class="q-text">3. How far is Eddie going to ride this weekend?</div><select id="l35_3"><option value="">-- เลือกคำตอบ --</option><option value="a">a. 50 kilometers</option><option value="b">b. 75 kilometers</option><option value="c">c. 100 kilometers</option><option value="d">d. 200 kilometers</option></select></div>
+            <div class="question"><div class="q-text">4. Why is Adrian weight training?</div><select id="l35_4"><option value="">-- เลือกคำตอบ --</option><option value="a">a. He's doing it as a hobby.</option><option value="b">b. He's planning to join a sports team.</option><option value="c">c. He's monitoring Maria's progress.</option><option value="d">d. He's trying to lose some weight.</option></select></div>
+
+            <!-- Ex 6 -->
+            <p style="color: var(--neon-cyan); margin-bottom: 10px; margin-top: 30px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>6. Listen to the conversation. Then answer the questions.</b></p>
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 3-03</span>
+                <audio controls><source src="3-03.mp3" type="audio/mpeg"></audio>
+            </div>
+            <div class="question"><div class="q-text">1. Where do you think Samantha and Bruce are?</div><select id="l35_5"><option value="">-- เลือกคำตอบ --</option><option value="a">a. at a nutrition store</option><option value="b">b. at a park</option><option value="c">c. at a gym</option><option value="d">d. at a marathon</option></select></div>
+            <div class="question"><div class="q-text">2. What is Bruce asking about?</div><select id="l35_6"><option value="">-- เลือกคำตอบ --</option><option value="a">a. an exercise plan</option><option value="b">b. a gym membership</option><option value="c">c. a personal trainer</option><option value="d">d. how to put on muscle</option></select></div>
+            <div class="question"><div class="q-text">3. What is true about Bruce?</div><select id="l35_7"><option value="">-- เลือกคำตอบ --</option><option value="a">a. He is running the marathon for a friend.</option><option value="b">b. He doesn't set fitness goals.</option><option value="c">c. He wants to improve his current routine.</option><option value="d">d. He has a couple of goals in mind.</option></select></div>
+            <div class="question"><div class="q-text">4. What kind of plan will Samantha put Bruce on?</div><select id="l35_8"><option value="">-- เลือกคำตอบ --</option><option value="a">a. a plan with mainly cardio</option><option value="b">b. a plan with mainly weight training</option><option value="c">c. one with a balance of cardio and weight training</option><option value="d">d. one with a balanced diet</option></select></div>
+
+            <!-- Ex 7 -->
+            <p style="color: var(--neon-cyan); margin-bottom: 10px; margin-top: 30px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>7. Listen to the rest of the conversation. Then answer the questions.</b></p>
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 3-04</span>
+                <audio controls><source src="3-04.mp3" type="audio/mpeg"></audio>
+            </div>
+            <div class="question"><div class="q-text">1. In the following sentence, what does <i>it</i> refer to? <br><i>We are probably going to do it after cardio.</i></div><select id="l35_9"><option value="">-- เลือกคำตอบ --</option><option value="a">a. jogging</option><option value="b">b. swimming</option><option value="c">c. weight training</option><option value="d">d. marathon running</option></select></div>
+            <div class="question"><div class="q-text">2. How does Bruce feel about starting an exercise plan?</div><select id="l35_10"><option value="">-- เลือกคำตอบ --</option><option value="a">a. He seems worried.</option><option value="b">b. He seems excited.</option><option value="c">c. He seems bored.</option><option value="d">d. He seems upset.</option></select></div>
+            <div class="question"><div class="q-text">3. What can be inferred about Samantha?</div><select id="l35_11"><option value="">-- เลือกคำตอบ --</option><option value="a">a. She doesn't like waking up early.</option><option value="b">b. She hasn't trained a lot of marathon runners.</option><option value="c">c. She has won many marathons.</option><option value="d">d. She doesn't like it when people are late.</option></select></div>
+            <div class="question" style="border-bottom: none;"><div class="q-text">4. What is true about the conversation?</div><select id="l35_12"><option value="">-- เลือกคำตอบ --</option><option value="a">a. Bruce isn't going to be doing any cycling.</option><option value="b">b. Bruce will put on a lot of muscle.</option><option value="c">c. Samantha isn't confident Bruce will succeed.</option><option value="d">d. Samantha is a relaxed trainer.</option></select></div>
+
+            <div id="fb-p4" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-4" onclick="checkPhase4()">ตรวจคำตอบ & จบภารกิจ</button>
+            <button class="btn-back" onclick="goToPhase(3)">⬅️ ย้อนกลับ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let phaseStatus = { 1: false, 2: true, 3: false, 4: false };
+
+    function goToPhase(phaseNum) {
+        document.querySelectorAll('#phase1, #phase2, #phase3, #phase4').forEach(el => el.classList.add('hidden'));
+        document.getElementById('phase' + phaseNum).classList.remove('hidden');
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        if(phaseNum <= 4) document.getElementById('tab' + phaseNum).classList.add('active');
+
+        const badge = document.getElementById('pageBadge');
+        if(phaseNum === 1 || phaseNum === 2 || phaseNum === 3) badge.innerText = "Page 34"; 
+        else badge.innerText = "Page 35";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cleanStr(s) {
+        return s.toLowerCase().replace(/[^a-z0-9\s']/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    function checkPhase1() {
+        const ansNum = { v34_1: '3', v34_2: '5', v34_3: '4', v34_4: '8', v34_5: '1', v34_6: '6', v34_7: '7', v34_8: '2' }; 
+        const ansFill = { f34_1: 'enable', f34_2: 'crucial', f34_3: 'maintains', f34_4: 'balance', f34_5: 'eventually', f34_6: 'adjust' };
+        
+        let correct = true;
+        
+        for (let key in ansNum) {
+            let el = document.getElementById(key);
+            if (cleanStr(el.value) !== ansNum[key]) { correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); } 
+            else { el.style.setProperty('border-color', 'var(--neon-green)', 'important'); }
+        }
+        for (let key in ansFill) {
+            let el = document.getElementById(key);
+            if (cleanStr(el.value) !== ansFill[key]) { correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); } 
+            else { el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); }
+        }
+        
+        const fb = document.getElementById('fb-p1'); fb.style.display = 'block';
+        if (correct) {
+            phaseStatus[1] = true;
+            document.getElementById('tab1').innerHTML = "Vocab (34) ✔️"; document.getElementById('tab1').style.color = "var(--neon-green)";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ถูกต้องครบถ้วน! ไปด่านต่อไปเลย`; document.getElementById('btn-next-1').classList.remove('hidden'); 
+            document.getElementById('btn-check-1').classList.add('hidden');
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีข้อที่ผิด สังเกตเส้นสีแดงนะ`;
+        }
+    }
+
+    function checkPhase3() {
+        const ans = { 
+            g34_1: ['i think it will rain this afternoon'], 
+            g34_2: ['we will be playing soccer tonight'], 
+            g34_3: ['by tomorrow sandra will have completed her homework'], 
+            g34_4: ['my brother wont do anything all weekend', 'my brother will not do anything all weekend'], 
+            g34_5: ['i am competing in a triathlon next month', "i'm competing in a triathlon next month"], 
+            g34_6: ['the plane will have landed by the time school finishes'] 
+        }; 
+        
+        let correct = true;
+        for (let key in ans) {
+            let el = document.getElementById(key);
+            if (!ans[key].includes(cleanStr(el.value))) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); 
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); 
+            }
+        }
+        
+        const fb = document.getElementById('fb-p3'); fb.style.display = 'block';
+        if (correct) {
+            phaseStatus[3] = true;
+            document.getElementById('tab3').innerHTML = "Ex 4 ✔️"; document.getElementById('tab3').style.color = "var(--neon-green)";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ แกรมม่าเป๊ะมาก! ไปฝึกฟังกันต่อเลย`; document.getElementById('btn-next-3').classList.remove('hidden'); 
+            document.getElementById('btn-check-3').classList.add('hidden');
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตกรอบสีแดงนะคะ`;
+        }
+    }
+
+    function checkPhase4() {
+        const ans = { 
+            l35_1: 'c', l35_2: 'c', l35_3: 'b', l35_4: 'b', // Ex 5
+            l35_5: 'c', l35_6: 'a', l35_7: 'd', l35_8: 'c', // Ex 6
+            l35_9: 'c', l35_10: 'b', l35_11: 'a', l35_12: 'c' // Ex 7
+        }; 
+        
+        let correct = true;
+        for (let key in ans) {
+            let el = document.getElementById(key);
+            if (el.value !== ans[key]) { correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); } 
+            else { el.style.setProperty('border-color', 'var(--neon-green)', 'important'); }
+        }
+        
+        const fb = document.getElementById('fb-p4'); fb.style.display = 'block';
+        if (correct) {
+            phaseStatus[4] = true;
+            document.getElementById('tab4').innerHTML = "Listen (35) ✔️"; document.getElementById('tab4').style.color = "var(--neon-green)";
+            fb.className = 'master-feedback correct'; 
+            
+            // เปลี่ยนข้อความแจ้งเตือนเมื่อเคลียร์ด่าน
+            fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์! กลับไปที่หน้าหลักเพื่อกรอกรหัสรับ XP ได้เลย`;
+            document.getElementById('btn-check-4').classList.add('hidden');
+            
+            // --- ระบบสร้างรหัสลับเฉพาะบุคคล (Sci-Fi Cipher) ---
+            // ดึงรหัสนักเรียนจาก URL (เช่น ?sid=10001)
+            const urlParams = new URLSearchParams(window.location.search);
+            const sid = urlParams.get('sid') || "00000";
+            
+            // สร้าง Cipher ด้วยสมการ (sid * 13) + 9999 แล้วแปลงเป็นเลขฐาน 16
+            const numericSid = parseInt(sid) || 0;
+            const cipherText = (numericSid * 13 + 9999).toString(16).toUpperCase();
+            const uniqueCode = "U3-" + cipherText;
+            
+            // แสดงรหัสผ่านให้นักเรียนเห็น
+            document.getElementById('miniCodeBanner').innerHTML = "🔥 MISSION CLEARED! รหัสผ่านมิติของคุณคือ: <b style='font-size:1.2rem; color:var(--gold);'>" + uniqueCode + "</b>";
+            document.getElementById('miniCodeBanner').classList.remove('hidden');
+            
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ตอบผิดบางข้อ ลองฟังใหม่แล้วแก้ดูนะ`;
+        }
+    }
+</script>
+</body>
+</html>
