@@ -503,15 +503,15 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
 
-        // คลังสกินสำเร็จรูป (เพิ่ม Skin06, Skin07 และ Skin99 สำหรับ Custom)
+        // คลังสกินสำเร็จรูป - เปลี่ยนการแสดงผลจากการวาด SVG เป็นการดึงรูปภาพ PNG ที่ครูเตรียมไว้ในโฟลเดอร์เดียวกัน
         const SKIN_CATALOG = {
-            "Skin01": { id: "Skin01", name: "Skin 01: Rookie", subtitle: "ชุดนักเรียนเขาฉกรรจ์วิทยาคม", unlockHint: "ปลดล็อกตั้งแต่เริ่มต้น", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#3b276b"/><circle cx="100" cy="100" r="40" fill="#f8fafc"/></svg>` },
-            "Skin02": { id: "Skin02", name: "Skin 02: Explorer", subtitle: "แจ็คเก็ตเรโทรยุค 80s", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M01", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#581c87"/><circle cx="100" cy="100" r="40" fill="#f8fafc"/></svg>` },
-            "Skin03": { id: "Skin03", name: "Skin 03: Mastermind", subtitle: "ชุดนักสำรวจมิติพิศวง", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M03", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#090514"/><circle cx="100" cy="100" r="40" fill="#faf5ff"/></svg>` },
-            "Skin04": { id: "Skin04", name: "Skin 04: Cyber Ninja", subtitle: "นินจาไซเบอร์แห่งมิติเวลา", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M05", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#064e3b"/><circle cx="100" cy="100" r="40" fill="#34d399"/><path d="M70,100 L130,100" stroke="#022c22" stroke-width="8"/></svg>` },
-            "Skin05": { id: "Skin05", name: "Skin 05: Galactic Scholar", subtitle: "นักปราชญ์จักรวาลคู่ขนาน", unlockHint: "ปลดล็อกเมื่อเคลียร์ทุกด่าน", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#172554"/><circle cx="100" cy="100" r="40" fill="#fef08a"/><circle cx="100" cy="100" r="30" fill="#ffffff" opacity="0.8"/></svg>` },
-            "Skin06": { id: "Skin06", name: "Skin 06: Time Warden", subtitle: "ผู้พิทักษ์กาลเวลา", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M02", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#451a03"/><circle cx="100" cy="100" r="45" fill="none" stroke="#fef08a" stroke-width="6" stroke-dasharray="10 5"/><path d="M100,65 L100,100 L120,115" stroke="#fef08a" stroke-width="5" fill="none"/></svg>` },
-            "Skin07": { id: "Skin07", name: "Skin 07: Void Walker", subtitle: "ผู้ท่องความว่างเปล่า", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M04", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#000000"/><circle cx="100" cy="100" r="40" fill="#1e293b"/><rect x="70" y="80" width="15" height="5" fill="#ec4899"/><rect x="110" y="70" width="20" height="4" fill="#06b6d4"/></svg>` },
+            "Skin01": { id: "Skin01", name: "Skin 01: Rookie", subtitle: "ชุดนักเรียนเขาฉกรรจ์วิทยาคม", unlockHint: "ปลดล็อกตั้งแต่เริ่มต้น", svg: `<img src="skin01.png" alt="Rookie" class="w-full h-full object-cover">` },
+            "Skin02": { id: "Skin02", name: "Skin 02: Explorer", subtitle: "แจ็คเก็ตเรโทรยุค 80s", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M01", svg: `<img src="skin02.png" alt="Explorer" class="w-full h-full object-cover">` },
+            "Skin03": { id: "Skin03", name: "Skin 03: Mastermind", subtitle: "ชุดนักสำรวจมิติพิศวง", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M03", svg: `<img src="skin03.png" alt="Mastermind" class="w-full h-full object-cover">` },
+            "Skin04": { id: "Skin04", name: "Skin 04: Cyber Ninja", subtitle: "นินจาไซเบอร์แห่งมิติเวลา", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M05", svg: `<img src="skin04.png" alt="Cyber Ninja" class="w-full h-full object-cover">` },
+            "Skin05": { id: "Skin05", name: "Skin 05: Galactic Scholar", subtitle: "นักปราชญ์จักรวาลคู่ขนาน", unlockHint: "ปลดล็อกเมื่อเคลียร์ทุกด่าน", svg: `<img src="skin05.png" alt="Galactic Scholar" class="w-full h-full object-cover">` },
+            "Skin06": { id: "Skin06", name: "Skin 06: Time Warden", subtitle: "ผู้พิทักษ์กาลเวลา", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M02", svg: `<img src="skin06.png" alt="Time Warden" class="w-full h-full object-cover">` },
+            "Skin07": { id: "Skin07", name: "Skin 07: Void Walker", subtitle: "ผู้ท่องความว่างเปล่า", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M04", svg: `<img src="skin07.png" alt="Void Walker" class="w-full h-full object-cover">` },
             "Skin99": { id: "Skin99", name: "Custom Avatar", subtitle: "ตัวละครที่คุณสร้างเอง", unlockHint: "ปลดล็อกเมื่อใส่ลิงก์รูปภาพ", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#070510"/><rect x="40" y="40" width="120" height="120" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="8 8"/><circle cx="100" cy="100" r="20" fill="#38bdf8" opacity="0.5" class="animate-ping"/></svg>` }
         };
 
@@ -587,7 +587,7 @@
                     appState.isDemoMode = false; appState.studentPin = pin;
                     appState.user = res.user; appState.missions = res.missions || [];
                     if (appState.customAvatarUrl && !appState.user.unlockedSkins.includes("Skin99")) {
-                        appState.user.unlockedSkins.push("Skin99"); // ให้ใช้สกินสร้างเองได้ถ้าเคยเซฟลิงก์ไว้
+                        appState.user.unlockedSkins.push("Skin99"); 
                     }
                     saveSession();
                     document.getElementById("login-screen").classList.add("hidden");
@@ -608,7 +608,6 @@
             appState.user = { studentId: "10001", name: "น.ส. รักเรียน เพียรศึกษา", className: "ม.3/1", currentSkin: "Skin02", totalXp: 400, unlockedSkins: ["Skin01", "Skin02"] };
             if (appState.customAvatarUrl) appState.user.unlockedSkins.push("Skin99");
             
-            // จำลองว่ากำลังอยู่ที่ด่าน M01
             appState.missions = [
                 { missionId: "M01", title: "Unit 3: Fitness Plan", prerequisite: "", rewardSkin: "Skin02", state: "UNLOCKED" },
                 { missionId: "M02", title: "Unit 3: The Broken Clock", prerequisite: "M01", rewardSkin: "Skin06", state: "LOCKED" },
@@ -799,7 +798,7 @@
             }
             
             showToast("สร้างตัวละคร Custom สำเร็จ!", "success");
-            selectSkin("Skin99"); // เลือกใส่ให้เลยอัตโนมัติ
+            selectSkin("Skin99"); 
         }
 
         async function selectSkin(skinId) {
