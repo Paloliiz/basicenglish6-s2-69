@@ -298,7 +298,8 @@
                     
                     <!-- ส่วนแสดงรูปภาพสไลด์ -->
                     <div class="relative w-full rounded-xl overflow-hidden border border-slate-700 bg-black flex items-center justify-center min-h-[250px] sm:min-h-[450px]">
-                        <img id="current-slide-img" src="U3_Future_Form_ (1).png" alt="Grammar Slide" 
+                        <!-- แก้ชื่อไฟล์ตรงนี้ให้สอดคล้องกับ U3_Future_Form_1.PNG -->
+                        <img id="current-slide-img" src="U3_Future_Form_1.PNG" alt="Grammar Slide" 
                             class="max-w-full max-h-[65vh] object-contain transition-opacity duration-300 shadow-2xl" 
                             onerror="this.src='https://via.placeholder.com/800x450/090514/38bdf8?text=Image+Not+Found'; showToast('ไม่พบไฟล์รูปภาพ ตรวจสอบชื่อไฟล์บน GitHub', 'error');">
                     </div>
@@ -474,7 +475,8 @@
             imgEl.style.opacity = 0.5; // สร้างลูกเล่นเฟดจางๆ เวลาเปลี่ยนรูป
             
             setTimeout(() => {
-                imgEl.src = `U3_Future_Form_ (${currentSlide}).png`;
+                // แก้ให้ตรงกับชื่อไฟล์ที่คุณครูตั้ง U3_Future_Form_1.PNG
+                imgEl.src = `U3_Future_Form_${currentSlide}.PNG`;
                 document.getElementById('slide-counter').innerText = `${currentSlide} / ${totalSlides}`;
                 imgEl.style.opacity = 1;
             }, 150);
