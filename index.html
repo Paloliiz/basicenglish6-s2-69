@@ -100,13 +100,13 @@
             <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4 relative">
                 <div>
                     <label class="block text-xs font-medium text-purple-200 mb-1.5">รหัสประจำตัวนักเรียน (Student ID)</label>
-                    <input type="text" id="login-student-id" required placeholder="เช่น 10001"
+                    <input type="text" id="login-student-id" required placeholder="******"
                         class="w-full px-4 py-3 rounded-xl bg-cosmic-950/90 border border-purple-500/40 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30 font-scifi tracking-wider text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-purple-200 mb-1.5">รหัสผ่านมิติ (PIN 4 หลัก)</label>
+                    <label class="block text-xs font-medium text-purple-200 mb-1.5">รหัสผ่านมิติ (ชื่อจริงภาษาไทย)</label>
                     <div class="relative">
-                        <input type="password" id="login-pin" required placeholder="เช่น 1234"
+                        <input type="password" id="login-pin" required placeholder="ศรุตา"
                             class="w-full pl-4 pr-12 py-3 rounded-xl bg-cosmic-950/90 border border-purple-500/40 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30 font-scifi tracking-widest text-sm">
                         <button type="button" onclick="togglePasswordVisibility('login-pin', 'eye-icon-login')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-purple-400 hover:text-purple-200 transition">
                             <span id="eye-icon-login" class="text-lg">👁️</span>
@@ -385,7 +385,7 @@
                 <div>
                     <label class="block text-xs font-medium text-purple-200 mb-2">🔑 กรอกรหัสลับที่ได้จากใบงาน / เว็บภารกิจย่อย</label>
                     <div class="relative">
-                        <input type="password" id="modal-passcode-input" required placeholder="เช่น U3-222EC"
+                        <input type="password" id="modal-passcode-input" required placeholder="เช่น ***-*****"
                             class="w-full px-12 py-3.5 rounded-xl bg-cosmic-950 border-2 border-purple-500/50 text-center font-scifi text-base sm:text-lg tracking-widest text-white uppercase focus:outline-none focus:border-fuchsia-400">
                         <button type="button" onclick="togglePasswordVisibility('modal-passcode-input', 'eye-icon-mission')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-purple-400 hover:text-purple-200 transition">
                             <span id="eye-icon-mission" class="text-xl">👁️</span>
@@ -447,7 +447,7 @@
         };
 
         const MISSION_META_PRESETS = {
-            "M01": { unit: "Unit 3", subtitle: "ฟังเสียงและทำแบบฝึกหัด Fitness Plan (หน้า 34-35) ผ่านระบบ Web App", category: "Listening & Vocab", difficulty: "Medium", xp: 100, demoPasscode: "U3-222EC", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_1.html" },
+            "M01": { unit: "Unit 3", subtitle: "ฟังเสียงและทำแบบฝึกหัด Fitness Plan (หน้า 34-35) ผ่านระบบ Web App", category: "Listening & Vocab", difficulty: "Medium", xp: 100, demoPasscode: "**-*****", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_1.html" },
             "M02": { unit: "Unit 3", subtitle: "เติมคำเชื่อมเหตุการณ์เวลา (ใบงาน 3.2) เพื่อซ่อมแซมนาฬิกามิติ", category: "Reading", difficulty: "Medium", xp: 100, demoPasscode: "ECLIPSE02", artType: "book", isWebLink: false },
             "M03": { unit: "Unit 4", subtitle: "แก้โจทย์ไวยากรณ์ The Mirror Truth (ใบงาน 4.1)", category: "Grammar", difficulty: "Hard", xp: 100, demoPasscode: "DIMENSION03", artType: "mirror", isWebLink: false },
             "M04": { unit: "Unit 4", subtitle: "หาคำศัพท์จากบริบท The Final Portal (หนังสือหน้า 48)", category: "Vocabulary", difficulty: "Hard", xp: 100, demoPasscode: "INFINITY04", artType: "castle", isWebLink: false },
