@@ -109,11 +109,61 @@
         @media (min-width: 600px) { .future-simple-grid { grid-template-columns: 1fr 1fr; } }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ปุ่มย้อนกลับ */
+        .btn-home {
+            display: inline-block;
+            background: #334155;
+            color: #f8fafc;
+            padding: 8px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            border: 1px solid #475569;
+            transition: background 0.3s;
+            cursor: pointer;
+            width: auto;
+        }
+        .btn-home:hover {
+            background: #475569;
+        }
     </style>
 </head>
 <body>
 
-<div id="view-mission" class="container">
+<!-- ================= 1. START/WELCOME SCREEN ================= -->
+<div id="welcome-screen" class="container text-center" style="max-width: 500px; margin-top: 50px;">
+    <!-- ปุ่มกลับหน้าหลักด้านบน -->
+    <div style="text-align: left;">
+         <a href="index.html" class="btn-home">⬅️ กลับหน้าหลัก</a>
+    </div>
+
+    <h2 style="color: var(--unit-green-light); font-size: 1.8rem; margin-bottom: 5px;">MISSION 3.1</h2>
+    <p style="color: var(--neon-cyan); margin-bottom: 25px;">Fitness Plan (Page 34-35)</p>
+    
+    <div class="card" style="background: rgba(2, 6, 23, 0.6);">
+        <label style="display: block; color: #cbd5e1; margin-bottom: 10px; font-size: 0.9rem;">
+            ยืนยันรหัสประจำตัวนักเรียนก่อนเริ่มทำภารกิจ
+        </label>
+        <input type="text" id="start-sid-input" placeholder="รหัสนักเรียน (เช่น 10001)" 
+            style="text-align: center; font-size: 1.2rem !important; letter-spacing: 2px; font-weight: bold; color: var(--gold); border-color: var(--neon-cyan);">
+        
+        <button onclick="startMission()" class="btn-check" style="margin-top: 20px; padding: 15px;">
+            🚀 เริ่มทำภารกิจ
+        </button>
+        <p style="font-size: 0.8rem; color: #64748b; margin-top: 15px;">
+            * ข้อมูลการทำแบบฝึกหัดนี้จะถูกบันทึกเข้าระบบเพื่อยืนยันคะแนน
+        </p>
+    </div>
+</div>
+
+<!-- ================= 2. MAIN MISSION VIEW ================= -->
+<div id="view-mission" class="container hidden">
+    <!-- ปุ่มกลับหน้าหลักด้านบน -->
+    <div style="margin-bottom: 15px;">
+        <a href="index.html" class="btn-home">⬅️ กลับหน้าหลัก</a>
+    </div>
     
     <div id="miniCodeBanner" class="hidden" style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-weight: bold; letter-spacing: 1px;">CODE: U31-XXX</div>
 
@@ -127,7 +177,10 @@
 
     <div class="header-mission" id="mainHeader">
         <h2>Mission 3.1</h2>
-        <span id="pageBadge" style="background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;">Page 34-35</span>
+        <div style="text-align: right;">
+            <span id="pageBadge" style="background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; display: block; margin-bottom: 5px;">Page 34-35</span>
+            <span id="display-sid" style="color: var(--neon-cyan); font-size: 0.8rem;">ID: -----</span>
+        </div>
     </div>
 
     <!-- PHASE 1: VOCABULARY (Page 34) -->
@@ -345,14 +398,41 @@
             <div class="question" style="border-bottom: none;"><div class="q-text">4. What is true about the conversation?</div><select id="l35_12"><option value="">-- เลือกคำตอบ --</option><option value="a">a. Bruce isn't going to be doing any cycling.</option><option value="b">b. Bruce will put on a lot of muscle.</option><option value="c">c. Samantha isn't confident Bruce will succeed.</option><option value="d">d. Samantha is a relaxed trainer.</option></select></div>
 
             <div id="fb-p4" class="master-feedback"></div>
-            <button class="btn-check" id="btn-check-4" onclick="checkPhase4()">ตรวจคำตอบ & จบภารกิจ</button>
+            <button class="btn-check" id="btn-check-4" onclick="checkPhase4()">✅ ตรวจคำตอบ & บันทึกคะแนน</button>
             <button class="btn-back" onclick="goToPhase(3)">⬅️ ย้อนกลับ</button>
         </div>
     </div>
 </div>
 
 <script>
+    // URL สำหรับส่งข้อมูลไปเก็บใน Google Sheets หลังบ้าน
+    const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+    
+    let currentSessionSid = "";
     let phaseStatus = { 1: false, 2: true, 3: false, 4: false };
+
+    // เมื่อโหลดหน้าเว็บ ให้เช็คว่ามี sid ส่งมาจาก URL หรือไม่
+    window.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sid = urlParams.get('sid');
+        if(sid && sid !== "GUEST") {
+            document.getElementById('start-sid-input').value = sid;
+        }
+    });
+
+    // เริ่มต้นภารกิจ (เปลี่ยนจากหน้า Welcome ไปหน้าหลัก)
+    function startMission() {
+        const inputSid = document.getElementById('start-sid-input').value.trim();
+        if(!inputSid) {
+            alert("กรุณากรอกรหัสประจำตัวนักเรียนก่อนเริ่มทำภารกิจครับ");
+            return;
+        }
+        currentSessionSid = inputSid;
+        document.getElementById('display-sid').innerText = "ID: " + currentSessionSid;
+        
+        document.getElementById('welcome-screen').classList.add('hidden');
+        document.getElementById('view-mission').classList.remove('hidden');
+    }
 
     function goToPhase(phaseNum) {
         document.querySelectorAll('#phase1, #phase2, #phase3, #phase4').forEach(el => el.classList.add('hidden'));
@@ -376,7 +456,6 @@
         const ansFill = { f34_1: 'enable', f34_2: 'crucial', f34_3: 'maintains', f34_4: 'balance', f34_5: 'eventually', f34_6: 'adjust' };
         
         let correct = true;
-        
         for (let key in ansNum) {
             let el = document.getElementById(key);
             if (cleanStr(el.value) !== ansNum[key]) { correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); } 
@@ -413,11 +492,8 @@
         let correct = true;
         for (let key in ans) {
             let el = document.getElementById(key);
-            if (!ans[key].includes(cleanStr(el.value))) { 
-                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); 
-            } else { 
-                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); 
-            }
+            if (!ans[key].includes(cleanStr(el.value))) { correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); } 
+            else { el.style.setProperty('border-color', 'var(--neon-green)', 'important'); }
         }
         
         const fb = document.getElementById('fb-p3'); fb.style.display = 'block';
@@ -432,7 +508,7 @@
         }
     }
 
-    function checkPhase4() {
+    async function checkPhase4() {
         const ans = { 
             l35_1: 'c', l35_2: 'c', l35_3: 'd', l35_4: 'b', // Ex 5
             l35_5: 'c', l35_6: 'a', l35_7: 'd', l35_8: 'c', // Ex 6
@@ -447,28 +523,56 @@
         }
         
         const fb = document.getElementById('fb-p4'); fb.style.display = 'block';
+        
         if (correct) {
             phaseStatus[4] = true;
             document.getElementById('tab4').innerHTML = "Listen (35) ✔️"; document.getElementById('tab4').style.color = "var(--neon-green)";
+            
+            const btnCheck = document.getElementById('btn-check-4');
+            btnCheck.disabled = true;
+            btnCheck.innerHTML = "⏳ กำลังบันทึกผลการทำแบบฝึกหัด...";
             fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ตอบถูกทั้งหมด กำลังประมวลผลรหัสลับ...`;
             
-            // เปลี่ยนข้อความแจ้งเตือนเมื่อเคลียร์ด่าน
-            fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์! กลับไปที่หน้าหลักเพื่อกรอกรหัสรับ XP ได้เลย`;
-            document.getElementById('btn-check-4').classList.add('hidden');
-            
-            // --- ระบบสร้างรหัสลับเฉพาะบุคคล (Sci-Fi Cipher) ---
-            // ดึงรหัสนักเรียนจาก URL (เช่น ?sid=10001)
-            const urlParams = new URLSearchParams(window.location.search);
-            const sid = urlParams.get('sid') || "00000";
-            
-            // สร้าง Cipher ด้วยสมการ (sid * 13) + 9999 แล้วแปลงเป็นเลขฐาน 16
-            const numericSid = parseInt(sid) || 0;
+            // --- ระบบบันทึกคะแนนรายแบบฝึกหัด & สร้างรหัสผ่าน Sci-Fi ---
+            const numericSid = parseInt(currentSessionSid) || 0;
             const cipherText = (numericSid * 13 + 9999).toString(16).toUpperCase();
             const uniqueCode = "U31-" + cipherText;
-            
-            // แสดงรหัสผ่านให้นักเรียนเห็น
-            document.getElementById('miniCodeBanner').innerHTML = "🔥 MISSION CLEARED! รหัสผ่านมิติของคุณคือ: <b style='font-size:1.2rem; color:var(--gold);'>" + uniqueCode + "</b>";
-            document.getElementById('miniCodeBanner').classList.remove('hidden');
+
+            try {
+                // ส่งประวัติการทำแบบฝึกนี้ไปเก็บแยกใน Google Sheets หมวด WORKSHEET
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "recordActivity",
+                        studentId: currentSessionSid,
+                        activityType: "WORKSHEET_M01",
+                        itemId: "M01",
+                        xp: 0, // ให้ไปรับ XP ที่หน้า Dashboard ด้วยรหัสลับแทน
+                        details: "ผ่านแบบฝึกหัด M01 (Vocab, Grammar, Listening) สมบูรณ์"
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if(result.status === "success") {
+                    fb.innerHTML = `✔️ บันทึกข้อมูลเข้า Google Sheets สำเร็จ! นำรหัสลับด้านล่างไปกรอกที่หน้าหลักได้เลย`;
+                } else {
+                    fb.innerHTML = `⚠️ หลังบ้านแจ้ง Error: ${result.message} (แต่รับรหัสลับไปใช้ก่อนได้ครับ)`;
+                }
+
+                btnCheck.classList.add('hidden');
+                document.getElementById('miniCodeBanner').innerHTML = "🔥 MISSION CLEARED! รหัสผ่านมิติของคุณคือ: <br><b style='font-size:1.5rem; color:var(--gold);'>" + uniqueCode + "</b>";
+                document.getElementById('miniCodeBanner').classList.remove('hidden');
+
+            } catch (error) {
+                fb.innerHTML = `⚠️ เครือข่ายมีปัญหา แต่การตรวจคำตอบสมบูรณ์แล้ว!`;
+                btnCheck.classList.add('hidden');
+                
+                document.getElementById('miniCodeBanner').innerHTML = "🔥 MISSION CLEARED! รหัสผ่านมิติของคุณคือ: <br><b style='font-size:1.5rem; color:var(--gold);'>" + uniqueCode + "</b>";
+                document.getElementById('miniCodeBanner').classList.remove('hidden');
+            }
             
         } else {
             fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ตอบผิดบางข้อ ลองฟังใหม่แล้วแก้ดูนะ`;
