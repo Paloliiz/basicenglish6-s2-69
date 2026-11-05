@@ -164,9 +164,9 @@
                         <span id="badge-nav-missions" class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-purple-950/90 border border-purple-400/40 text-[10px] font-scifi text-purple-200">6</span>
                     </button>
 
-                    <button onclick="showToast('🔒 โมดูลคัมภีร์แกรมม่ากำลังอยู่ระหว่างการเตรียมเนื้อหา เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
-                        <span class="flex items-center gap-2.5"><span class="text-base grayscale">📘</span><span>สรุปแกรมม่า (Grammar)</span></span>
-                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
+                    <button onclick="switchModule('grammar')" id="nav-grammar" class="module-nav-btn flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap">
+                        <span class="flex items-center gap-2.5"><span class="text-base">📘</span><span>คลังความรู้ (Grammar)</span></span>
+                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-blue-900/60 border border-blue-400/40 text-[10px] font-scifi text-blue-200">U3</span>
                     </button>
 
                     <button onclick="showToast('🔒 โมดูล Voice Lab กำลังอยู่ระหว่างการเชื่อมต่อระบบเสียง เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
@@ -246,6 +246,7 @@
                 </div>
             </section>
 
+            <!-- MODULE: MISSIONS -->
             <section id="module-missions" class="module-section cosmic-card rounded-3xl p-5 sm:p-7 space-y-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
@@ -274,6 +275,49 @@
                 </div>
 
                 <div id="missions-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+            </section>
+
+            <!-- MODULE: GRAMMAR CODEX -->
+            <section id="module-grammar" class="module-section hidden cosmic-card rounded-3xl p-5 sm:p-7 space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">📘</span>
+                            <h3 class="font-scifi text-xl sm:text-2xl font-bold text-white tracking-wide">Grammar Codex</h3>
+                        </div>
+                        <p class="text-xs sm:text-sm text-purple-200/75 mt-1">คลังความรู้ และสรุปไวยากรณ์สำหรับทบทวน</p>
+                    </div>
+                </div>
+
+                <!-- Slide Viewer UI -->
+                <div class="p-4 sm:p-6 bg-cosmic-950/80 border border-purple-500/30 rounded-2xl space-y-4 relative shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
+                    <div class="flex flex-wrap justify-between items-center mb-2 gap-3">
+                        <h4 class="font-bold text-cyan-300 text-sm sm:text-base">Unit 3: Future Forms</h4>
+                        <span id="slide-counter" class="px-4 py-1.5 rounded-full bg-blue-900/60 border border-blue-400/40 text-xs sm:text-sm font-scifi font-bold text-blue-100 shadow-md">1 / 21</span>
+                    </div>
+                    
+                    <!-- ส่วนแสดงรูปภาพสไลด์ -->
+                    <div class="relative w-full rounded-xl overflow-hidden border border-slate-700 bg-black flex items-center justify-center min-h-[250px] sm:min-h-[450px]">
+                        <img id="current-slide-img" src="U3_Future_Form_ (1).png" alt="Grammar Slide" 
+                            class="max-w-full max-h-[65vh] object-contain transition-opacity duration-300 shadow-2xl" 
+                            onerror="this.src='https://via.placeholder.com/800x450/090514/38bdf8?text=Image+Not+Found'; showToast('ไม่พบไฟล์รูปภาพ ตรวจสอบชื่อไฟล์บน GitHub', 'error');">
+                    </div>
+
+                    <!-- ปุ่มควบคุมสไลด์ -->
+                    <div class="flex justify-between items-center pt-3 border-t border-slate-700/50 mt-4">
+                        <button onclick="prevSlide()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-xs sm:text-sm font-bold transition flex items-center gap-2 active:scale-95 shadow-md">
+                            <span>⬅️</span> <span>ก่อนหน้า</span>
+                        </button>
+                        
+                        <button onclick="nextSlide()" class="btn-portal px-6 py-3 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 active:scale-95 shadow-lg">
+                            <span>ถัดไป</span> <span>➡️</span>
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-2">
+                        <p class="text-[10px] sm:text-xs text-slate-400">💡 ทริค: อ่านสไลด์เพื่อเตรียมตัวก่อนทำภารกิจหรือสอบ</p>
+                    </div>
+                </div>
             </section>
         </main>
 
@@ -310,11 +354,11 @@
 
     <!-- ================= MOBILE BOTTOM NAV ================= -->
     <div class="lg:hidden fixed bottom-0 inset-x-0 z-40 cosmic-card border-t border-purple-500/40 px-2 py-1.5 flex items-center justify-around">
-        <button onclick="switchModule('missions')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-purple-200">
+        <button onclick="switchModule('missions')" id="nav-missions-mobile" class="module-nav-btn flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-purple-200">
             <span class="text-base">🏠</span><span>ภารกิจ</span>
         </button>
-        <button onclick="showToast('🔒 โมดูลสรุปแกรมม่ากำลังเตรียมเนื้อหา', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
-            <span class="text-base grayscale">📘</span><span>แกรมม่า</span>
+        <button onclick="switchModule('grammar')" id="nav-grammar-mobile" class="module-nav-btn flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500 hover:text-purple-200 transition">
+            <span class="text-base">📘</span><span>แกรมม่า</span>
         </button>
         <button onclick="showToast('🔒 โมดูล Voice Lab กำลังเตรียมระบบเสียง', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
             <span class="text-base grayscale">🎙️</span><span>พูดคำศัพท์</span>
@@ -420,6 +464,70 @@
             user: null,
             missions: []
         };
+
+        // --- ระบบสไลด์ Grammar Codex ---
+        let currentSlide = 1;
+        const totalSlides = 21; // จำนวนสไลด์ทั้งหมด
+
+        function updateSlide() {
+            const imgEl = document.getElementById('current-slide-img');
+            imgEl.style.opacity = 0.5; // สร้างลูกเล่นเฟดจางๆ เวลาเปลี่ยนรูป
+            
+            setTimeout(() => {
+                imgEl.src = `U3_Future_Form_ (${currentSlide}).png`;
+                document.getElementById('slide-counter').innerText = `${currentSlide} / ${totalSlides}`;
+                imgEl.style.opacity = 1;
+            }, 150);
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlide();
+            } else {
+                showToast('คุณอ่านสไลด์หน้าสุดท้ายจบแล้วครับ! 🎉', 'success');
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // --- ระบบนำทางสลับโมดูล (Switch Module) ---
+        function switchModule(modId) {
+            appState.activeModule = modId;
+            
+            document.querySelectorAll('.module-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('module-' + modId).classList.remove('hidden');
+            
+            document.querySelectorAll('.module-nav-btn').forEach(btn => {
+                btn.classList.remove('nav-btn-active', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
+            const desktopBtn = document.getElementById('nav-' + modId);
+            if(desktopBtn) {
+                desktopBtn.classList.remove('text-slate-300');
+                desktopBtn.classList.add('nav-btn-active', 'text-white');
+            }
+            
+            const mobileBtnMissions = document.getElementById('nav-missions-mobile');
+            const mobileBtnGrammar = document.getElementById('nav-grammar-mobile');
+            
+            if(mobileBtnMissions && mobileBtnGrammar) {
+                if(modId === 'missions') {
+                    mobileBtnMissions.classList.replace('text-slate-500', 'text-purple-200');
+                    mobileBtnGrammar.classList.replace('text-purple-200', 'text-slate-500');
+                } else if (modId === 'grammar') {
+                    mobileBtnGrammar.classList.replace('text-slate-500', 'text-purple-200');
+                    mobileBtnMissions.classList.replace('text-purple-200', 'text-slate-500');
+                }
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         window.addEventListener("DOMContentLoaded", () => {
             const savedSession = localStorage.getItem("pd_portal_session");
