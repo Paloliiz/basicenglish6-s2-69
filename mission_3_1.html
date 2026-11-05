@@ -420,18 +420,55 @@
         }
     });
 
-    // เริ่มต้นภารกิจ (เปลี่ยนจากหน้า Welcome ไปหน้าหลัก)
-    function startMission() {
+    // เริ่มต้นภารกิจ (อัปเกรด: เช็ครหัสนักเรียนจาก Google Sheets)
+    async function startMission() {
         const inputSid = document.getElementById('start-sid-input').value.trim();
         if(!inputSid) {
-            alert("กรุณากรอกรหัสประจำตัวนักเรียนก่อนเริ่มทำภารกิจครับ");
+            alert("⚠️ กรุณากรอกรหัสประจำตัวนักเรียนก่อนเริ่มทำภารกิจครับ");
             return;
         }
-        currentSessionSid = inputSid;
-        document.getElementById('display-sid').innerText = "ID: " + currentSessionSid;
-        
-        document.getElementById('welcome-screen').classList.add('hidden');
-        document.getElementById('view-mission').classList.remove('hidden');
+
+        // เปลี่ยนปุ่มเป็นสถานะโหลด
+        const btnStart = document.querySelector('#welcome-screen .btn-check');
+        const originalText = btnStart.innerHTML;
+        btnStart.innerHTML = "⏳ กำลังตรวจสอบรหัสนักเรียน...";
+        btnStart.disabled = true;
+        btnStart.style.opacity = "0.7";
+
+        try {
+            // ยิงไปถามระบบหลังบ้านว่ารหัสนี้มีอยู่จริงไหม
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "verifyStudent",
+                    studentId: inputSid
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === "success") {
+                // รหัสถูกต้อง ให้ผ่านเข้าด่าน
+                currentSessionSid = inputSid;
+                // แสดงชื่อนักเรียนให้เจ้าตัวมั่นใจว่าไม่ผิดคน
+                document.getElementById('display-sid').innerText = `ID: ${currentSessionSid} (${result.name})`;
+                
+                document.getElementById('welcome-screen').classList.add('hidden');
+                document.getElementById('view-mission').classList.remove('hidden');
+            } else {
+                // รหัสไม่มีในระบบ
+                alert(result.message);
+                btnStart.innerHTML = originalText;
+                btnStart.disabled = false;
+                btnStart.style.opacity = "1";
+            }
+        } catch (error) {
+            alert("⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง");
+            btnStart.innerHTML = originalText;
+            btnStart.disabled = false;
+            btnStart.style.opacity = "1";
+        }
     }
 
     function goToPhase(phaseNum) {
