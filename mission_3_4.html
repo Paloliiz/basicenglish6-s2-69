@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mission 3.4: Health & Writing | CHRONOS HQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ================= CSS VARIABLES & GLOBALS ================= */
+        :root {
+            --bg-space: #020617; --bg-panel: #0f172a; --bg-card: #1e293b;
+            --unit-green: #10b981; --unit-green-light: #34d399; /* ธีมสีเขียว Unit 3 */
+            --neon-cyan: #06b6d4; --neon-blue: #3b82f6; 
+            --neon-orange: #f59e0b; --neon-red: #ef4444; --gold: #facc15;
+            --neon-green: #22c55e; /* สีเขียวสำหรับข้อที่ถูก */
+            --text-main: #f8fafc; --text-muted: #94a3b8; --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Kanit', sans-serif; background-color: var(--bg-space); color: var(--text-main); 
+            display: flex; flex-direction: column; min-height: 100vh; padding: 15px;
+            background-image: radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.1) 0%, transparent 60%);
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--bg-panel); border-top: 4px solid var(--unit-green); border-radius: var(--radius);
+            padding: 20px; max-width: 800px; width: 100%; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease; position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Poppins', 'Kanit', sans-serif; }
+        .text-cyan { color: var(--neon-cyan); }
+        .section-title { background: var(--unit-green); color: white; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;}
+        
+        .card { background: var(--bg-card); border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 20px; animation: fadeIn 0.4s ease-out; }
+
+        /* ================= FORM & INPUTS ================= */
+        select, input[type="text"], input[type="number"] {
+            font-size: 16px !important; width: 100%; padding: 10px; border-radius: 6px; 
+            border: 1px solid #475569; background: #020617; color: #fff; font-family: 'Kanit';
+        }
+        select:focus, input:focus { border-color: var(--unit-green); outline: none; }
+        
+        /* Dropdown สำหรับเติมคำแบบเนียนๆ */
+        select.blank-input {
+            border: none; border-bottom: 2px solid var(--unit-green);
+            background: rgba(2, 6, 23, 0.5) !important; color: var(--gold) !important;
+            text-align: left; padding: 2px 5px; border-radius: 4px 4px 0 0;
+            display: inline-block; font-weight: bold; width: auto; min-width: 150px; font-size: 0.95rem !important; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select.blank-input:focus { border-bottom-color: var(--unit-green-light); outline: none; background: #020617 !important;}
+        
+        input[type="text"].sentence-input {
+            width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #475569; border-radius: 6px;
+            background: #020617; color: var(--gold); font-size: 0.95rem !important;
+        }
+
+        /* คลาสเมื่อตอบถูก เปลี่ยนข้อความเป็นสีเขียว */
+        .is-correct { color: var(--neon-green) !important; font-weight: bold; }
+
+        button {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; font-family: 'Kanit'; margin-top: 10px; transition: all 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        .btn-check { background: var(--unit-green); color: white; }
+        .btn-check:hover { background: var(--unit-green-light); }
+        .btn-next { background: var(--neon-cyan); color: #000; animation: pulse 1.5s infinite;}
+        .btn-back { background: transparent; border: 1px solid #475569; color: #cbd5e1; margin-top: 15px; }
+
+        /* ================= MISSION UI ================= */
+        .header-mission { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #334155; padding-bottom: 15px; margin-bottom: 20px; }
+        .header-mission h2 { font-family: 'Poppins', sans-serif; color: var(--unit-green-light); margin: 0; font-size: 1.5rem;}
+        
+        .question { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+        .question:last-child { border-bottom: none; padding-bottom: 0;}
+        .q-text { font-size: 1rem; margin-bottom: 10px; color: #f8fafc;}
+
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        @media (min-width: 600px) { .vocab-grid { grid-template-columns: repeat(4, 1fr); } }
+        .vocab-item { background: rgba(2, 6, 23, 0.5); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #475569; font-weight: bold; font-size: 1rem; color: var(--unit-green-light);}
+        .vocab-item input { width: 100%; margin-top: 10px; text-align: center; color: var(--gold);}
+
+        .word-bank { background: rgba(2, 6, 23, 0.5); border: 1px dashed var(--unit-green); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .word-chip { background: #1e293b; color: var(--unit-green-light); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; border: 1px solid #334155; }
+
+        .audio-container { background: #020617; border: 1px solid #475569; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        audio { width: 100%; height: 40px; outline: none; }
+
+        /* Grammar Table */
+        .grammar-slide { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #475569; border-radius: 12px; padding: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.2); margin-bottom: 20px;}
+        .grammar-detail-box { background: rgba(2, 6, 23, 0.5); padding: 15px; border-radius: 8px; border-left: 4px solid; margin-top: 15px; font-size: 0.95rem; line-height: 1.8;}
+        .grammar-detail-box.simple { border-color: var(--neon-blue); }
+        .grammar-detail-box.cont { border-color: var(--neon-orange); }
+
+        /* Article Box */
+        .article-box { background: rgba(2, 6, 23, 0.6); padding: 25px; border-radius: 10px; border: 1px solid #334155; line-height: 2.2; font-size: 1rem; color: #cbd5e1; }
+        .article-box p { margin-bottom: 20px; text-indent: 30px; }
+        .article-box select { margin: 0 5px; }
+
+        /* ================= TABS ================= */
+        .tab-container { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;}
+        .tab-btn { background: #1e293b; color: var(--text-muted); border: 1px solid #475569; font-size: 0.85rem; margin: 0; padding: 8px 15px; flex: 1; border-radius: 6px; cursor: pointer; font-family: 'Kanit'; transition: 0.3s;}
+        .tab-btn.active { background: var(--unit-green); color: #fff; border-color: var(--unit-green); font-weight: bold;}
+        .tab-btn:hover { transform: none; background: #334155;}
+
+        .master-feedback { display: none; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; text-align: center; font-weight: bold; line-height: 1.6;}
+        .correct { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); }
+        .wrong { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); }
+
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* ปุ่มย้อนกลับ */
+        .btn-home {
+            display: inline-block;
+            background: #334155;
+            color: #f8fafc;
+            padding: 8px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            border: 1px solid #475569;
+            transition: background 0.3s;
+            cursor: pointer;
+            width: auto;
+        }
+        .btn-home:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================= 1. START/WELCOME SCREEN ================= -->
+<div id="welcome-screen" class="container text-center" style="max-width: 500px; margin-top: 50px;">
+    <!-- ปุ่มกลับหน้าหลักด้านบน -->
+    <div style="text-align: left;">
+         <a href="index.html" class="btn-home">⬅️ กลับหน้าหลัก</a>
+    </div>
+
+    <h2 style="color: var(--unit-green-light); font-size: 1.8rem; margin-bottom: 5px;">MISSION 3.4</h2>
+    <p style="color: var(--neon-cyan); margin-bottom: 25px;">Health & Writing (Page 40-41)</p>
+    
+    <div class="card" style="background: rgba(2, 6, 23, 0.6);">
+        <label style="display: block; color: #cbd5e1; margin-bottom: 10px; font-size: 0.9rem;">
+            ยืนยันรหัสประจำตัวนักเรียนก่อนเริ่มทำภารกิจ
+        </label>
+        <input type="text" id="start-sid-input" placeholder="รหัสนักเรียน (เช่น 10001)" 
+            style="text-align: center; font-size: 1.2rem !important; letter-spacing: 2px; font-weight: bold; color: var(--gold); border-color: var(--neon-cyan);">
+        
+        <button onclick="startMission()" class="btn-check" style="margin-top: 20px; padding: 15px;">
+            🚀 เริ่มทำภารกิจ
+        </button>
+        <p style="font-size: 0.8rem; color: #64748b; margin-top: 15px;">
+            * ข้อมูลการทำแบบฝึกหัดนี้จะถูกบันทึกเข้าระบบเพื่อยืนยันคะแนน
+        </p>
+    </div>
+</div>
+
+<!-- ================= 2. MAIN MISSION VIEW ================= -->
+<div id="view-mission" class="container hidden">
+    
+    <div style="margin-bottom: 15px;">
+        <a href="index.html" class="btn-home">⬅️ กลับหน้าหลัก</a>
+    </div>
+
+    <!-- กล่องแสดงรหัสลับ (ซ่อนไว้ก่อน) -->
+    <div id="miniCodeBanner" class="hidden" style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; letter-spacing: 1px;">CODE: U34-XXX</div>
+
+    <!-- MISSION NAV -->
+    <div id="missionNav" class="tab-container">
+        <button id="tab1" class="tab-btn active" onclick="goToPhase(1)">Vocab (Page 40)</button>
+        <button id="tab2" class="tab-btn" onclick="goToPhase(2)">Grammar (Page 40)</button>
+        <button id="tab3" class="tab-btn" onclick="goToPhase(3)">Reading (Page 41)</button>
+    </div>
+
+    <div class="header-mission" id="mainHeader">
+        <h2>Mission 3.4: Health & Writing</h2>
+        <div style="text-align: right;">
+            <span id="pageBadge" style="background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; display: block; margin-bottom: 5px;">Page 40-41</span>
+            <span id="display-sid" style="color: var(--neon-cyan); font-size: 0.8rem;">ID: -----</span>
+        </div>
+    </div>
+
+    <!-- PHASE 1: VOCABULARY (Page 40) -->
+    <div id="phase1">
+        <div class="section-title">D. Writing: Vocabulary</div>
+        <div class="card">
+            <p style="color: var(--unit-green-light); margin-bottom: 10px; font-size: 0.95rem;"><b>1. Listen and number. (ฟังเสียงและใส่ตัวเลข 1-8 ลงในช่อง)</b></p>
+            
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 3-09</span>
+                <!-- คุณครูสามารถอัปโหลดไฟล์เสียง 3-09.mp3 เข้า Github ได้เลยครับ -->
+                <audio controls><source src="Track 3-09.mp3" type="audio/mpeg"></audio>
+            </div>
+
+            <div class="vocab-grid" style="margin-bottom: 30px;">
+                <div class="vocab-item">alter <input type="number" id="v40_1" placeholder="No."></div>
+                <div class="vocab-item">appeal <input type="number" id="v40_2" placeholder="No."></div>
+                <div class="vocab-item">artificial <input type="number" id="v40_3" placeholder="No."></div>
+                <div class="vocab-item">expectation <input type="number" id="v40_4" placeholder="No."></div>
+                <div class="vocab-item">aware <input type="number" id="v40_5" placeholder="No."></div>
+                <div class="vocab-item">poisonous <input type="number" id="v40_6" placeholder="No."></div>
+                <div class="vocab-item">state <input type="number" id="v40_7" placeholder="No."></div>
+                <div class="vocab-item">valid <input type="number" id="v40_8" placeholder="No."></div>
+            </div>
+
+            <p style="color: var(--unit-green-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>2. Match the words with the definitions. (เลือกคำศัพท์ให้ตรงกับความหมาย)</b></p>
+            
+            <div class="question"><div class="q-text">a. a belief that something will happen or is likely to happen</div>
+                <select class="word-dropdown blank-input" id="m40_a"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">b. fair or reasonable</div>
+                <select class="word-dropdown blank-input" id="m40_b"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">c. causing sickness or death by entering or touching the body</div>
+                <select class="word-dropdown blank-input" id="m40_c"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">d. the qualities that make someone or something attractive or enjoyable</div>
+                <select class="word-dropdown blank-input" id="m40_d"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">e. not natural or real</div>
+                <select class="word-dropdown blank-input" id="m40_e"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">f. the overall condition of something</div>
+                <select class="word-dropdown blank-input" id="m40_f"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">g. to change</div>
+                <select class="word-dropdown blank-input" id="m40_g"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question" style="border-bottom: none;"><div class="q-text">h. knowing that something exists</div>
+                <select class="word-dropdown blank-input" id="m40_h"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+
+            <div id="fb-p1" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-1" onclick="checkPhase1()">ตรวจคำตอบ</button>
+            <button class="btn-next hidden" id="btn-next-1" onclick="goToPhase(2)">➔ ไปด่าน Grammar</button>
+        </div>
+    </div>
+
+    <!-- PHASE 2: GRAMMAR (Page 40 Ex 3 & 4) -->
+    <div id="phase2" class="hidden">
+        <div class="section-title">D. Writing: Grammar</div>
+        
+        <p style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 1.05rem;"><b>3. Future Perfect Simple & Future Perfect Continuous</b></p>
+        <div class="grammar-slide" style="border-color: var(--unit-green-light); padding: 15px;">
+            
+            <div class="grammar-detail-box simple">
+                <h3 style="color: var(--neon-blue); margin-bottom: 5px;">📘 Future Perfect Simple <span style="font-size: 0.9rem; font-weight: normal; color:#94a3b8;">(will + have + V.3)</span></h3>
+                <p>ใช้เพื่อบอกว่า <b>"เหตุการณ์หนึ่งจะสิ้นสุดหรือทำเสร็จเรียบร้อยแล้ว"</b> ก่อนที่อีกเหตุการณ์หนึ่งจะเกิดขึ้นในอนาคต (เน้นที่ผลลัพธ์ว่าเสร็จแน่นอน)</p>
+                <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 10px;">
+                    <b style="color: var(--gold);">ตัวอย่าง:</b> I <span style="color: var(--neon-blue);">will have finished</span> my homework when my parents come home.<br>
+                    <i style="color: #94a3b8;">(ฉันจะทำการบ้านเสร็จเรียบร้อยแล้ว ในตอนที่พ่อแม่กลับมาถึงบ้าน)</i>
+                </div>
+            </div>
+
+            <div class="grammar-detail-box cont">
+                <h3 style="color: var(--neon-orange); margin-bottom: 5px;">📙 Future Perfect Continuous <span style="font-size: 0.9rem; font-weight: normal; color:#94a3b8;">(will + have + been + V.ing)</span></h3>
+                <p>ใช้เพื่อบอกว่า <b>"เหตุการณ์หนึ่งจะดำเนินมาอย่างต่อเนื่องเป็นระยะเวลาหนึ่งแล้ว"</b> จนกระทั่งถึงจุดเวลาหนึ่งในอนาคต (เน้นย้ำความต่อเนื่องของเวลา มักมีคำบอกเวลาเช่น for an hour, for a year)</p>
+                <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 10px;">
+                    <b style="color: var(--gold);">ตัวอย่าง:</b> They <span style="color: var(--neon-orange);">will have been waiting</span> for over an hour by the time the plane lands.<br>
+                    <i style="color: #94a3b8;">(พวกเขาจะรอคอยอย่างต่อเนื่องมาเป็นเวลากว่า 1 ชั่วโมงแล้ว ในตอนที่เครื่องบินลงจอด)</i>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card">
+            <p style="color: var(--unit-green-light); margin-bottom: 15px; font-size: 0.95rem;"><b>4. Rewrite the sentences as one sentence using the future perfect simple or continuous.</b></p>
+            <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--neon-orange); padding: 10px; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;">
+                <b>💡 คำแนะนำ:</b> พิมพ์รวมเป็นประโยคเดียวให้สมบูรณ์ <span style="color:var(--neon-orange);">ไม่ต้องใส่จุดท้ายประโยค</span>
+            </div>
+
+            <div class="question">
+                <div class="q-text">1. John finished his video game. His parents came home from work.</div>
+                <input type="text" id="g40_1" class="sentence-input" placeholder="พิมพ์ประโยคใหม่...">
+            </div>
+            <div class="question">
+                <div class="q-text">2. Henrietta studied for an hour. The class starts.</div>
+                <input type="text" id="g40_2" class="sentence-input" placeholder="พิมพ์ประโยคใหม่...">
+            </div>
+            <div class="question">
+                <div class="q-text">3. Rodrigo ate all the cookies. I made more.</div>
+                <input type="text" id="g40_3" class="sentence-input" placeholder="พิมพ์ประโยคใหม่...">
+            </div>
+            <div class="question">
+                <div class="q-text">4. My parents arrived. My plane lands.</div>
+                <input type="text" id="g40_4" class="sentence-input" placeholder="พิมพ์ประโยคใหม่...">
+            </div>
+            <div class="question" style="border-bottom: none;">
+                <div class="q-text">5. My sister and I play soccer for 30 minutes. Our friends join us.</div>
+                <input type="text" id="g40_5" class="sentence-input" placeholder="พิมพ์ประโยคใหม่...">
+            </div>
+
+            <div id="fb-p2" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-2" onclick="checkPhase2()">ตรวจคำตอบ</button>
+            <button class="btn-next hidden" id="btn-next-2" onclick="goToPhase(3)">➔ ไปด่านสุดท้าย</button>
+            <button class="btn-back" onclick="goToPhase(1)">⬅️ ย้อนกลับ</button>
+        </div>
+    </div>
+
+    <!-- PHASE 3: READING (Page 41) -->
+    <div id="phase3" class="hidden">
+        <div class="section-title">D. Writing: Complete the text</div>
+        <div class="card">
+            <p style="color: var(--unit-green-light); margin-bottom: 10px; font-size: 0.95rem;"><b>5. Read and fill in the blanks with the words in the box.</b></p>
+            
+            <div class="audio-container" style="margin-bottom: 25px;">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 3-10</span>
+                <!-- คุณครูสามารถอัปโหลดไฟล์เสียง 3-10.mp3 เข้า Github ได้เลยครับ -->
+                <audio controls><source src="Track 3-10.mp3" type="audio/mpeg"></audio>
+            </div>
+
+            <div class="article-box">
+                <p>
+                    Obesity has become a global health issue affecting individuals worldwide. For decades, this condition has seen a gradual increase annually. Looking at the US, the current 
+                    <span style="color: var(--unit-green-light); font-weight: bold;">1.</span><select class="word-dropdown blank-input" id="r41_1"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    of public health is quite alarming, with approximately 80 million individuals classified as obese. Furthermore, many individuals face additional severe illnesses linked to their weight. However, this obesity crisis can be tackled if we take the right steps.
+                </p>
+                <p>
+                    The primary factors driving obesity include overeating and poor dietary choices. A typical American diet often consists heavily of processed items, sweets, and junk food. Such diets contain harmful, 
+                    <span style="color: var(--unit-green-light); font-weight: bold;">2.</span><select class="word-dropdown blank-input" id="r41_2"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    ingredients which can be almost 
+                    <span style="color: var(--unit-green-light); font-weight: bold;">3.</span><select class="word-dropdown blank-input" id="r41_3"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    to our bodies. One major reason people consume these items is their low cost compared to nutritious alternatives. As a result, these cheap options 
+                    <span style="color: var(--unit-green-light); font-weight: bold;">4.</span><select class="word-dropdown blank-input" id="r41_4"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    strongly to the general public. Additionally, portion sizes are frequently too large. When individuals finally recognize the damage, they will have been consuming unhealthy diets for years.
+                </p>
+                <p>
+                    A highly 
+                    <span style="color: var(--unit-green-light); font-weight: bold;">5.</span><select class="word-dropdown blank-input" id="r41_5"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    strategy for fighting obesity involves teaching kids about nutrition early on. Governments have a duty to guide youth toward healthier lifestyles. Across America, numerous students are just not 
+                    <span style="color: var(--unit-green-light); font-weight: bold;">6.</span><select class="word-dropdown blank-input" id="r41_6"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    of the components of a balanced meal. A quick look at a standard school cafeteria often reveals kids consuming oily fries and poor-quality meals. Fortunately, certain schools across the US are now providing nutritional guidance and better lunch options.
+                </p>
+                <p>
+                    Observing other wealthy countries, one might hold similar 
+                    <span style="color: var(--unit-green-light); font-weight: bold;">7.</span><select class="word-dropdown blank-input" id="r41_7"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    about their weight issues. Yet, this is frequently incorrect. Across Europe, kids will have understood proper nutrition by elementary school age. They receive nutritious meals and early education on healthy eating. Consequently, their obesity statistics are much lower. For instance, Italy and Germany report rates around 10.3 and 14.7 percent, respectively. The US, on the other hand, stands at nearly 35.9 percent. Americans clearly need to drastically 
+                    <span style="color: var(--unit-green-light); font-weight: bold;">8.</span><select class="word-dropdown blank-input" id="r41_8"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    their dietary behaviors.
+                </p>
+                <p>
+                    Proper education on how to fight obesity should start at an early age. To do this, we need to properly educate our youth about obesity. If we fail to do so, then many people will continue to suffer.
+                </p>
+            </div>
+
+            <div id="fb-p3" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-3" style="margin-top: 25px;" onclick="checkPhase3()">✅ ตรวจคำตอบ & บันทึกคะแนน</button>
+            <button class="btn-back" onclick="goToPhase(2)">⬅️ ย้อนกลับ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // URL สำหรับส่งข้อมูลไปเก็บใน Google Sheets หลังบ้าน
+    const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+    
+    let currentSessionSid = "";
+
+    // 1. ดึงคำศัพท์ไปใส่ใน Dropdown Ex 2 และ Ex 5 อัตโนมัติ
+    const vocabList = ["alter", "appeal", "artificial", "aware", "expectations", "poisonous", "state", "valid"];
+    const dropdowns = document.querySelectorAll('.word-dropdown');
+    
+    dropdowns.forEach(dropdown => {
+        vocabList.forEach(word => {
+            let option = document.createElement('option');
+            
+            // เช็คและแก้รูปคำศัพท์สำหรับข้อ 7 (expectation -> expectations)
+            if(dropdown.id === 'r41_7' && word === 'expectations') {
+                option.value = 'expectations'; option.textContent = 'expectations';
+            } else if (word === 'expectations' && dropdown.id !== 'r41_7') {
+                option.value = 'expectation'; option.textContent = 'expectation';
+            } else {
+                option.value = word; option.textContent = word;
+            }
+            dropdown.appendChild(option);
+        });
+    });
+
+    // ตรวจจับ Student ID จาก URL
+    window.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sid = urlParams.get('sid');
+        if(sid && sid !== "GUEST") {
+            document.getElementById('start-sid-input').value = sid;
+        }
+    });
+
+    // ฟังก์ชันเริ่มทำภารกิจ (เช็ครหัสนักเรียนจาก Google Sheets)
+    async function startMission() {
+        const inputSid = document.getElementById('start-sid-input').value.trim();
+        if(!inputSid) {
+            alert("⚠️ กรุณากรอกรหัสประจำตัวนักเรียนก่อนเริ่มทำภารกิจครับ");
+            return;
+        }
+
+        // เปลี่ยนปุ่มเป็นสถานะโหลด
+        const btnStart = document.querySelector('#welcome-screen .btn-check');
+        const originalText = btnStart.innerHTML;
+        btnStart.innerHTML = "⏳ กำลังตรวจสอบรหัสวิทยฐานะ...";
+        btnStart.disabled = true;
+        btnStart.style.opacity = "0.7";
+
+        try {
+            // ยิงไปถามระบบหลังบ้านว่ารหัสนี้มีอยู่จริงไหม
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "verifyStudent",
+                    studentId: inputSid
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === "success") {
+                // รหัสถูกต้อง ให้ผ่านเข้าด่าน
+                currentSessionSid = inputSid;
+                document.getElementById('display-sid').innerText = `ID: ${currentSessionSid} (${result.name})`;
+                
+                document.getElementById('welcome-screen').classList.add('hidden');
+                document.getElementById('view-mission').classList.remove('hidden');
+            } else {
+                alert(result.message);
+                btnStart.innerHTML = originalText;
+                btnStart.disabled = false;
+                btnStart.style.opacity = "1";
+            }
+        } catch (error) {
+            alert("⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง");
+            btnStart.innerHTML = originalText;
+            btnStart.disabled = false;
+            btnStart.style.opacity = "1";
+        }
+    }
+
+    // 2. ระบบสลับหน้า
+    function goToPhase(phaseNum) {
+        document.querySelectorAll('#phase1, #phase2, #phase3').forEach(el => el.classList.add('hidden'));
+        document.getElementById('phase' + phaseNum).classList.remove('hidden');
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('tab' + phaseNum).classList.add('active');
+
+        const badge = document.getElementById('pageBadge');
+        if(phaseNum === 1 || phaseNum === 2) badge.innerText = "Page 40"; 
+        else badge.innerText = "Page 41";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ฟังก์ชันทำความสะอาดข้อความ
+    function cleanStr(s) {
+        return s.toLowerCase().replace(/[^a-z0-9\s']/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    // 3. ตรวจคำตอบหน้า 40 (Vocab)
+    function checkPhase1() {
+        const ansNum = { v40_1: '6', v40_2: '4', v40_3: '5', v40_4: '7', v40_5: '3', v40_6: '1', v40_7: '8', v40_8: '2' }; 
+        const ansMatch = { m40_a: 'expectation', m40_b: 'valid', m40_c: 'poisonous', m40_d: 'appeal', m40_e: 'artificial', m40_f: 'state', m40_g: 'alter', m40_h: 'aware' };
+        
+        let correct = true;
+        
+        for (let key in ansNum) {
+            let el = document.getElementById(key);
+            if (cleanStr(el.value) !== ansNum[key]) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        for (let key in ansMatch) {
+            let el = document.getElementById(key);
+            if (el.value !== ansMatch[key]) { 
+                correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p1'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab1').innerHTML = "Vocab (Page 40) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ยอดเยี่ยม! ตอบถูกทั้งหมด ไปด่าน Grammar กันต่อเลย`; 
+            document.getElementById('btn-next-1').classList.remove('hidden');
+            document.getElementById('btn-check-1').classList.add('hidden');
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีข้อที่ผิด สังเกตสีของกรอบนะคะ`;
+        }
+    }
+
+    // 4. ตรวจคำตอบหน้า 40 (Grammar)
+    function checkPhase2() {
+        const ans = { 
+            g40_1: ['John will have finished his video game when his parents come home from work'], 
+            g40_2: ['Henrietta will have studied for an hour before the class starts'], 
+            g40_3: ['Rodrigo will have eaten all the cookies before I make more'], 
+            g40_4: ['My parents will have arrived when my plane lands'], 
+            g40_5: ['My sister and i will have been playing soccer for 30 minutes when our friends join us', 'My sister and i will have been playing soccer for thirty minutes when our friends join us'] 
+        }; 
+        
+        let correct = true;
+        for (let key in ans) {
+            let el = document.getElementById(key);
+            let val = cleanStr(el.value);
+            if (!ans[key].includes(val)) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p2'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab2').innerHTML = "Grammar (Page 40) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ แกรมม่าแม่นเป๊ะ! ลุยด่านสุดท้ายกัน`; 
+            document.getElementById('btn-next-2').classList.remove('hidden');
+            document.getElementById('btn-check-2').classList.add('hidden');
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตช่องที่มีสีแดงนะ (ระวังการสะกด และไม่ต้องใส่จุดท้ายประโยค)`;
+        }
+    }
+
+    // 5. ตรวจคำตอบหน้า 41 (Reading) และส่งคะแนนเข้า Google Sheets
+    async function checkPhase3() {
+        const ans = { r41_1: 'state', r41_2: 'artificial', r41_3: 'poisonous', r41_4: 'appeal', r41_5: 'valid', r41_6: 'aware', r41_7: 'expectations', r41_8: 'alter' }; 
+        
+        let correct = true;
+        for (let key in ans) {
+            let el = document.getElementById(key);
+            if (el.value !== ans[key]) { 
+                correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p3'); fb.style.display = 'block';
+        
+        if (correct) {
+            document.getElementById('tab3').innerHTML = "Reading (Page 41) ✔️";
+            
+            const btnCheck = document.getElementById('btn-check-3');
+            btnCheck.disabled = true;
+            btnCheck.innerHTML = "⏳ กำลังบันทึกผลการทำแบบฝึกหัด...";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ตอบถูกทั้งหมด กำลังประมวลผลรหัสลับ...`;
+            
+            // สร้างรหัส Cipher ด่าน M04 (สูตร: (sid * 29) + 1111 แปลงเป็นเลขฐาน 16)
+            const numericSid = parseInt(currentSessionSid) || 0;
+            const cipherText = (numericSid * 29 + 1111).toString(16).toUpperCase();
+            const uniqueCode = "U34-" + cipherText;
+
+            try {
+                // ยิง API ส่ง Log ไปว่าผ่าน WORKSHEET_M04
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "recordActivity",
+                        studentId: currentSessionSid,
+                        activityType: "WORKSHEET_M04",
+                        itemId: "M04",
+                        xp: 0,
+                        details: "ผ่านแบบฝึกหัด M04 (Vocab, Grammar, Reading) สมบูรณ์"
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if(result.status === "success") {
+                    fb.innerHTML = `✔️ บันทึกข้อมูลเข้า Google Sheets สำเร็จ! นำรหัสลับด้านล่างไปกรอกที่หน้าหลักได้เลย`;
+                } else {
+                    fb.innerHTML = `⚠️ หลังบ้านแจ้ง Error: ${result.message} (แต่รับรหัสลับไปใช้ก่อนได้ครับ)`;
+                }
+
+                btnCheck.classList.add('hidden');
+                document.getElementById('miniCodeBanner').innerHTML = "🔥 MISSION CLEARED! รหัสผ่านมิติของคุณคือ: <br><b style='font-size:1.5rem; color:var(--gold);'>" + uniqueCode + "</b>";
+                document.getElementById('miniCodeBanner').classList.remove('hidden');
+
+            } catch (error) {
+                fb.innerHTML = `⚠️ เครือข่ายมีปัญหา แต่การตรวจคำตอบสมบูรณ์แล้ว!`;
+                btnCheck.classList.add('hidden');
+                document.getElementById('miniCodeBanner').innerHTML = "🔥 MISSION CLEARED! รหัสผ่านมิติของคุณคือ: <br><b style='font-size:1.5rem; color:var(--gold);'>" + uniqueCode + "</b>";
+                document.getElementById('miniCodeBanner').classList.remove('hidden');
+            }
+            
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ เลือกผิดบางข้อ ลองอ่านบริบททบทวนอีกครั้งนะ`;
+        }
+    }
+</script>
+</body>
+</html>
