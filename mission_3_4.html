@@ -273,8 +273,15 @@
 
         <div class="card">
             <p style="color: var(--unit-green-light); margin-bottom: 15px; font-size: 0.95rem;"><b>4. Rewrite the sentences as one sentence using the future perfect simple or continuous.</b></p>
-            <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--neon-orange); padding: 10px; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;">
-                <b>💡 คำแนะนำ:</b> พิมพ์รวมเป็นประโยคเดียวให้สมบูรณ์ <span style="color:var(--neon-orange);">ไม่ต้องใส่จุดท้ายประโยค</span>
+            
+            <!-- กล่องคำใบ้แบบใหม่ ละเอียดและสอนแกรมม่า -->
+            <div style="background: rgba(6, 182, 212, 0.15); border: 1px dashed var(--neon-cyan); padding: 15px; font-size: 0.9rem; color: #f8fafc; margin-bottom: 20px; border-radius: 8px; line-height: 1.8;">
+                <b style="color: var(--neon-cyan); font-size: 1rem;">💡 เคล็ดลับการรวบประโยค (สำคัญมาก!):</b><br>
+                โจทย์ให้มา 2 เหตุการณ์ การจะเชื่อมเป็นประโยคเดียว นักเรียนต้องทำ 3 ขั้นตอนดังนี้ครับ:<br>
+                <span style="color: var(--gold);">1.</span> นำหน้าประโยคที่เกิดทีหลัง ด้วยคำเชื่อม <b>when</b>, <b>before</b>, หรือ <b>by the time</b> (เลือกใช้คำไหนก็ได้)<br>
+                <span style="color: var(--gold);">2.</span> เปลี่ยนกริยาของประโยคหลังให้เป็น <b>Present Simple (V.1)</b> เสมอ<br>
+                <span style="color: var(--gold);">3.</span> <b>ต้องใส่จุด (Full stop '.')</b> จบประโยคให้ถูกต้องตามหลักไวยากรณ์ด้วยนะ<br>
+                <i style="color: #cbd5e1; margin-top: 8px; display: block; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 5px;">ตัวอย่าง: ...<span style="color: var(--gold);">by the time / when / before</span> the class start<span style="color: var(--neon-green); font-weight: bold;">s.</span></i>
             </div>
 
             <div class="question">
@@ -314,7 +321,7 @@
             <div class="audio-container" style="margin-bottom: 25px;">
                 <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 3-10</span>
                 <!-- คุณครูสามารถอัปโหลดไฟล์เสียง 3-10.mp3 เข้า Github ได้เลยครับ -->
-                <audio controls><source src="Track 3-10.mp3" type="audio/mpeg"></audio>
+                <audio controls><source src="3-10.mp3" type="audio/mpeg"></audio>
             </div>
 
             <div class="article-box">
@@ -497,14 +504,40 @@
         }
     }
 
-    // 4. ตรวจคำตอบหน้า 40 (Grammar)
+    // 4. ตรวจคำตอบหน้า 40 (Grammar) แบบยืดหยุ่นใหม่
     function checkPhase2() {
         const ans = { 
-            g40_1: ['John will have finished his video game when his parents come home from work'], 
-            g40_2: ['Henrietta will have studied for an hour before the class starts'], 
-            g40_3: ['Rodrigo will have eaten all the cookies before I make more'], 
-            g40_4: ['My parents will have arrived when my plane lands'], 
-            g40_5: ['My sister and i will have been playing soccer for 30 minutes when our friends join us', 'My sister and i will have been playing soccer for thirty minutes when our friends join us'] 
+            g40_1: [
+                'john will have finished his video game when his parents come home from work',
+                'john will have finished his video game before his parents come home from work',
+                'john will have finished his video game by the time his parents come home from work'
+            ], 
+            g40_2: [
+                'henrietta will have been studying for an hour when the class starts',
+                'henrietta will have been studying for an hour before the class starts',
+                'henrietta will have been studying for an hour by the time the class starts',
+                'henrietta will have studied for an hour when the class starts',
+                'henrietta will have studied for an hour before the class starts',
+                'henrietta will have studied for an hour by the time the class starts'
+            ], 
+            g40_3: [
+                'rodrigo will have eaten all the cookies when i make more',
+                'rodrigo will have eaten all the cookies before i make more',
+                'rodrigo will have eaten all the cookies by the time i make more'
+            ], 
+            g40_4: [
+                'my parents will have arrived when my plane lands',
+                'my parents will have arrived before my plane lands',
+                'my parents will have arrived by the time my plane lands'
+            ], 
+            g40_5: [
+                'my sister and i will have been playing soccer for 30 minutes when our friends join us',
+                'my sister and i will have been playing soccer for 30 minutes before our friends join us',
+                'my sister and i will have been playing soccer for 30 minutes by the time our friends join us',
+                'my sister and i will have been playing soccer for thirty minutes when our friends join us',
+                'my sister and i will have been playing soccer for thirty minutes before our friends join us',
+                'my sister and i will have been playing soccer for thirty minutes by the time our friends join us'
+            ] 
         }; 
         
         let correct = true;
@@ -526,7 +559,7 @@
             document.getElementById('btn-next-2').classList.remove('hidden');
             document.getElementById('btn-check-2').classList.add('hidden');
         } else {
-            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตช่องที่มีสีแดงนะ (ระวังการสะกด และไม่ต้องใส่จุดท้ายประโยค)`;
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตช่องสีแดงนะ (เช็คคำเชื่อม การสะกดคำ และอย่าลืมใส่จุดจบประโยค!)`;
         }
     }
 
