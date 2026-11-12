@@ -163,35 +163,52 @@
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     let isListening = false;
+    let hasResult = false; // เพิ่มตัวแปรเช็คว่าระบบได้ยินเสียงหรือไม่
 
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
         recognition.lang = 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
+        recognition.continuous = false; 
 
         recognition.onstart = function() {
             isListening = true;
+            hasResult = false; // รีเซ็ตค่าตอนเริ่มฟังทุกครั้ง
             const btn = document.getElementById("btn-speak");
             btn.classList.add("listening");
             btn.innerHTML = "🎙️ <span>LISTENING...</span>";
-            document.getElementById("feedback-box").innerHTML = "กำลังฟัง...";
+            document.getElementById("feedback-box").innerHTML = "กำลังฟัง... (พูดได้เลยครับ)";
             document.getElementById("feedback-box").className = "result-box text-main";
         };
 
         recognition.onresult = function(event) {
+            hasResult = true; // ยืนยันว่าจับเสียงได้แล้ว
             const spokenText = event.results[0][0].transcript;
             checkAnswer(spokenText);
         };
 
         recognition.onerror = function(event) {
-            document.getElementById("feedback-box").innerHTML = `⚠️ Error: ${event.error} (กรุณาอนุญาตให้เว็บใช้ไมโครโฟน)`;
+            let errorMsg = `⚠️ Error: ${event.error}`;
+            if (event.error === 'no-speech') {
+                errorMsg = "⚠️ ไม่ได้ยินเสียงครับ ลองเข้าใกล้ไมค์หรือพูดดังขึ้นหน่อยนะ";
+            } else if (event.error === 'network') {
+                errorMsg = "⚠️ อินเทอร์เน็ตไม่เสถียร ระบบแปลงเสียงไม่สำเร็จครับ";
+            } else if (event.error === 'not-allowed') {
+                errorMsg = "⚠️ กรุณากดอนุญาตให้เว็บใช้ไมโครโฟน (Allow Microphone) ก่อนครับ";
+            }
+            document.getElementById("feedback-box").innerHTML = errorMsg;
             document.getElementById("feedback-box").className = "result-box text-wrong";
             resetMicButton();
         };
 
         recognition.onend = function() {
             resetMicButton();
+            // ถ้าระบบตัดไปเองโดยที่ไม่ได้ยินเสียงพูด (หมดเวลา Timeout)
+            if (!hasResult && document.getElementById("feedback-box").innerText.includes("กำลังฟัง")) {
+                document.getElementById("feedback-box").innerHTML = "⚠️ เสียงเงียบไป ระบบเลยหยุดฟัง กรุณากดไมค์พูดใหม่ครับ";
+                document.getElementById("feedback-box").className = "result-box text-wrong";
+            }
         };
     } else {
         alert("⚠️ ขออภัยครับ เบราว์เซอร์ของคุณไม่รองรับระบบแยกเสียง (แนะนำให้ใช้ Google Chrome หรือ Safari)");
