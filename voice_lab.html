@@ -1,15 +1,360 @@
 <!DOCTYPE html>
-<html lang="th" class="dark">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Lab: Unit 3 | CHRONOS HQ</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Voice Lab Unit 3: Defeat The Bio-Phantom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #070510; --panel-bg: #150f2e; --card-bg: #1e1541;
+            --neon-green: #39ff14; --neon-purple: #a855f7; --neon-red: #ff2a2a; --neon-cyan: #06b6d4;
+            --text-main: #f8fafc;
+        }
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme:
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kanit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; 
+               background-image: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 70%); overflow-x: hidden;}
+
+        .container { background: var(--panel-bg); border: 2px solid rgba(168,85,247,0.4); border-radius: 20px; padding: 25px; width: 100%; max-width: 600px; box-shadow: 0 0 30px rgba(168,85,247,0.2); text-align: center; position: relative; }
+        
+        .font-scifi { font-family: 'Orbitron', sans-serif; }
+        
+        h1 { color: var(--neon-cyan); margin-bottom: 10px; font-size: 1.8rem; text-transform: uppercase; }
+        .phase-title { background: var(--neon-purple); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; display: inline-block; margin-bottom: 20px; letter-spacing: 1px;}
+        
+        input { font-size: 1.2rem; text-align: center; width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--neon-cyan); background: #000; color: var(--neon-green); margin-bottom: 20px; font-family: 'Orbitron', sans-serif;}
+        input:focus { outline: none; box-shadow: 0 0 15px var(--neon-cyan); }
+        
+        /* Buttons */
+        button { border: none; padding: 12px 20px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin: 5px; }
+        .btn-start { background: var(--neon-cyan); color: #000; width: 100%; box-shadow: 0 0 15px var(--neon-cyan); }
+        .btn-listen { background: #334155; color: white; border: 1px solid #64748b; }
+        .btn-speak { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); display: flex; align-items: center; justify-content: center; gap: 8px; margin: 15px auto; width: 80%;}
+        .btn-speak.listening { background: var(--neon-red); box-shadow: 0 0 25px var(--neon-red); animation: pulse 1s infinite; }
+        
+        /* Game UI */
+        .target-box { background: rgba(0,0,0,0.5); border: 2px dashed var(--neon-cyan); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .target-text { font-size: 2rem; font-weight: 800; color: var(--neon-green); word-break: break-word; }
+        .meaning-text { font-size: 1rem; color: #94a3b8; margin-top: 5px; }
+        
+        .result-box { min-height: 40px; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; }
+        .text-correct { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
+        .text-wrong { color: var(--neon-red); }
+        .text-spoken { color: #facc15; font-style: italic; font-size: 0.9rem; display: block; margin-top: 5px;}
+
+        /* Boss Area */
+        #boss-area { display: none; margin-bottom: 20px; position: relative; }
+        #boss-img { width: 100%; max-width: 250px; filter: drop-shadow(0 0 20px var(--neon-green)); transition: 0.2s; }
+        
+        .hp-bar-bg { width: 100%; height: 20px; background: #333; border: 2px solid #555; border-radius: 10px; overflow: hidden; margin-top: 15px; position: relative;}
+        .hp-bar-fill { height: 100%; background: linear-gradient(90deg, #ff2a2a, #ff7a00); width: 100%; transition: width 0.5s ease-out; }
+        .hp-text { position: absolute; width: 100%; text-align: center; top: 0; left: 0; font-size: 0.8rem; font-weight: bold; color: white; font-family: 'Orbitron'; line-height: 18px;}
+
+        /* Animations */
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        .hit-effect { animation: shake 0.5s; filter: drop-shadow(0 0 30px var(--neon-red)) brightness(1.5) !important; }
+
+        .hidden { display: none !important; }
+        .progress-dots { margin-top: 15px; display: flex; justify-content: center; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: #334155; }
+        .dot.active { background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
+    </style>
+</head>
+<body>
+
+<!-- WELCOME SCREEN -->
+<div id="welcome-screen" class="container">
+    <h1 class="font-scifi">VOICE LAB</h1>
+    <p style="color: var(--neon-cyan); margin-bottom: 20px;">Unit 3: The Bio-Phantom Crisis</p>
+    <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; text-align: left; color: #cbd5e1;">
+        <b>🎯 ภารกิจของคุณ:</b><br>
+        1. <b>Bio-Scan</b> (วิเคราะห์คำศัพท์พื้นฐาน)<br>
+        2. <b>Synthesize Cure</b> (สังเคราะห์ศัพท์ขั้นสูง)<br>
+        3. <b>Boss Fight!</b> (ออกเสียงประโยคโจมตีบอส)
+    </div>
+    <input type="text" id="sid-input" placeholder="กรอกรหัสนักเรียน (Student ID)">
+    <button class="btn-start" onclick="startGame()">🚀 ยืนยันรหัส & เริ่มภารกิจ</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="container hidden">
+    <div id="phase-badge" class="phase-title font-scifi">PHASE 1: BIO-SCAN</div>
+    
+    <!-- BOSS AREA -->
+    <div id="boss-area">
+        <img src="boss_biophantom.png" id="boss-img" alt="The Bio-Phantom">
+        <div class="hp-bar-bg">
+            <div id="hp-fill" class="hp-bar-fill"></div>
+            <div id="hp-text" class="hp-text">100%</div>
+        </div>
+    </div>
+
+    <!-- TARGET DISPLAY -->
+    <div class="target-box">
+        <div id="target-word" class="target-text">Ready?</div>
+        <div id="target-meaning" class="meaning-text">เตรียมพร้อม</div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div id="controls">
+        <button class="btn-listen" onclick="playAudio()">🔊 ฟังเสียงตัวอย่าง</button>
+        <button id="btn-speak" class="btn-speak font-scifi" onclick="toggleSpeech()">
+            🎙️ <span>TAP TO SPEAK</span>
+        </button>
+    </div>
+
+    <!-- FEEDBACK -->
+    <div id="feedback-box" class="result-box">กดปุ่มไมค์เพื่อเริ่มพูด...</div>
+    
+    <!-- PROGRESS -->
+    <div id="progress-bar" class="progress-dots"></div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div id="success-screen" class="container hidden">
+    <h1 class="font-scifi" style="color: var(--neon-green);">BOSS DEFEATED!</h1>
+    <p>คุณกำจัด The Bio-Phantom สำเร็จแล้ว!</p>
+    <div style="background: rgba(57, 255, 20, 0.15); border: 2px dashed var(--neon-green); padding: 20px; border-radius: 15px; margin: 20px 0;">
+        <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">รหัสลับรับ XP (นำไปกรอกหน้าหลัก)</p>
+        <h2 id="cipher-code" class="font-scifi" style="color: var(--gold); letter-spacing: 2px;">V03-XXXX</h2>
+    </div>
+    <button class="btn-listen" style="width: 100%;" onclick="window.location.href='index.html'">⬅️ กลับหน้าหลัก (Dashboard)</button>
+    <div id="saving-status" style="margin-top: 15px; font-size: 0.85rem; color: var(--neon-cyan);">⏳ กำลังบันทึกคะแนนลงระบบ...</div>
+</div>
+
+<script>
+    // --- 1. DATA (คลังคำศัพท์และประโยค) ---
+    const DB = {
+        phase1: [
+            { word: "crucial", meaning: "(adj.) สำคัญมาก, จำเป็นอย่างยิ่ง" },
+            { word: "adjust", meaning: "(v.) ปรับ, ปรับเปลี่ยน" },
+            { word: "monitor", meaning: "(v.) เฝ้าดู, ติดตามตรวจสอบ" },
+            { word: "affect", meaning: "(v.) ส่งผลกระทบ" },
+            { word: "anxiety", meaning: "(n.) ความวิตกกังวล" }
+        ],
+        phase2: [
+            { word: "infection", meaning: "(n.) การติดเชื้อ" },
+            { word: "treatment", meaning: "(n.) การรักษา" },
+            { word: "artificial", meaning: "(adj.) เทียม, สังเคราะห์" },
+            { word: "poisonous", meaning: "(adj.) เป็นพิษ" },
+            { word: "valid", meaning: "(adj.) มีเหตุผล, ถูกต้อง" }
+        ],
+        phase3: [
+            { word: "I need to adjust my diet.", meaning: "ฉันต้องปรับเปลี่ยนเรื่องอาหารการกินหน่อยแล้ว" },
+            { word: "It is crucial to maintain a good balance.", meaning: "การรักษาสมดุลให้ดีเป็นสิ่งสำคัญมาก" },
+            { word: "Are you aware of the potential risks?", meaning: "คุณตระหนักถึงความเสี่ยงที่อาจจะเกิดขึ้นบ้างไหม?" },
+            { word: "This medical treatment is very effective.", meaning: "การรักษาทางการแพทย์วิธีนี้ได้ผลดีมาก" },
+            { word: "We should avoid artificial ingredients.", meaning: "พวกเราควรหลีกเลี่ยงส่วนผสมสังเคราะห์" }
+        ]
+    };
+
+    // --- 2. GAME VARIABLES ---
+    let currentSid = "";
+    let currentPhase = 1;
+    let currentIndex = 0;
+    let currentList = [];
+    let bossHP = 100;
+    const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+
+    // --- 3. SPEECH RECOGNITION SETUP ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let isListening = false;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+            isListening = true;
+            const btn = document.getElementById("btn-speak");
+            btn.classList.add("listening");
+            btn.innerHTML = "🎙️ <span>LISTENING...</span>";
+            document.getElementById("feedback-box").innerHTML = "กำลังฟัง...";
+            document.getElementById("feedback-box").className = "result-box text-main";
+        };
+
+        recognition.onresult = function(event) {
+            const spokenText = event.results[0][0].transcript;
+            checkAnswer(spokenText);
+        };
+
+        recognition.onerror = function(event) {
+            document.getElementById("feedback-box").innerHTML = `⚠️ Error: ${event.error} (กรุณาอนุญาตให้เว็บใช้ไมโครโฟน)`;
+            document.getElementById("feedback-box").className = "result-box text-wrong";
+            resetMicButton();
+        };
+
+        recognition.onend = function() {
+            resetMicButton();
+        };
+    } else {
+        alert("⚠️ ขออภัยครับ เบราว์เซอร์ของคุณไม่รองรับระบบแยกเสียง (แนะนำให้ใช้ Google Chrome หรือ Safari)");
+    }
+
+    function resetMicButton() {
+        isListening = false;
+        const btn = document.getElementById("btn-speak");
+        btn.classList.remove("listening");
+        btn.innerHTML = "🎙️ <span>TAP TO SPEAK</span>";
+    }
+
+    // --- 4. GAME LOGIC ---
+    function startGame() {
+        const sid = document.getElementById("sid-input").value.trim();
+        if (!sid) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
+        currentSid = sid;
+        
+        document.getElementById("welcome-screen").classList.add("hidden");
+        document.getElementById("game-screen").classList.remove("hidden");
+        loadPhase(1);
+    }
+
+    function loadPhase(phaseNum) {
+        currentPhase = phaseNum;
+        currentIndex = 0;
+        
+        if(phaseNum === 1) {
+            currentList = DB.phase1;
+            document.getElementById("phase-badge").innerText = "PHASE 1: BIO-SCAN";
+            document.getElementById("phase-badge").style.backgroundColor = "var(--neon-purple)";
+        } else if (phaseNum === 2) {
+            currentList = DB.phase2;
+            document.getElementById("phase-badge").innerText = "PHASE 2: SYNTHESIZE CURE";
+            document.getElementById("phase-badge").style.backgroundColor = "var(--neon-cyan)";
+            document.getElementById("phase-badge").style.color = "#000";
+        } else if (phaseNum === 3) {
+            currentList = DB.phase3;
+            document.getElementById("phase-badge").innerText = "PHASE 3: BOSS FIGHT!";
+            document.getElementById("phase-badge").style.backgroundColor = "var(--neon-red)";
+            document.getElementById("boss-area").style.display = "block";
+            document.getElementById("target-word").style.fontSize = "1.5rem"; // ลดขนาดฟอนต์ประโยคยาว
+        }
+
+        renderProgress();
+        showCurrentItem();
+        document.getElementById("feedback-box").innerHTML = "กดปุ่มไมค์เพื่อเริ่มพูด...";
+        document.getElementById("feedback-box").className = "result-box text-main";
+    }
+
+    function renderProgress() {
+        const bar = document.getElementById("progress-bar");
+        bar.innerHTML = "";
+        for(let i=0; i<currentList.length; i++) {
+            bar.innerHTML += `<div class="dot ${i <= currentIndex ? 'active' : ''}"></div>`;
+        }
+    }
+
+    function showCurrentItem() {
+        if(currentIndex >= currentList.length) {
+            if(currentPhase === 1) return loadPhase(2);
+            if(currentPhase === 2) return loadPhase(3);
+            if(currentPhase === 3) return showSuccess();
+            return;
+        }
+        document.getElementById("target-word").innerText = currentList[currentIndex].word;
+        document.getElementById("target-meaning").innerText = currentList[currentIndex].meaning;
+        renderProgress();
+    }
+
+    function toggleSpeech() {
+        if (!recognition) return;
+        if (isListening) recognition.stop();
+        else recognition.start();
+    }
+
+    // Text-to-Speech (อ่านออกเสียงให้เด็กฟัง)
+    function playAudio() {
+        const text = currentList[currentIndex].word;
+        const synth = window.speechSynthesis;
+        const utterThis = new SpeechSynthesisUtterance(text);
+        utterThis.lang = 'en-US';
+        utterThis.rate = 0.9; // พูดช้าลงนิดนึงให้ฟังชัด
+        synth.speak(utterThis);
+    }
+
+    function cleanString(str) {
+        return str.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    function checkAnswer(spokenText) {
+        const target = cleanString(currentList[currentIndex].word);
+        const spoken = cleanString(spokenText);
+        const feedback = document.getElementById("feedback-box");
+
+        // ตรวจสอบความถูกต้อง (อนุโลมถ้าประโยคยาวๆ จับคำได้ใกล้เคียง 80% หรือตรวจเจอประโยคในคำพูด)
+        if (spoken === target || spoken.includes(target)) {
+            feedback.innerHTML = `✔️ ยอดเยี่ยม!<span class="text-spoken">คุณพูดว่า: "${spokenText}"</span>`;
+            feedback.className = "result-box text-correct";
+            
+            if(currentPhase === 3) {
+                hitBoss();
+            }
+
+            // หน่วงเวลา 1.5 วิ แล้วไปคำต่อไป
+            setTimeout(() => {
+                currentIndex++;
+                showCurrentItem();
+                feedback.innerHTML = "กดปุ่มไมค์เพื่อพูดคำต่อไป...";
+                feedback.className = "result-box text-main";
+            }, 1500);
+
+        } else {
+            feedback.innerHTML = `❌ ยังไม่เป๊ะ ลองอีกครั้ง!<span class="text-spoken">ระบบได้ยินว่า: "${spokenText}"</span>`;
+            feedback.className = "result-box text-wrong";
+        }
+    }
+
+    function hitBoss() {
+        bossHP -= 20; // 5 ประโยค ประโยคละ 20%
+        if(bossHP < 0) bossHP = 0;
+        
+        document.getElementById("hp-fill").style.width = bossHP + "%";
+        document.getElementById("hp-text").innerText = bossHP + "%";
+
+        const bossImg = document.getElementById("boss-img");
+        bossImg.classList.add("hit-effect");
+        setTimeout(() => bossImg.classList.remove("hit-effect"), 500);
+    }
+
+    async function showSuccess() {
+        document.getElementById("game-screen").classList.add("hidden");
+        document.getElementById("success-screen").classList.remove("hidden");
+        
+        // สร้างรหัส Cipher (สูตร: (sid * 17) + 5555)
+        const numericSid = parseInt(currentSid) || 0;
+        const cipherText = (numericSid * 17 + 5555).toString(16).toUpperCase();
+        const uniqueCode = "V03-" + cipherText;
+        document.getElementById("cipher-code").innerText = uniqueCode;
+
+        // บันทึกคะแนนลง Google Sheets
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "recordActivity",
+                    studentId: currentSid,
+                    activityType: "VOICE_LAB_U3",
+                    itemId: "V_U3",
+                    xp: 0,
+                    details: "ผ่าน Voice Lab Unit 3 (ปราบ The Bio-Phantom)"
+                })
+            });
+            const result = await response.json();
+            if(result.status === "success") {
+                document.getElementById("saving-status").innerText = "✔️ ระบบหลังบ้านบันทึกความสำเร็จแล้ว!";
+                document.getElementById("saving-status").style.color = "var(--neon-green)";
+            }
+        } catch (error) {
+            document.getElementById("saving-status").innerText = "⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ แต่คุณสามารถใช้รหัสลับด้านบนได้ครับ";
+        }
+    }
+</script>
+</body>
+</html>
