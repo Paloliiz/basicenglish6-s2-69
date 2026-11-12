@@ -76,7 +76,7 @@
         3. <b>Boss Fight!</b> (ออกเสียงประโยคโจมตีบอส)
     </div>
     <input type="text" id="sid-input" placeholder="กรอกรหัสนักเรียน (Student ID)">
-    <button class="btn-start" onclick="startGame()">🚀 ยืนยันรหัส & เริ่มภารกิจ</button>
+    <button class="btn-start" onclick="startGame()">🚀 อนุญาตไมค์ & เริ่มภารกิจ</button>
 </div>
 
 <!-- GAME SCREEN -->
@@ -159,11 +159,12 @@
     let bossHP = 100;
     const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
 
-    // --- 3. SPEECH RECOGNITION SETUP ---
+    // --- 3. SPEECH RECOGNITION SETUP (FIXED SINGLE INSTANCE) ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     let isListening = false;
-    let hasResult = false; // เพิ่มตัวแปรเช็คว่าระบบได้ยินเสียงหรือไม่
+    let hasResult = false;
+    let isCheckingAnswer = false; // ป้องกันการกดซ้ำซ้อนระหว่างระบบกำลังตรวจคำตอบ
 
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
@@ -174,28 +175,31 @@
 
         recognition.onstart = function() {
             isListening = true;
-            hasResult = false; // รีเซ็ตค่าตอนเริ่มฟังทุกครั้ง
+            hasResult = false;
             const btn = document.getElementById("btn-speak");
             btn.classList.add("listening");
-            btn.innerHTML = "🎙️ <span>LISTENING...</span>";
-            document.getElementById("feedback-box").innerHTML = "กำลังฟัง... (พูดได้เลยครับ)";
+            btn.innerHTML = "🎙️ <span>LISTENING... (พูดเลย)</span>";
+            document.getElementById("feedback-box").innerHTML = "กำลังฟังเสียงของคุณ...";
             document.getElementById("feedback-box").className = "result-box text-main";
         };
 
         recognition.onresult = function(event) {
-            hasResult = true; // ยืนยันว่าจับเสียงได้แล้ว
+            hasResult = true;
             const spokenText = event.results[0][0].transcript;
-            checkAnswer(spokenText);
+            if (!isCheckingAnswer) {
+                checkAnswer(spokenText);
+            }
         };
 
         recognition.onerror = function(event) {
+            if (event.error === 'aborted') return; // ข้ามกรณีผู้ใช้กดหยุดเอง
             let errorMsg = `⚠️ Error: ${event.error}`;
             if (event.error === 'no-speech') {
                 errorMsg = "⚠️ ไม่ได้ยินเสียงครับ ลองเข้าใกล้ไมค์หรือพูดดังขึ้นหน่อยนะ";
             } else if (event.error === 'network') {
                 errorMsg = "⚠️ อินเทอร์เน็ตไม่เสถียร ระบบแปลงเสียงไม่สำเร็จครับ";
             } else if (event.error === 'not-allowed') {
-                errorMsg = "⚠️ กรุณากดอนุญาตให้เว็บใช้ไมโครโฟน (Allow Microphone) ก่อนครับ";
+                errorMsg = "⚠️ ถูกปฏิเสธสิทธิ์ไมค์ กรุณากดปุ่มรูปกุญแจ/แว่นขยายบนแถบ URL เพื่อเปิดอนุญาตไมค์";
             }
             document.getElementById("feedback-box").innerHTML = errorMsg;
             document.getElementById("feedback-box").className = "result-box text-wrong";
@@ -204,14 +208,13 @@
 
         recognition.onend = function() {
             resetMicButton();
-            // ถ้าระบบตัดไปเองโดยที่ไม่ได้ยินเสียงพูด (หมดเวลา Timeout)
-            if (!hasResult && document.getElementById("feedback-box").innerText.includes("กำลังฟัง")) {
-                document.getElementById("feedback-box").innerHTML = "⚠️ เสียงเงียบไป ระบบเลยหยุดฟัง กรุณากดไมค์พูดใหม่ครับ";
+            if (!hasResult && !isCheckingAnswer && document.getElementById("feedback-box").innerText.includes("กำลังฟัง")) {
+                document.getElementById("feedback-box").innerHTML = "⚠️ เสียงเงียบไป ระบบหยุดฟังอัตโนมัติ (กดไมค์พูดใหม่อีกครั้ง)";
                 document.getElementById("feedback-box").className = "result-box text-wrong";
             }
         };
     } else {
-        alert("⚠️ ขออภัยครับ เบราว์เซอร์ของคุณไม่รองรับระบบแยกเสียง (แนะนำให้ใช้ Google Chrome หรือ Safari)");
+        alert("⚠️ เบราว์เซอร์นี้ไม่รองรับระบบแยกเสียง แนะนำให้ใช้ Google Chrome หรือ Safari ครับ");
     }
 
     function resetMicButton() {
@@ -226,6 +229,14 @@
         const sid = document.getElementById("sid-input").value.trim();
         if (!sid) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
         currentSid = sid;
+
+        // ขอสิทธิ์ไมโครโฟนล่วงหน้าทันทีตอนกดเริ่มเกม เพื่อป้องกันไมค์เด้งถามซ้ำซ้อนตอนเล่น
+        if (recognition) {
+            try {
+                recognition.start();
+                setTimeout(() => { recognition.stop(); }, 200); // เปิดแล้วปิดทันทีเพื่อเคลียร์สิทธิ์ไมค์ในเบราว์เซอร์
+            } catch(e) {}
+        }
         
         document.getElementById("welcome-screen").classList.add("hidden");
         document.getElementById("game-screen").classList.remove("hidden");
@@ -235,6 +246,7 @@
     function loadPhase(phaseNum) {
         currentPhase = phaseNum;
         currentIndex = 0;
+        isCheckingAnswer = false;
         
         if(phaseNum === 1) {
             currentList = DB.phase1;
@@ -250,7 +262,7 @@
             document.getElementById("phase-badge").innerText = "PHASE 3: BOSS FIGHT!";
             document.getElementById("phase-badge").style.backgroundColor = "var(--neon-red)";
             document.getElementById("boss-area").style.display = "block";
-            document.getElementById("target-word").style.fontSize = "1.5rem"; // ลดขนาดฟอนต์ประโยคยาว
+            document.getElementById("target-word").style.fontSize = "1.5rem";
         }
 
         renderProgress();
@@ -280,18 +292,26 @@
     }
 
     function toggleSpeech() {
-        if (!recognition) return;
-        if (isListening) recognition.stop();
-        else recognition.start();
+        if (!recognition || isCheckingAnswer) return;
+        if (isListening) {
+            recognition.stop();
+        } else {
+            try {
+                recognition.start();
+            } catch (e) {
+                // ป้องกันเคสพยายามเปิดซ้อนตอนระบบยังไม่เคลียร์สถานะ
+                recognition.stop();
+                setTimeout(() => recognition.start(), 300);
+            }
+        }
     }
 
-    // Text-to-Speech (อ่านออกเสียงให้เด็กฟัง)
     function playAudio() {
         const text = currentList[currentIndex].word;
         const synth = window.speechSynthesis;
         const utterThis = new SpeechSynthesisUtterance(text);
         utterThis.lang = 'en-US';
-        utterThis.rate = 0.9; // พูดช้าลงนิดนึงให้ฟังชัด
+        utterThis.rate = 0.9;
         synth.speak(utterThis);
     }
 
@@ -300,11 +320,15 @@
     }
 
     function checkAnswer(spokenText) {
+        isCheckingAnswer = true;
+        if (isListening) {
+            try { recognition.stop(); } catch(e) {}
+        }
+
         const target = cleanString(currentList[currentIndex].word);
         const spoken = cleanString(spokenText);
         const feedback = document.getElementById("feedback-box");
 
-        // ตรวจสอบความถูกต้อง (อนุโลมถ้าประโยคยาวๆ จับคำได้ใกล้เคียง 80% หรือตรวจเจอประโยคในคำพูด)
         if (spoken === target || spoken.includes(target)) {
             feedback.innerHTML = `✔️ ยอดเยี่ยม!<span class="text-spoken">คุณพูดว่า: "${spokenText}"</span>`;
             feedback.className = "result-box text-correct";
@@ -313,9 +337,9 @@
                 hitBoss();
             }
 
-            // หน่วงเวลา 1.5 วิ แล้วไปคำต่อไป
             setTimeout(() => {
                 currentIndex++;
+                isCheckingAnswer = false;
                 showCurrentItem();
                 feedback.innerHTML = "กดปุ่มไมค์เพื่อพูดคำต่อไป...";
                 feedback.className = "result-box text-main";
@@ -324,11 +348,14 @@
         } else {
             feedback.innerHTML = `❌ ยังไม่เป๊ะ ลองอีกครั้ง!<span class="text-spoken">ระบบได้ยินว่า: "${spokenText}"</span>`;
             feedback.className = "result-box text-wrong";
+            setTimeout(() => {
+                isCheckingAnswer = false;
+            }, 1000);
         }
     }
 
     function hitBoss() {
-        bossHP -= 20; // 5 ประโยค ประโยคละ 20%
+        bossHP -= 20;
         if(bossHP < 0) bossHP = 0;
         
         document.getElementById("hp-fill").style.width = bossHP + "%";
@@ -343,13 +370,11 @@
         document.getElementById("game-screen").classList.add("hidden");
         document.getElementById("success-screen").classList.remove("hidden");
         
-        // สร้างรหัส Cipher (สูตร: (sid * 17) + 5555)
         const numericSid = parseInt(currentSid) || 0;
         const cipherText = (numericSid * 17 + 5555).toString(16).toUpperCase();
         const uniqueCode = "V03-" + cipherText;
         document.getElementById("cipher-code").innerText = uniqueCode;
 
-        // บันทึกคะแนนลง Google Sheets
         try {
             const response = await fetch(API_URL, {
                 method: "POST",
