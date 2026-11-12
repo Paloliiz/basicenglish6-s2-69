@@ -169,9 +169,9 @@
                         <span class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-blue-900/60 border border-blue-400/40 text-[10px] font-scifi text-blue-200">U3</span>
                     </button>
 
-                    <button onclick="showToast('🔒 โมดูล Voice Lab กำลังอยู่ระหว่างการเชื่อมต่อระบบเสียง เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
-                        <span class="flex items-center gap-2.5"><span class="text-base grayscale">🎙️</span><span>ฝึกพูดคำศัพท์ (Voice Lab)</span></span>
-                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
+                    <button onclick="openVoiceLab()" class="module-nav-btn flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                        <span class="flex items-center gap-2.5"><span class="text-base">🎙️</span><span>ฝึกพูดคำศัพท์ (Voice Lab)</span></span>
+                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-red-900/80 border border-red-400/50 text-[10px] font-scifi text-red-100 animate-pulse">BOSS</span>
                     </button>
 
                     <button onclick="showToast('🔒 สนามจำลองข้อสอบ A-Level กำลังรวบรวมคลังข้อสอบ เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
@@ -361,8 +361,8 @@
         <button onclick="switchModule('grammar')" id="nav-grammar-mobile" class="module-nav-btn flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500 hover:text-purple-200 transition">
             <span class="text-base">📘</span><span>แกรมม่า</span>
         </button>
-        <button onclick="showToast('🔒 โมดูล Voice Lab กำลังเตรียมระบบเสียง', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
-            <span class="text-base grayscale">🎙️</span><span>พูดคำศัพท์</span>
+        <button onclick="openVoiceLab()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-300 hover:text-red-300 transition">
+            <span class="text-base">🎙️</span><span>พูดคำศัพท์</span>
         </button>
         <button onclick="showToast('🔒 สนามสอบจำลอง A-Level กำลังรวบรวมข้อสอบ', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
             <span class="text-base grayscale">🎯</span><span>A-Level</span>
@@ -448,11 +448,12 @@
 
         const MISSION_META_PRESETS = {
             "M01": { unit: "Unit 3", subtitle: "ฟังเสียงและทำแบบฝึกหัด Fitness Plan (หน้า 34-35)", category: "Listening & Vocab", difficulty: "Medium", xp: 100, demoPasscode: "***-*****", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_1.html" },
-            // ปรับแก้คำอธิบายของ M02 และเปลี่ยนหมวดหมู่ให้ตรงกับแบบฝึกหัด 
             "M02": { unit: "Unit 3", subtitle: "เรียนรู้คำศัพท์และฝึกฟังบทสนทนาเรื่อง Medical Advice (หน้า 36-37)", category: "Vocab & Listening", difficulty: "Medium", xp: 100, demoPasscode: "***-*****", artType: "book", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_2.html" },
             "M03": { unit: "Unit 3", subtitle: "เรียนรู้คำศัพท์และการอ่านจับใจความเรื่อง Medical Breakthroughs (หน้า 38-39)", category: "Vocab & Reading", difficulty: "Hard", xp: 150, demoPasscode: "***-*****", artType: "mirror", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_3.html" },
-            "M04": { unit: "Unit 3", subtitle: "เรียนรู้คำศัพท์ และแกรมม่าเรื่อง Health & Writing (หน้า 40-41)", category: "Writing & Grammar", difficulty: "Hard", xp: 100, demoPasscode: "***-*****", artType: "castle", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_4.html" },            "M05": { unit: "Unit 5", subtitle: "?????", category: "Listening", difficulty: "Medium", xp: 120, demoPasscode: "CYBER05", artType: "corridor", isWebLink: false },
-            "M06": { unit: "Unit 5", subtitle: "?????", category: "Reading", difficulty: "Boss", xp: 200, demoPasscode: "SCHOLAR06", artType: "castle", isWebLink: false }
+            "M04": { unit: "Unit 3", subtitle: "เรียนรู้คำศัพท์ และแกรมม่าเรื่อง Health & Writing (หน้า 40-41)", category: "Writing & Grammar", difficulty: "Hard", xp: 100, demoPasscode: "***-*****", artType: "castle", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_4.html" },
+            "V_U3": { unit: "Unit 3", subtitle: "ภารกิจเสียง: ปราบ The Bio-Phantom", category: "Speaking", difficulty: "Boss", xp: 200, demoPasscode: "V03-XXXX", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/voice_lab.html" },
+            "M05": { unit: "Unit 4", subtitle: "รอการอัปเดต...", category: "Listening", difficulty: "Medium", xp: 120, demoPasscode: "CYBER05", artType: "corridor", isWebLink: false },
+            "M06": { unit: "Unit 4", subtitle: "รอการอัปเดต...", category: "Reading", difficulty: "Boss", xp: 200, demoPasscode: "SCHOLAR06", artType: "castle", isWebLink: false }
         };
 
         let appState = {
@@ -529,6 +530,12 @@
             }
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ฟังก์ชันเปิดหน้า Voice Lab
+        function openVoiceLab() {
+            const sid = appState.user ? appState.user.studentId : "GUEST";
+            window.open('voice_lab.html?sid=' + sid, '_blank');
         }
 
         window.addEventListener("DOMContentLoaded", () => {
