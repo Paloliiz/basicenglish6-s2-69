@@ -12,7 +12,7 @@
             --text-main: #f8fafc;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kanit', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kanit', sans-serif; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
         
         body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; 
                background-image: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 70%); overflow-x: hidden;}
@@ -50,7 +50,7 @@
         .text-correct { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
         .text-wrong { color: var(--neon-red); }
         
-        /* Box สำหรับพิมพ์โชว์เสียงพูดสดๆ */
+        /* Live Transcript */
         .live-transcript { font-size: 0.95rem; color: #f8fafc; background: #1e293b; padding: 8px 15px; border-radius: 8px; width: 100%; min-height: 40px; display: flex; align-items: center; justify-content: center; font-style: italic; border: 1px solid #334155; margin-top: 5px;}
         .live-transcript.active { border-color: var(--neon-green); box-shadow: inset 0 0 10px rgba(57,255,20,0.2); }
 
@@ -90,9 +90,8 @@
         1. <b>Bio-Scan</b> (วิเคราะห์คำศัพท์พื้นฐาน)<br>
         2. <b>Synthesize Cure</b> (สังเคราะห์ศัพท์ขั้นสูง)<br>
         3. <b>Boss Fight!</b> (ออกเสียงประโยคโจมตีบอส)<br><br>
-        <span style="color:#facc15; font-size:0.85rem;">💡 หมายเหตุ: ใช้ระบบ <b>"กดค้างเพื่อพูด (Hold to Talk)"</b> เหมือนการส่งวอยซ์เมสเสจ ปล่อยปุ่มเมื่อพูดจบครับ</span>
+        <span style="color:#facc15; font-size:0.85rem;">💡 หมายเหตุ: ใช้ระบบ <b>"กดค้างเพื่อพูด (Hold to Talk)"</b> ปล่อยปุ่มเมื่อพูดจบครับ</span>
     </div>
-    <!-- ทำให้ช่องกรอกรหัสนักเรียนเป็นแบบ auto-fill จาก URL parameter เหมือนด่านอื่นๆ -->
     <input type="text" id="sid-input" placeholder="กรอกรหัสนักเรียน (Student ID)">
     <button class="btn-start" onclick="startGame()">🚀 เริ่มภารกิจ</button>
 </div>
@@ -103,7 +102,6 @@
     
     <!-- BOSS AREA -->
     <div id="boss-area">
-        <!-- แก้ไขชื่อไฟล์รูปภาพให้ตรงกับที่อัปโหลด -->
         <img src="boss_biophantom.png" id="boss-img" alt="The Bio-Phantom" onerror="this.src='https://via.placeholder.com/250x250/1e1541/39ff14?text=Boss+Image+Not+Found'">
         <div class="hp-bar-bg">
             <div id="hp-fill" class="hp-bar-fill"></div>
@@ -154,7 +152,8 @@
         const urlParams = new URLSearchParams(window.location.search);
         const sidFromUrl = urlParams.get('sid');
         if (sidFromUrl && sidFromUrl !== "GUEST") {
-            document.getElementById('sid-input').value = sidFromUrl;
+            const sidInput = document.getElementById('sid-input');
+            if (sidInput) sidInput.value = sidFromUrl;
         }
     });
 
@@ -198,16 +197,16 @@
 
     // --- 3. SPEECH RECOGNITION (Dictation / Hold-to-Talk Mode) ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition;
-    let finalTranscript = ""; // เก็บประโยคเต็มเมื่อกดปล่อย
+    let recognition = null;
+    let finalTranscript = ""; 
     let isCheckingAnswer = false; 
 
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
         recognition.lang = 'en-US';
-        recognition.interimResults = true; // ยอมให้แสดงข้อความสดๆ ระหว่างพูด
+        recognition.interimResults = true; 
         recognition.maxAlternatives = 1;
-        recognition.continuous = true; // บังคับให้รับเสียงไปเรื่อยๆ จนกว่าจะสั่ง stop (ตอนปล่อยมือ)
+        recognition.continuous = true; 
 
         recognition.onstart = function() {
             finalTranscript = "";
@@ -226,7 +225,6 @@
                     interimTranscript += event.results[i][0].transcript;
                 }
             }
-            // แสดงข้อความที่กำลังพิมพ์สดๆ 
             const displayTxt = finalTranscript + interimTranscript;
             document.getElementById("live-transcript").innerHTML = displayTxt || '<span style="color:#64748b">กำลังฟัง...</span>';
         };
@@ -240,11 +238,9 @@
         recognition.onend = function() {
             document.getElementById("live-transcript").classList.remove("active");
             
-            // เมื่อไมค์หยุด (ปล่อยมือ) ให้ตรวจคำตอบทันที
             if (!isCheckingAnswer && finalTranscript.trim() !== "") {
                 checkAnswer(finalTranscript);
             } else if (!isCheckingAnswer) {
-                // กรณีปล่อยมือแล้วไม่ได้ยินเสียงอะไรเลย
                 const display = document.getElementById("live-transcript").innerText;
                 if(display !== "" && display !== "กำลังฟัง..." && !display.includes("Error")) {
                    checkAnswer(display);
@@ -261,55 +257,53 @@
     const btnSpeak = document.getElementById("btn-speak");
 
     function startListening(e) {
-        if(e) e.preventDefault(); // ป้องกันการเด้งเมนูคลิกขวาในมือถือ
+        if(e && e.cancelable) e.preventDefault(); 
         if (!recognition || isCheckingAnswer) return;
         
         btnSpeak.classList.add("listening");
-        document.getElementById("mic-label").innerHTML = "LISTENING...<br><span style="font-size: 0.65rem; font-family:'Kanit';">(กำลังฟัง... พูดได้เลย)</span>";
+        document.getElementById("mic-label").innerHTML = "LISTENING...<br><span style='font-size: 0.65rem; font-family:Kanit;'>(กำลังฟัง... พูดได้เลย)</span>";
         
         try { recognition.start(); } catch (err) {}
     }
 
     function stopListening(e) {
-        if(e) e.preventDefault();
+        if(e && e.cancelable) e.preventDefault();
         if (!recognition || isCheckingAnswer) return;
         
         btnSpeak.classList.remove("listening");
-        document.getElementById("mic-label").innerHTML = "HOLD TO TALK<br><span style="font-size: 0.65rem; font-family:'Kanit';">(กดค้างเพื่อพูด)</span>";
+        document.getElementById("mic-label").innerHTML = "HOLD TO TALK<br><span style='font-size: 0.65rem; font-family:Kanit;'>(กดค้างเพื่อพูด)</span>";
         
         try { recognition.stop(); } catch (err) {}
     }
 
-    // รองรับทั้ง Touch (มือถือ) และ Mouse (คอม)
     btnSpeak.addEventListener('touchstart', startListening, {passive: false});
     btnSpeak.addEventListener('touchend', stopListening, {passive: false});
     btnSpeak.addEventListener('touchcancel', stopListening, {passive: false});
     
     btnSpeak.addEventListener('mousedown', startListening);
     btnSpeak.addEventListener('mouseup', stopListening);
-    btnSpeak.addEventListener('mouseleave', stopListening); // ป้องกันกรณีลากเมาส์ออกนอกปุ่ม
+    btnSpeak.addEventListener('mouseleave', stopListening); 
 
     // --- 4. GAME LOGIC ---
-    // ฟังก์ชันstartGame นี้จะถูกเรียกเมื่อกดปุ่ม "🚀 เริ่มภารกิจ"
-    window.startGame = function() {
+    function startGame() {
         const sidInput = document.getElementById("sid-input");
-        if (!sidInput) return alert("ไม่พบช่องกรอกรหัสนักเรียน");
+        if (!sidInput) {
+            alert("ไม่พบช่องกรอกรหัสนักเรียน");
+            return;
+        }
         
         const sid = sidInput.value.trim();
-        if (!sid) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
+        if (!sid) {
+            alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
+            return;
+        }
         
         currentSid = sid;
         
-        // ขออนุญาตไมค์ล่วงหน้า 1 ครั้ง เพื่อลดการเด้ง
-        if (recognition) {
-            try { 
-                recognition.start(); 
-                setTimeout(() => { recognition.stop(); }, 100); 
-            } catch(e) {}
-        }
-        
+        // ล้างคลาส hidden ออกเพื่อสลับหน้าจอ (ทำงานแน่นอน 100%)
         document.getElementById("welcome-screen").classList.add("hidden");
         document.getElementById("game-screen").classList.remove("hidden");
+        
         loadPhase(1);
     }
 
@@ -360,8 +354,7 @@
         renderProgress();
     }
 
-    // เปิดให้เรียกใช้จากปุ่ม "ฟังเสียงตัวอย่าง"
-    window.playAudio = function() {
+    function playAudio() {
         const text = currentList[currentIndex].word;
         const synth = window.speechSynthesis;
         const utterThis = new SpeechSynthesisUtterance(text);
@@ -377,13 +370,12 @@
     function checkAnswer(spokenText) {
         isCheckingAnswer = true;
         btnSpeak.classList.add("processing");
-        document.getElementById("mic-label").innerHTML = "PROCESSING...<br><span style="font-size: 0.65rem; font-family:'Kanit';">(ตรวจคำตอบ)</span>";
+        document.getElementById("mic-label").innerHTML = "PROCESSING...<br><span style='font-size: 0.65rem; font-family:Kanit;'>(ตรวจคำตอบ)</span>";
 
         const target = cleanString(currentList[currentIndex].word);
         const spoken = cleanString(spokenText);
         const feedback = document.getElementById("feedback-box");
 
-        // Fuzzy Matching
         if (spoken === target || spoken.includes(target)) {
             feedback.innerHTML = `✔️ ยอดเยี่ยม!`;
             feedback.className = "result-box text-correct";
@@ -416,7 +408,7 @@
 
     function resetSpeakButton() {
         btnSpeak.classList.remove("processing");
-        document.getElementById("mic-label").innerHTML = "HOLD TO TALK<br><span style="font-size: 0.65rem; font-family:'Kanit';">(กดค้างเพื่อพูด)</span>";
+        document.getElementById("mic-label").innerHTML = "HOLD TO TALK<br><span style='font-size: 0.65rem; font-family:Kanit;'>(กดค้างเพื่อพูด)</span>";
     }
 
     function hitBoss() {
