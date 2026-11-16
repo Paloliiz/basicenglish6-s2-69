@@ -69,6 +69,27 @@
         @keyframes floatSlow { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
         .animate-float { animation: floatSlow 4s ease-in-out infinite; }
         .nav-btn-active { background: linear-gradient(90deg, rgba(147, 51, 234, 0.85) 0%, rgba(219, 39, 119, 0.65) 100%); color: #ffffff !important; border: 1px solid rgba(216, 180, 254, 0.6); box-shadow: 0 0 18px rgba(168, 85, 247, 0.4); }
+
+        /* --- Frame CSS Classes --- */
+        .frame-base { position: absolute; inset: -6px; pointer-events: none; z-index: 20; border-radius: 50%; }
+        
+        .frame-biohazard {
+            border: 4px dashed #39ff14;
+            box-shadow: 0 0 15px #39ff14, inset 0 0 15px #39ff14;
+            animation: spinSlow 10s linear infinite;
+        }
+        
+        .frame-level5 {
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24;
+        }
+
+        .frame-level10 {
+            border: 3px solid #38bdf8;
+            box-shadow: 0 0 15px #38bdf8, 0 0 30px #38bdf8, inset 0 0 15px #38bdf8;
+        }
+        
+        @keyframes spinSlow { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="selection:bg-purple-500 selection:text-white pb-20 lg:pb-0">
@@ -187,7 +208,7 @@
 
                 <div class="hidden lg:block mt-5 pt-4 border-t border-purple-500/20 space-y-1.5">
                     <button onclick="openWardrobeModal()" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-purple-200 hover:text-white hover:bg-purple-900/40 transition">
-                        <span>🦊</span><span>Avatar Skins (ตู้เสื้อผ้า)</span>
+                        <span>🦊</span><span>Avatar & Frames (แต่งโปรไฟล์)</span>
                     </button>
                     <button onclick="logoutPortal()" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-rose-300 hover:text-rose-200 hover:bg-rose-950/40 transition">
                         <span>🚪</span><span>Logout (ออกจากระบบ)</span>
@@ -203,10 +224,14 @@
                 <div class="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-5">
                     <div class="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 w-full xl:w-auto text-center sm:text-left">
                         <div class="relative group flex-shrink-0">
-                            <div id="hero-avatar-container" onclick="openWardrobeModal()" title="คลิกเปลี่ยนสกิน"
-                                class="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-cosmic-900 border-2 border-purple-300 overflow-hidden cursor-pointer flex items-center justify-center shadow-2xl">
+                            <!-- Hero Avatar -->
+                            <div id="hero-avatar-container" onclick="openWardrobeModal()" title="คลิกเปลี่ยนสกินและกรอบ"
+                                class="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-cosmic-900 border-2 border-purple-300 cursor-pointer flex items-center justify-center shadow-2xl">
+                                <!-- กรอบรูปจะถูกแทรกเข้ามาตรงนี้โดย JS -->
+                                <div id="hero-frame-container"></div>
+                                <div id="hero-skin-container" class="w-full h-full rounded-full overflow-hidden relative z-10"></div>
                             </div>
-                            <button onclick="openWardrobeModal()" class="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-0.5 rounded-full bg-purple-950 border border-purple-300 text-[10px] font-medium text-purple-100 shadow-lg">
+                            <button onclick="openWardrobeModal()" class="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-0.5 rounded-full bg-purple-950 border border-purple-300 text-[10px] font-medium text-purple-100 shadow-lg z-30">
                                 ✨ <span id="current-skin-badge">Skin01</span>
                             </button>
                         </div>
@@ -403,19 +428,33 @@
     <!-- ================= WARDROBE MODAL ================= -->
     <div id="wardrobe-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
         <div class="cosmic-card cosmic-card-active rounded-3xl max-w-4xl w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeWardrobeModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200">✕</button>
+            <button onclick="closeWardrobeModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200 z-50">✕</button>
             <h3 class="font-scifi text-xl sm:text-2xl font-bold text-white mb-6 flex items-center gap-2"><span>🦊</span> DIMENSION WARDROBE</h3>
             
-            <div id="wardrobe-modal-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6"></div>
-
-            <div class="mt-6 pt-5 border-t border-purple-500/30">
-                <h4 class="font-scifi font-bold text-sm text-cyan-300 mb-3">✨ สร้างตัวละครของคุณเอง (Custom Hologram)</h4>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="url" id="custom-avatar-url" placeholder="วางลิงก์รูปภาพ (เช่น PNG จาก Canva หรือ Imgur)" class="flex-grow px-4 py-2.5 rounded-xl bg-cosmic-950 border border-purple-500/40 text-xs text-white focus:border-cyan-400 focus:outline-none">
-                    <button onclick="saveCustomAvatar()" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold whitespace-nowrap shadow-[0_0_10px_rgba(6,182,212,0.4)]">บันทึก & สวมใส่รูปนี้</button>
-                </div>
-                <p class="text-[10px] text-slate-400 mt-2">คำแนะนำ: คัดลอกลิงก์รูปภาพ (Image Address) ที่ไม่มีพื้นหลัง (Transparent PNG) สัดส่วน 1:1 เพื่อความสวยงาม</p>
+            <!-- TABS -->
+            <div class="flex border-b border-purple-500/30 mb-6">
+                <button onclick="switchWardrobeTab('skins')" id="tab-skins" class="px-6 py-3 text-sm font-bold text-purple-200 border-b-2 border-purple-400">เสื้อผ้า (Skins)</button>
+                <button onclick="switchWardrobeTab('frames')" id="tab-frames" class="px-6 py-3 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-purple-200">กรอบรูป (Frames)</button>
             </div>
+
+            <!-- SKINS TAB -->
+            <div id="wardrobe-skins-view">
+                <div id="wardrobe-modal-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6"></div>
+                <div class="mt-6 pt-5 border-t border-purple-500/30">
+                    <h4 class="font-scifi font-bold text-sm text-cyan-300 mb-3">✨ สร้างตัวละครของคุณเอง (Custom Hologram)</h4>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="url" id="custom-avatar-url" placeholder="วางลิงก์รูปภาพ (เช่น PNG จาก Canva หรือ Imgur)" class="flex-grow px-4 py-2.5 rounded-xl bg-cosmic-950 border border-purple-500/40 text-xs text-white focus:border-cyan-400 focus:outline-none">
+                        <button onclick="saveCustomAvatar()" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold whitespace-nowrap shadow-[0_0_10px_rgba(6,182,212,0.4)]">บันทึก & สวมใส่รูปนี้</button>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2">คำแนะนำ: คัดลอกลิงก์รูปภาพ (Image Address) ที่ไม่มีพื้นหลัง (Transparent PNG) สัดส่วน 1:1 เพื่อความสวยงาม</p>
+                </div>
+            </div>
+
+            <!-- FRAMES TAB -->
+            <div id="wardrobe-frames-view" class="hidden">
+                <div id="wardrobe-frames-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6"></div>
+            </div>
+            
         </div>
     </div>
 
@@ -446,6 +485,13 @@
             "Skin99": { id: "Skin99", name: "Custom Avatar", subtitle: "ตัวละครที่คุณสร้างเอง", unlockHint: "ปลดล็อกเมื่อใส่ลิงก์รูปภาพ", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#070510"/><rect x="40" y="40" width="120" height="120" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="8 8"/><circle cx="100" cy="100" r="20" fill="#38bdf8" opacity="0.5" class="animate-ping"/></svg>` }
         };
 
+        const FRAME_CATALOG = {
+            "Frame00": { id: "Frame00", name: "No Frame", subtitle: "ซ่อนกรอบ", cssClass: "", reqLevel: 0 },
+            "FrameBio": { id: "FrameBio", name: "Biohazard Aura", subtitle: "กรอบพิษชีวภาพ (V_U3)", cssClass: "frame-biohazard", reqMission: "V_U3" },
+            "FrameLv5": { id: "FrameLv5", name: "Gold Standard", subtitle: "กรอบสำหรับเลเวล 5 ขึ้นไป", cssClass: "frame-level5", reqLevel: 5 },
+            "FrameLv10": { id: "FrameLv10", name: "Diamond Master", subtitle: "กรอบสำหรับเลเวล 10 ขึ้นไป", cssClass: "frame-level10", reqLevel: 10 }
+        };
+
         const MISSION_META_PRESETS = {
             "M01": { unit: "Unit 3", subtitle: "ฟังเสียงและทำแบบฝึกหัด Fitness Plan (หน้า 34-35)", category: "Listening & Vocab", difficulty: "Medium", xp: 100, demoPasscode: "***-*****", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_1.html" },
             "M02": { unit: "Unit 3", subtitle: "เรียนรู้คำศัพท์และฝึกฟังบทสนทนาเรื่อง Medical Advice (หน้า 36-37)", category: "Vocab & Listening", difficulty: "Medium", xp: 100, demoPasscode: "***-*****", artType: "book", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_2.html" },
@@ -463,6 +509,7 @@
             currentUnitFilter: "ALL",
             activeModalMissionId: null,
             customAvatarUrl: localStorage.getItem("pd_custom_avatar") || "",
+            currentFrameId: localStorage.getItem("pd_current_frame") || "Frame00",
             user: null,
             missions: []
         };
@@ -473,10 +520,9 @@
 
         function updateSlide() {
             const imgEl = document.getElementById('current-slide-img');
-            imgEl.style.opacity = 0.5; // สร้างลูกเล่นเฟดจางๆ เวลาเปลี่ยนรูป
+            imgEl.style.opacity = 0.5; 
             
             setTimeout(() => {
-                // แก้ให้ตรงกับชื่อไฟล์ที่คุณครูตั้ง U3_Future_Form_1.PNG
                 imgEl.src = `U3_Future_Form_${currentSlide}.PNG`;
                 document.getElementById('slide-counter').innerText = `${currentSlide} / ${totalSlides}`;
                 imgEl.style.opacity = 1;
@@ -532,7 +578,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ฟังก์ชันเปิดหน้า Voice Lab
         function openVoiceLab() {
             const sid = appState.user ? appState.user.studentId : "GUEST";
             window.open('voice_lab.html?sid=' + sid, '_blank');
@@ -545,6 +590,7 @@
                     const parsed = JSON.parse(savedSession);
                     appState = {...appState, ...parsed};
                     appState.customAvatarUrl = localStorage.getItem("pd_custom_avatar") || "";
+                    appState.currentFrameId = localStorage.getItem("pd_current_frame") || "Frame00";
                     document.getElementById("login-screen").classList.add("hidden");
                     renderAllModules();
                 } catch (e) {
@@ -567,10 +613,34 @@
 
         function getSkinVisualHtml(skinId) {
             if (skinId === "Skin99" && appState.customAvatarUrl) {
-                return `<img src="${appState.customAvatarUrl}" alt="Custom Avatar" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150/090514/38bdf8?text=ERROR'; showToast('ลิงก์รูปภาพไม่ถูกต้อง หรือรูปนี้ป้องกันการแสดงผล', 'error');">`;
+                return `<img src="${appState.customAvatarUrl}" alt="Custom Avatar" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150/090514/38bdf8?text=ERROR'; showToast('ลิงก์รูปภาพไม่ถูกต้อง', 'error');">`;
             }
             const skinObj = SKIN_CATALOG[skinId] || SKIN_CATALOG["Skin01"];
             return skinObj.svg;
+        }
+        
+        function getFrameCssClass(frameId) {
+            const frameObj = FRAME_CATALOG[frameId];
+            return frameObj ? frameObj.cssClass : "";
+        }
+
+        function checkFrameUnlockStatus(frame) {
+            if (frame.id === "Frame00") return true;
+            
+            // เช็คเลเวล
+            if (frame.reqLevel) {
+                const totalXp = Number(appState.user.totalXp) || 0;
+                const level = Math.floor(totalXp / 500) + 1;
+                return level >= frame.reqLevel;
+            }
+            
+            // เช็คว่าผ่านด่านรึยัง
+            if (frame.reqMission) {
+                const mission = appState.missions.find(m => m.missionId === frame.reqMission);
+                return mission && mission.state === "COMPLETED";
+            }
+            
+            return false;
         }
 
         function openExternalMission(missionId) {
@@ -660,8 +730,12 @@
             document.getElementById("xp-bar-fill").style.width = `${xpPercent}%`;
             
             const curSkin = appState.user.currentSkin || "Skin01";
-            document.getElementById("hero-avatar-container").innerHTML = getSkinVisualHtml(curSkin);
+            document.getElementById("hero-skin-container").innerHTML = getSkinVisualHtml(curSkin);
             document.getElementById("current-skin-badge").textContent = SKIN_CATALOG[curSkin].name;
+            
+            // แสดงกรอบ
+            const frameClass = getFrameCssClass(appState.currentFrameId);
+            document.getElementById("hero-frame-container").className = `frame-base ${frameClass}`;
         }
 
         function renderMissionsGrid() {
@@ -707,7 +781,13 @@
                     btnHtml = `<span class="text-slate-500 text-[11px]">ต้องผ่านด่าน ${m.prerequisite || 'ก่อนหน้า'} ก่อน</span>`;
                 }
 
-                const rewardBadge = m.rewardSkin ? `<span class="px-2 py-0.5 rounded bg-pink-900/80 border border-pink-400/50 text-[9px] text-pink-200">🎁 แจก ${m.rewardSkin}</span>` : "";
+                // แจกสกิน หรือ แจกกรอบ
+                let rewardBadge = "";
+                if (m.rewardSkin) {
+                     rewardBadge = `<span class="px-2 py-0.5 rounded bg-pink-900/80 border border-pink-400/50 text-[9px] text-pink-200">🎁 สกิน: ${m.rewardSkin}</span>`;
+                } else if (m.missionId === "V_U3") {
+                     rewardBadge = `<span class="px-2 py-0.5 rounded bg-green-900/80 border border-green-400/50 text-[9px] text-green-200">🖼️ กรอบบอส!</span>`;
+                }
 
                 return `
                     <article class="${isLocked ? 'locked-card' : 'cosmic-card cosmic-card-active'} rounded-2xl overflow-hidden flex flex-col p-3.5">
@@ -745,13 +825,35 @@
             }
         }
 
+        // --- ระบบ TABS ในตู้เสื้อผ้า ---
+        function switchWardrobeTab(tabName) {
+            document.getElementById('wardrobe-skins-view').classList.add('hidden');
+            document.getElementById('wardrobe-frames-view').classList.add('hidden');
+            
+            document.getElementById('tab-skins').classList.remove('text-purple-200', 'border-purple-400');
+            document.getElementById('tab-skins').classList.add('text-slate-500', 'border-transparent');
+            document.getElementById('tab-frames').classList.remove('text-purple-200', 'border-purple-400');
+            document.getElementById('tab-frames').classList.add('text-slate-500', 'border-transparent');
+            
+            if(tabName === 'skins') {
+                document.getElementById('wardrobe-skins-view').classList.remove('hidden');
+                document.getElementById('tab-skins').classList.replace('text-slate-500', 'text-purple-200');
+                document.getElementById('tab-skins').classList.replace('border-transparent', 'border-purple-400');
+            } else {
+                document.getElementById('wardrobe-frames-view').classList.remove('hidden');
+                document.getElementById('tab-frames').classList.replace('text-slate-500', 'text-purple-200');
+                document.getElementById('tab-frames').classList.replace('border-transparent', 'border-purple-400');
+            }
+        }
+
         function renderWardrobeItems() {
+            // Render Skins
             const list = document.getElementById("sidebar-skins-list");
             const grid = document.getElementById("wardrobe-modal-grid");
             const unlocked = (appState.user && appState.user.unlockedSkins) || ["Skin01"];
             const curSkin = (appState.user && appState.user.currentSkin) || "Skin01";
             
-            const renderFn = (skin, showName = true) => {
+            const renderSkinFn = (skin, showName = true) => {
                 const isUnl = unlocked.includes(skin.id);
                 const isEq = curSkin === skin.id;
                 return `
@@ -765,11 +867,46 @@
                     </button>`;
             };
             
-            list.innerHTML = Object.values(SKIN_CATALOG).slice(0, 3).map(s => renderFn(s, false)).join(""); 
-            grid.innerHTML = Object.values(SKIN_CATALOG).map(s => renderFn(s, true)).join("");
+            list.innerHTML = Object.values(SKIN_CATALOG).slice(0, 3).map(s => renderSkinFn(s, false)).join(""); 
+            grid.innerHTML = Object.values(SKIN_CATALOG).map(s => renderSkinFn(s, true)).join("");
             
             const customInput = document.getElementById("custom-avatar-url");
             if (customInput) customInput.value = appState.customAvatarUrl || "";
+
+            // Render Frames
+            const framesGrid = document.getElementById("wardrobe-frames-grid");
+            const curFrame = appState.currentFrameId;
+            
+            const renderFrameFn = (frame) => {
+                const isUnl = checkFrameUnlockStatus(frame);
+                const isEq = curFrame === frame.id;
+                
+                let hint = "";
+                if(frame.reqLevel) hint = `ต้องใช้เลเวล ${frame.reqLevel} ขึ้นไป`;
+                else if(frame.reqMission) hint = `ต้องผ่านด่าน ${frame.reqMission} ก่อน`;
+                
+                return `
+                    <button onclick="${isUnl ? `selectFrame('${frame.id}')` : `showToast('🔒 กรอบถูกล็อก: ${hint}', 'info')`}" 
+                        class="p-3 rounded-xl border flex flex-col items-center justify-between gap-3 h-full ${isEq ? 'bg-purple-900/60 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]' : isUnl ? 'bg-cosmic-950/70 border-purple-500/30 hover:border-cyan-400' : 'bg-cosmic-950/40 border-slate-800 grayscale opacity-50'}">
+                        
+                        <div class="relative w-16 h-16 flex items-center justify-center flex-shrink-0 mt-2">
+                            <div class="absolute inset-0 bg-cosmic-900 rounded-full"></div>
+                            <!-- รูป Avatar ปัจจุบันที่อยู่ข้างในกรอบ -->
+                            <div class="absolute inset-1 rounded-full overflow-hidden opacity-50">${getSkinVisualHtml(curSkin)}</div>
+                            <!-- ตัวกรอบรูป -->
+                            <div class="frame-base ${frame.cssClass}"></div>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center">
+                            <span class="text-[11px] text-white font-bold leading-tight">${frame.name}</span>
+                            <span class="text-[9px] text-slate-400 mt-1">${frame.subtitle}</span>
+                            ${isEq ? `<span class="text-[9px] text-cyan-400 mt-1 font-bold">● กำลังใช้</span>` : ""}
+                            ${!isUnl ? `<span class="text-[9px] text-rose-400 mt-1">🔒 ${hint}</span>` : ""}
+                        </div>
+                    </button>`;
+            };
+            
+            framesGrid.innerHTML = Object.values(FRAME_CATALOG).map(f => renderFrameFn(f)).join("");
         }
 
         function saveCustomAvatar() {
@@ -804,6 +941,17 @@
                 showToast("ไม่สามารถอัปเดตสกินกับระบบฐานข้อมูลได้", "error");
             }
         }
+        
+        function selectFrame(frameId) {
+            const frameObj = FRAME_CATALOG[frameId];
+            if(!frameObj || !checkFrameUnlockStatus(frameObj)) return;
+            
+            appState.currentFrameId = frameId;
+            localStorage.setItem("pd_current_frame", frameId);
+            renderProfileHeader(); 
+            renderWardrobeItems();
+            showToast(`เปลี่ยนกรอบเป็น ${frameObj.name} เรียบร้อย!`, "success");
+        }
 
         function setMissionFilter(f) { 
             appState.currentFilter = f;
@@ -819,7 +967,7 @@
             renderMissionsGrid();
         }
 
-        function openWardrobeModal() { renderWardrobeItems(); document.getElementById("wardrobe-modal").classList.remove("hidden"); document.getElementById("wardrobe-modal").classList.add("flex"); }
+        function openWardrobeModal() { renderWardrobeItems(); document.getElementById("wardrobe-modal").classList.remove("hidden"); document.getElementById("wardrobe-modal").classList.add("flex"); switchWardrobeTab('skins'); }
         function closeWardrobeModal() { document.getElementById("wardrobe-modal").classList.add("hidden"); document.getElementById("wardrobe-modal").classList.remove("flex"); }
         function openTeacherGuideModal() { document.getElementById("teacher-guide-modal").classList.remove("hidden"); document.getElementById("teacher-guide-modal").classList.add("flex"); }
         function closeTeacherGuideModal() { document.getElementById("teacher-guide-modal").classList.add("hidden"); document.getElementById("teacher-guide-modal").classList.remove("flex"); }
@@ -873,7 +1021,13 @@
                     if(res.unlockedSkins) appState.user.unlockedSkins = res.unlockedSkins;
                     appState.missions = res.missions;
                     saveSession(); renderAllModules(); closeMissionModal();
-                    showToast(res.message, "success");
+                    
+                    // แจ้งเตือนพิเศษถ้าผ่านด่าน V_U3
+                    if (appState.activeModalMissionId === "V_U3") {
+                         showToast("🎉 คุณได้รับกรอบโปรไฟล์ใหม่: Biohazard Aura ไปดูที่ตู้เสื้อผ้าได้เลย!", "success");
+                    } else {
+                         showToast(res.message, "success");
+                    }
                 } else throw new Error(res.message);
             } catch(error) {
                 err.textContent = error.message; err.classList.remove("hidden");
