@@ -12,7 +12,7 @@
             --text-main: #f8fafc;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kanit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kanit', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
         
         body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; 
                background-image: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 70%); overflow-x: hidden;}
@@ -24,26 +24,35 @@
         h1 { color: var(--neon-cyan); margin-bottom: 10px; font-size: 1.8rem; text-transform: uppercase; }
         .phase-title { background: var(--neon-purple); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; display: inline-block; margin-bottom: 20px; letter-spacing: 1px;}
         
-        input { font-size: 1.2rem; text-align: center; width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--neon-cyan); background: #000; color: var(--neon-green); margin-bottom: 20px; font-family: 'Orbitron', sans-serif;}
+        input { font-size: 1.2rem; text-align: center; width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--neon-cyan); background: #000; color: var(--neon-green); margin-bottom: 20px; font-family: 'Orbitron', sans-serif; user-select: text; -webkit-user-select: text;}
         input:focus { outline: none; box-shadow: 0 0 15px var(--neon-cyan); }
         
         /* Buttons */
-        button { border: none; padding: 12px 20px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin: 5px; }
+        button { border: none; padding: 12px 20px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; margin: 5px; }
         .btn-start { background: var(--neon-cyan); color: #000; width: 100%; box-shadow: 0 0 15px var(--neon-cyan); }
         .btn-listen { background: #334155; color: white; border: 1px solid #64748b; }
-        .btn-speak { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); display: flex; align-items: center; justify-content: center; gap: 8px; margin: 15px auto; width: 80%;}
-        .btn-speak.listening { background: var(--neon-green); color: #000; box-shadow: 0 0 25px var(--neon-green); animation: pulse 1s infinite; }
+        
+        /* Hold to Speak Button */
+        .btn-speak { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; margin: 15px auto; width: 85%; height: 90px; border-radius: 20px; touch-action: manipulation; transition: all 0.1s;}
+        .btn-speak:active { transform: scale(0.95); }
+        .btn-speak.listening { background: var(--neon-green); color: #000; box-shadow: 0 0 35px var(--neon-green); transform: scale(1.05); }
         .btn-speak.processing { background: #facc15; color: #000; box-shadow: 0 0 25px #facc15; pointer-events: none; }
         
+        .mic-icon { font-size: 1.8rem; }
+        .mic-text { font-size: 0.9rem; letter-spacing: 1px; }
+
         /* Game UI */
         .target-box { background: rgba(0,0,0,0.5); border: 2px dashed var(--neon-cyan); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         .target-text { font-size: 2rem; font-weight: 800; color: var(--neon-green); word-break: break-word; }
         .meaning-text { font-size: 1rem; color: #94a3b8; margin-top: 5px; }
         
-        .result-box { min-height: 45px; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; display: flex; flex-direction: column; justify-content: center;}
+        .result-box { min-height: 50px; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; display: flex; flex-direction: column; justify-content: center; align-items: center;}
         .text-correct { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
         .text-wrong { color: var(--neon-red); }
-        .text-spoken { color: #facc15; font-style: italic; font-size: 0.85rem; display: block; margin-top: 4px; font-weight: normal;}
+        
+        /* Box สำหรับพิมพ์โชว์เสียงพูดสดๆ */
+        .live-transcript { font-size: 0.95rem; color: #f8fafc; background: #1e293b; padding: 8px 15px; border-radius: 8px; width: 100%; min-height: 40px; display: flex; align-items: center; justify-content: center; font-style: italic; border: 1px solid #334155; margin-top: 5px;}
+        .live-transcript.active { border-color: var(--neon-green); box-shadow: inset 0 0 10px rgba(57,255,20,0.2); }
 
         /* Boss Area */
         #boss-area { display: none; margin-bottom: 20px; position: relative; }
@@ -54,7 +63,6 @@
         .hp-text { position: absolute; width: 100%; text-align: center; top: 0; left: 0; font-size: 0.8rem; font-weight: bold; color: white; font-family: 'Orbitron'; line-height: 18px;}
 
         /* Animations */
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .hit-effect { animation: shake 0.5s; filter: drop-shadow(0 0 30px var(--neon-red)) brightness(1.5) !important; }
 
@@ -82,7 +90,7 @@
         1. <b>Bio-Scan</b> (วิเคราะห์คำศัพท์พื้นฐาน)<br>
         2. <b>Synthesize Cure</b> (สังเคราะห์ศัพท์ขั้นสูง)<br>
         3. <b>Boss Fight!</b> (ออกเสียงประโยคโจมตีบอส)<br><br>
-        <span style="color:#facc15; font-size:0.8rem;">💡 หมายเหตุ: กดปุ่มไมค์ 1 ครั้งเพื่อพูดในแต่ละข้อ (ระบบจะขออนุญาตไมค์แค่ครั้งแรกเท่านั้น)</span>
+        <span style="color:#facc15; font-size:0.85rem;">💡 หมายเหตุ: ใช้ระบบ <b>"กดค้างเพื่อพูด (Hold to Talk)"</b> เหมือนการส่งวอยซ์เมสเสจ ปล่อยปุ่มเมื่อพูดจบครับ</span>
     </div>
     <input type="text" id="sid-input" placeholder="กรอกรหัสนักเรียน (Student ID)">
     <button class="btn-start" onclick="startGame()">🚀 เริ่มภารกิจ</button>
@@ -110,13 +118,17 @@
     <!-- CONTROLS -->
     <div id="controls">
         <button class="btn-listen" onclick="playAudio()">🔊 ฟังเสียงตัวอย่าง</button>
-        <button id="btn-speak" class="btn-speak font-scifi" onclick="toggleSpeech()">
-            🎙️ <span>TAP TO SPEAK (กดเพื่อพูด)</span>
+        
+        <!-- ปุ่มกดค้าง -->
+        <button id="btn-speak" class="btn-speak font-scifi">
+            <span class="mic-icon">🎙️</span>
+            <span class="mic-text" id="mic-label">HOLD TO TALK<br><span style="font-size: 0.65rem; font-family:'Kanit';">(กดค้างเพื่อพูด)</span></span>
         </button>
     </div>
 
-    <!-- FEEDBACK -->
-    <div id="feedback-box" class="result-box">กดปุ่มไมค์เพื่อเริ่มพูด...</div>
+    <!-- FEEDBACK & LIVE TRANSCRIPT -->
+    <div id="feedback-box" class="result-box text-main">เตรียมพร้อม...</div>
+    <div id="live-transcript" class="live-transcript">...</div>
     
     <!-- PROGRESS -->
     <div id="progress-bar" class="progress-dots"></div>
@@ -166,7 +178,6 @@
         ]
     };
 
-    // --- 2. GAME VARIABLES ---
     let currentSid = "";
     let currentPhase = 1;
     let currentIndex = 0;
@@ -174,71 +185,110 @@
     let bossHP = 100;
     const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
 
-    // --- 3. SPEECH RECOGNITION (Stable Mode for iOS/Safari) ---
+    // --- 3. SPEECH RECOGNITION (Dictation / Hold-to-Talk Mode) ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
-    let isListening = false;
+    let finalTranscript = ""; // เก็บประโยคเต็มเมื่อกดปล่อย
     let isCheckingAnswer = false; 
 
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
         recognition.lang = 'en-US';
-        recognition.interimResults = false;
+        recognition.interimResults = true; // ยอมให้แสดงข้อความสดๆ ระหว่างพูด
         recognition.maxAlternatives = 1;
-        recognition.continuous = false; // บังคับปิด continuous เพื่อให้ทำงานชัวร์ 100% บนมือถือ
+        recognition.continuous = true; // บังคับให้รับเสียงไปเรื่อยๆ จนกว่าจะสั่ง stop (ตอนปล่อยมือ)
 
         recognition.onstart = function() {
-            isListening = true;
-            const btn = document.getElementById("btn-speak");
-            btn.classList.add("listening");
-            btn.innerHTML = "🎙️ <span>กำลังฟัง... (พูดเลย)</span>";
-            document.getElementById("feedback-box").innerHTML = "กำลังฟังเสียงของคุณ...";
+            finalTranscript = "";
+            document.getElementById("live-transcript").innerHTML = '<span style="color:#64748b">กำลังฟัง...</span>';
+            document.getElementById("live-transcript").classList.add("active");
+            document.getElementById("feedback-box").innerHTML = "";
             document.getElementById("feedback-box").className = "result-box text-main";
         };
 
         recognition.onresult = function(event) {
-            const spokenText = event.results[0][0].transcript;
-            if (!isCheckingAnswer) {
-                checkAnswer(spokenText);
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
             }
+            // แสดงข้อความที่กำลังพิมพ์สดๆ 
+            const displayTxt = finalTranscript + interimTranscript;
+            document.getElementById("live-transcript").innerHTML = displayTxt || '<span style="color:#64748b">กำลังฟัง...</span>';
         };
 
         recognition.onerror = function(event) {
-            let errorMsg = `⚠️ Error: ${event.error}`;
-            if (event.error === 'no-speech') {
-                errorMsg = "⚠️ ไม่ได้ยินเสียงครับ ลองเข้าใกล้ไมค์หรือพูดดังขึ้นหน่อย";
-            } else if (event.error === 'network') {
-                errorMsg = "⚠️ อินเทอร์เน็ตไม่เสถียร";
-            } else if (event.error === 'not-allowed') {
-                errorMsg = "⚠️ ไม่ได้รับอนุญาตให้ใช้ไมค์ (กรุณาอนุญาตบนแถบ URL)";
-            }
-            document.getElementById("feedback-box").innerHTML = errorMsg;
-            document.getElementById("feedback-box").className = "result-box text-wrong";
-            resetMicButton();
+            if (event.error === 'aborted') return;
+            document.getElementById("live-transcript").innerHTML = `⚠️ Error: ${event.error}`;
+            document.getElementById("live-transcript").classList.remove("active");
         };
 
         recognition.onend = function() {
-            resetMicButton();
+            document.getElementById("live-transcript").classList.remove("active");
+            
+            // เมื่อไมค์หยุด (ปล่อยมือ) ให้ตรวจคำตอบทันที
+            if (!isCheckingAnswer && finalTranscript.trim() !== "") {
+                checkAnswer(finalTranscript);
+            } else if (!isCheckingAnswer) {
+                // กรณีปล่อยมือแล้วไม่ได้ยินเสียงอะไรเลย
+                const display = document.getElementById("live-transcript").innerText;
+                if(display !== "" && display !== "กำลังฟัง..." && !display.includes("Error")) {
+                   checkAnswer(display);
+                } else {
+                   document.getElementById("live-transcript").innerHTML = '<span style="color:#ef4444">ไม่ได้ยินเสียง ลองกดค้างแล้วพูดใหม่ครับ</span>';
+                }
+            }
         };
     } else {
         alert("⚠️ เบราว์เซอร์นี้ไม่รองรับระบบแยกเสียง แนะนำให้ใช้ Google Chrome หรือ Safari ครับ");
     }
 
-    function resetMicButton() {
-        isListening = false;
-        const btn = document.getElementById("btn-speak");
-        btn.classList.remove("listening");
-        btn.classList.remove("processing");
-        if (!isCheckingAnswer) {
-            btn.innerHTML = "🎙️ <span>TAP TO SPEAK (กดเพื่อพูด)</span>";
-        }
+    // --- Hold to Talk Events Setup ---
+    const btnSpeak = document.getElementById("btn-speak");
+    let holdTimer;
+
+    function startListening(e) {
+        if(e) e.preventDefault(); // ป้องกันการเด้งเมนูคลิกขวาในมือถือ
+        if (!recognition || isCheckingAnswer) return;
+        
+        btnSpeak.classList.add("listening");
+        document.getElementById("mic-label").innerHTML = "LISTENING...<br><span style="font-size: 0.65rem; font-family:'Kanit';">(กำลังฟัง... พูดได้เลย)</span>";
+        
+        try { recognition.start(); } catch (err) {}
     }
+
+    function stopListening(e) {
+        if(e) e.preventDefault();
+        if (!recognition || isCheckingAnswer) return;
+        
+        btnSpeak.classList.remove("listening");
+        document.getElementById("mic-label").innerHTML = "HOLD TO TALK<br><span style="font-size: 0.65rem; font-family:'Kanit';">(กดค้างเพื่อพูด)</span>";
+        
+        try { recognition.stop(); } catch (err) {}
+    }
+
+    // รองรับทั้ง Touch (มือถือ) และ Mouse (คอม)
+    btnSpeak.addEventListener('touchstart', startListening, {passive: false});
+    btnSpeak.addEventListener('touchend', stopListening, {passive: false});
+    btnSpeak.addEventListener('touchcancel', stopListening, {passive: false});
+    
+    btnSpeak.addEventListener('mousedown', startListening);
+    btnSpeak.addEventListener('mouseup', stopListening);
+    btnSpeak.addEventListener('mouseleave', stopListening); // ป้องกันกรณีลากเมาส์ออกนอกปุ่ม
 
     // --- 4. GAME LOGIC ---
     function startGame() {
         const sid = document.getElementById("sid-input").value.trim();
         if (!sid) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
         currentSid = sid;
+        
+        // ขออนุญาตไมค์ล่วงหน้า 1 ครั้ง เพื่อลดการเด้ง
+        if (recognition) {
+            try { recognition.start(); setTimeout(() => { recognition.stop(); }, 100); } catch(e) {}
+        }
         
         document.getElementById("welcome-screen").classList.add("hidden");
         document.getElementById("game-screen").classList.remove("hidden");
@@ -269,8 +319,7 @@
 
         renderProgress();
         showCurrentItem();
-        document.getElementById("feedback-box").innerHTML = "กดปุ่มไมค์เพื่อเริ่มพูดคำแรก...";
-        document.getElementById("feedback-box").className = "result-box text-main";
+        document.getElementById("live-transcript").innerHTML = "...";
     }
 
     function renderProgress() {
@@ -293,19 +342,6 @@
         renderProgress();
     }
 
-    function toggleSpeech() {
-        if (!recognition || isCheckingAnswer) return;
-        if (isListening) {
-            recognition.stop();
-        } else {
-            try {
-                recognition.start();
-            } catch (e) {
-                console.log("Mic is busy");
-            }
-        }
-    }
-
     function playAudio() {
         const text = currentList[currentIndex].word;
         const synth = window.speechSynthesis;
@@ -321,49 +357,54 @@
 
     function checkAnswer(spokenText) {
         isCheckingAnswer = true;
-        const btn = document.getElementById("btn-speak");
-        btn.classList.add("processing");
-        btn.innerHTML = "⏳ <span>กำลังตรวจสอบ...</span>";
+        btnSpeak.classList.add("processing");
+        document.getElementById("mic-label").innerHTML = "PROCESSING...<br><span style="font-size: 0.65rem; font-family:'Kanit';">(ตรวจคำตอบ)</span>";
 
         const target = cleanString(currentList[currentIndex].word);
         const spoken = cleanString(spokenText);
         const feedback = document.getElementById("feedback-box");
 
-        // Fuzzy Matching: เช็คว่ามีคำเป้าหมายอยู่ในประโยคที่พูดไหม
+        // Fuzzy Matching
         if (spoken === target || spoken.includes(target)) {
-            feedback.innerHTML = `✔️ ยอดเยี่ยม!<span class="text-spoken">คุณพูดว่า: "${spokenText}"</span>`;
+            feedback.innerHTML = `✔️ ยอดเยี่ยม!`;
             feedback.className = "result-box text-correct";
+            document.getElementById("live-transcript").style.color = "var(--neon-green)";
             
-            if(currentPhase === 3) {
-                hitBoss();
-            }
+            if(currentPhase === 3) hitBoss();
 
             setTimeout(() => {
                 currentIndex++;
                 isCheckingAnswer = false;
                 showCurrentItem();
-                resetMicButton();
-                feedback.innerHTML = "กดปุ่มไมค์เพื่อพูดคำต่อไป...";
-                feedback.className = "result-box text-main";
-            }, 1800);
+                resetSpeakButton();
+                document.getElementById("live-transcript").innerHTML = "...";
+                document.getElementById("live-transcript").style.color = "#f8fafc";
+                feedback.innerHTML = "";
+            }, 1500);
 
         } else {
-            feedback.innerHTML = `❌ ยังไม่เป๊ะ ลองอีกครั้ง!<span class="text-spoken">ระบบได้ยินว่า: "${spokenText}"</span>`;
+            feedback.innerHTML = `❌ ยังไม่ตรง ลองใหม่อีกครั้ง!`;
             feedback.className = "result-box text-wrong";
+            document.getElementById("live-transcript").style.color = "var(--neon-red)";
+            
             setTimeout(() => {
                 isCheckingAnswer = false;
-                resetMicButton();
-            }, 1000);
+                resetSpeakButton();
+                document.getElementById("live-transcript").style.color = "#f8fafc";
+            }, 1200);
         }
+    }
+
+    function resetSpeakButton() {
+        btnSpeak.classList.remove("processing");
+        document.getElementById("mic-label").innerHTML = "HOLD TO TALK<br><span style="font-size: 0.65rem; font-family:'Kanit';">(กดค้างเพื่อพูด)</span>";
     }
 
     function hitBoss() {
         bossHP -= 20;
         if(bossHP < 0) bossHP = 0;
-        
         document.getElementById("hp-fill").style.width = bossHP + "%";
         document.getElementById("hp-text").innerText = bossHP + "%";
-
         const bossImg = document.getElementById("boss-img");
         bossImg.classList.add("hit-effect");
         setTimeout(() => bossImg.classList.remove("hit-effect"), 500);
@@ -375,8 +416,7 @@
         
         const numericSid = parseInt(currentSid) || 0;
         const cipherText = (numericSid * 17 + 5555).toString(16).toUpperCase();
-        const uniqueCode = "V03-" + cipherText;
-        document.getElementById("cipher-code").innerText = uniqueCode;
+        document.getElementById("cipher-code").innerText = "V03-" + cipherText;
 
         try {
             const response = await fetch(API_URL, {
@@ -396,9 +436,7 @@
                 document.getElementById("saving-status").innerText = "✔️ ระบบหลังบ้านบันทึกความสำเร็จแล้ว!";
                 document.getElementById("saving-status").style.color = "var(--neon-green)";
             }
-        } catch (error) {
-            document.getElementById("saving-status").innerText = "⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ แต่คุณสามารถใช้รหัสลับด้านบนได้ครับ";
-        }
+        } catch (error) {}
     }
 </script>
 </body>
