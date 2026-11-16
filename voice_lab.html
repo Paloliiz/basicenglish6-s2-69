@@ -29,7 +29,12 @@
         
         /* Buttons */
         button { border: none; padding: 12px 20px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; margin: 5px; }
-        .btn-start { background: var(--neon-cyan); color: #000; width: 100%; box-shadow: 0 0 15px var(--neon-cyan); }
+        .btn-start { background: #334155; color: #94a3b8; width: 100%; pointer-events: none; }
+        .btn-start.unlocked { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px var(--neon-cyan); pointer-events: auto; }
+        
+        .btn-mic-setup { background: var(--neon-purple); color: white; width: 100%; box-shadow: 0 0 15px var(--neon-purple); margin-bottom: 15px; }
+        .btn-mic-setup.success { background: var(--neon-green); color: #000; pointer-events: none; }
+
         .btn-listen { background: #334155; color: white; border: 1px solid #64748b; }
         
         /* Hold to Speak Button */
@@ -92,7 +97,13 @@
         3. <b>Boss Fight!</b> (ออกเสียงประโยคโจมตีบอส)<br><br>
         <span style="color:#facc15; font-size:0.85rem;">💡 หมายเหตุ: ใช้ระบบ <b>"กดค้างเพื่อพูด (Hold to Talk)"</b> ปล่อยปุ่มเมื่อพูดจบครับ</span>
     </div>
+    
     <input type="text" id="sid-input" placeholder="กรอกรหัสนักเรียน (Student ID)">
+    
+    <!-- ปุ่มขอสิทธิ์ไมโครโฟนโดยเฉพาะ -->
+    <button id="btn-setup-mic" class="btn-mic-setup" onclick="requestMicrophoneAccess()">🎙️ กดเพื่อเปิดสิทธิ์ไมโครโฟนก่อนเล่น</button>
+    
+    <!-- ปุ่มเริ่มเกม (จะเปิดให้กดได้เมื่ออนุญาตไมค์แล้ว) -->
     <button id="btn-main-start" class="btn-start" onclick="startGame()">🚀 เริ่มภารกิจ</button>
 </div>
 
@@ -253,6 +264,35 @@
         alert("⚠️ เบราว์เซอร์นี้ไม่รองรับระบบแยกเสียง แนะนำให้ใช้ Google Chrome หรือ Safari ครับ");
     }
 
+    // --- Request Mic Access on Setup Button ---
+    window.requestMicrophoneAccess = async function() {
+        const setupBtn = document.getElementById("btn-setup-mic");
+        const startBtn = document.getElementById("btn-main-start");
+        
+        setupBtn.innerHTML = "⏳ กำลังขออนุญาต...";
+        
+        try {
+            // ดักขอสิทธิ์ไมค์แบบมาตรฐานสุดๆ เพื่อให้เบราว์เซอร์เด้งหน้าต่างถาม
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // พอได้สิทธิ์แล้วก็ปิดสตรีมทิ้ง เพื่อไม่ให้มีไฟแดงโชว์ค้าง
+                stream.getTracks().forEach(track => track.stop());
+                
+                // เปลี่ยนสถานะปุ่ม
+                setupBtn.innerHTML = "✔️ เชื่อมต่อไมโครโฟนแล้ว";
+                setupBtn.classList.add("success");
+                
+                // ปลดล็อกปุ่มเริ่มเกม
+                startBtn.classList.add("unlocked");
+            } else {
+                alert("⚠️ อุปกรณ์ของคุณไม่รองรับการขอสิทธิ์ไมโครโฟน");
+            }
+        } catch (err) {
+            setupBtn.innerHTML = "❌ ถูกปฏิเสธสิทธิ์! กดเพื่อลองใหม่";
+            alert("⚠️ คุณต้องอนุญาต (Allow) การใช้งานไมโครโฟนจึงจะทำภารกิจได้ครับ หากเคยกดปฏิเสธไปแล้ว กรุณาไปเปิดสิทธิ์ในการตั้งค่าของเบราว์เซอร์ครับ");
+        }
+    }
+
     // --- Hold to Talk Events Setup ---
     const btnSpeak = document.getElementById("btn-speak");
 
@@ -273,7 +313,6 @@
         btnSpeak.classList.remove("listening");
         document.getElementById("mic-label").innerHTML = "HOLD TO TALK<br><span style='font-size: 0.65rem; font-family:Kanit;'>(กดค้างเพื่อพูด)</span>";
         
-        // หน่วงเวลาการปิดไมค์ 400ms เพื่อป้องกันบัคเด้งหน้าจอ Allow บน iOS
         setTimeout(() => {
             try { recognition.stop(); } catch (err) {}
         }, 400);
@@ -297,18 +336,10 @@
         
         currentSid = sid;
 
-        // เปลี่ยนหน้าจอทันที ไม่มีการบล็อกใดๆ ทั้งสิ้น
+        // เข้าเกมได้เลย เพราะปลดล็อกไมค์ตั้งแต่ปุ่มแรกมาแล้ว
         document.getElementById("welcome-screen").classList.add("hidden");
         document.getElementById("game-screen").classList.remove("hidden");
         loadPhase(1);
-
-        // แอบปลุก SpeechRecognition ให้ตื่น เพื่อให้เบราว์เซอร์เตรียมพร้อมขอสิทธิ์ (ถ้าจำเป็น)
-        if (recognition) {
-            try {
-                recognition.start();
-                setTimeout(() => { recognition.stop(); }, 1500); 
-            } catch (err) {}
-        }
     }
 
     function loadPhase(phaseNum) {
