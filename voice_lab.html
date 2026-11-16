@@ -93,7 +93,7 @@
         <span style="color:#facc15; font-size:0.85rem;">💡 หมายเหตุ: ใช้ระบบ <b>"กดค้างเพื่อพูด (Hold to Talk)"</b> ปล่อยปุ่มเมื่อพูดจบครับ</span>
     </div>
     <input type="text" id="sid-input" placeholder="กรอกรหัสนักเรียน (Student ID)">
-    <button class="btn-start" onclick="startGame()">🚀 เริ่มภารกิจ</button>
+    <button id="btn-main-start" class="btn-start" onclick="startGame()">🚀 เริ่มภารกิจ</button>
 </div>
 
 <!-- GAME SCREEN -->
@@ -285,26 +285,37 @@
     btnSpeak.addEventListener('mouseleave', stopListening); 
 
     // --- 4. GAME LOGIC ---
-    function startGame() {
+    window.startGame = async function() {
         const sidInput = document.getElementById("sid-input");
-        if (!sidInput) {
-            alert("ไม่พบช่องกรอกรหัสนักเรียน");
-            return;
-        }
+        if (!sidInput) return alert("ไม่พบช่องกรอกรหัสนักเรียน");
         
         const sid = sidInput.value.trim();
-        if (!sid) {
-            alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
-            return;
-        }
+        if (!sid) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
         
         currentSid = sid;
-        
-        // ล้างคลาส hidden ออกเพื่อสลับหน้าจอ (ทำงานแน่นอน 100%)
-        document.getElementById("welcome-screen").classList.add("hidden");
-        document.getElementById("game-screen").classList.remove("hidden");
-        
-        loadPhase(1);
+        const startBtn = document.getElementById("btn-main-start");
+        startBtn.innerHTML = "⏳ กำลังขอสิทธิ์ไมโครโฟน...";
+        startBtn.style.pointerEvents = "none";
+
+        try {
+            // ขออนุญาตไมค์ด้วยระบบมาตรฐานของ Browser ทันทีที่กดปุ่มเริ่ม
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // ปิดสตรีมทันทีหลังได้สิทธิ์ (เพื่อไม่ให้มีไฟแดงโชว์ค้างที่หน้าจอ)
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            // เมื่อได้สิทธิ์แล้ว สลับหน้าจอเข้าเกม
+            document.getElementById("welcome-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+            loadPhase(1);
+
+        } catch (err) {
+            alert("⚠️ ไม่สามารถเริ่มภารกิจได้เนื่องจากไม่ได้รับอนุญาตให้ใช้ไมโครโฟน กรุณากด 'อนุญาต (Allow)' ก่อนครับ");
+        } finally {
+            startBtn.innerHTML = "🚀 เริ่มภารกิจ";
+            startBtn.style.pointerEvents = "auto";
+        }
     }
 
     function loadPhase(phaseNum) {
