@@ -273,7 +273,10 @@
         btnSpeak.classList.remove("listening");
         document.getElementById("mic-label").innerHTML = "HOLD TO TALK<br><span style='font-size: 0.65rem; font-family:Kanit;'>(กดค้างเพื่อพูด)</span>";
         
-        try { recognition.stop(); } catch (err) {}
+        // หน่วงเวลาการปิดไมค์ 400ms เพื่อป้องกันบัคเด้งหน้าจอ Allow บน iOS
+        setTimeout(() => {
+            try { recognition.stop(); } catch (err) {}
+        }, 400);
     }
 
     btnSpeak.addEventListener('touchstart', startListening, {passive: false});
@@ -287,24 +290,25 @@
     // --- 4. GAME LOGIC ---
     window.startGame = function() {
         const sidInput = document.getElementById("sid-input");
-        if (!sidInput) {
-            alert("ไม่พบช่องกรอกรหัสนักเรียน");
-            return;
-        }
+        if (!sidInput) return alert("ไม่พบช่องกรอกรหัสนักเรียน");
         
         const sid = sidInput.value.trim();
-        if (!sid) {
-            alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
-            return;
-        }
+        if (!sid) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
         
         currentSid = sid;
-        
-        // ถอดระบบดักขอไมค์ล่วงหน้าออกทั้งหมด ให้เข้าเกมได้เลยทันที
+
+        // เปลี่ยนหน้าจอทันที ไม่มีการบล็อกใดๆ ทั้งสิ้น
         document.getElementById("welcome-screen").classList.add("hidden");
         document.getElementById("game-screen").classList.remove("hidden");
-        
         loadPhase(1);
+
+        // แอบปลุก SpeechRecognition ให้ตื่น เพื่อให้เบราว์เซอร์เตรียมพร้อมขอสิทธิ์ (ถ้าจำเป็น)
+        if (recognition) {
+            try {
+                recognition.start();
+                setTimeout(() => { recognition.stop(); }, 1500); 
+            } catch (err) {}
+        }
     }
 
     function loadPhase(phaseNum) {
