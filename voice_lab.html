@@ -31,21 +31,19 @@
         button { border: none; padding: 12px 20px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin: 5px; }
         .btn-start { background: var(--neon-cyan); color: #000; width: 100%; box-shadow: 0 0 15px var(--neon-cyan); }
         .btn-listen { background: #334155; color: white; border: 1px solid #64748b; }
-        .btn-mic-status { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); display: flex; align-items: center; justify-content: center; gap: 8px; margin: 15px auto; width: 85%; font-size: 1.1rem; pointer-events: none;}
-        .btn-mic-status.listening { background: var(--neon-green); color: #000; box-shadow: 0 0 25px var(--neon-green); animation: pulse 1s infinite; }
+        .btn-speak { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); display: flex; align-items: center; justify-content: center; gap: 8px; margin: 15px auto; width: 80%;}
+        .btn-speak.listening { background: var(--neon-green); color: #000; box-shadow: 0 0 25px var(--neon-green); animation: pulse 1s infinite; }
+        .btn-speak.processing { background: #facc15; color: #000; box-shadow: 0 0 25px #facc15; pointer-events: none; }
         
         /* Game UI */
         .target-box { background: rgba(0,0,0,0.5); border: 2px dashed var(--neon-cyan); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         .target-text { font-size: 2rem; font-weight: 800; color: var(--neon-green); word-break: break-word; }
         .meaning-text { font-size: 1rem; color: #94a3b8; margin-top: 5px; }
         
-        .result-box { min-height: 45px; margin-bottom: 15px; font-size: 1.05rem; font-weight: bold; }
+        .result-box { min-height: 45px; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; display: flex; flex-direction: column; justify-content: center;}
         .text-correct { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
         .text-wrong { color: var(--neon-red); }
-        .text-spoken { color: #facc15; font-style: italic; font-size: 0.9rem; display: block; margin-top: 5px;}
-
-        /* Browser Warning Box */
-        .browser-warning { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--neon-red); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.85rem; color: #fca5a5; text-align: left; line-height: 1.5; display: none; }
+        .text-spoken { color: #facc15; font-style: italic; font-size: 0.85rem; display: block; margin-top: 4px; font-weight: normal;}
 
         /* Boss Area */
         #boss-area { display: none; margin-bottom: 20px; position: relative; }
@@ -56,7 +54,7 @@
         .hp-text { position: absolute; width: 100%; text-align: center; top: 0; left: 0; font-size: 0.8rem; font-weight: bold; color: white; font-family: 'Orbitron'; line-height: 18px;}
 
         /* Animations */
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .hit-effect { animation: shake 0.5s; filter: drop-shadow(0 0 30px var(--neon-red)) brightness(1.5) !important; }
 
@@ -64,30 +62,30 @@
         .progress-dots { margin-top: 15px; display: flex; justify-content: center; gap: 8px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; background: #334155; }
         .dot.active { background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
+        
+        #browser-warning { display: none; background-color: rgba(255, 42, 42, 0.2); border: 1px solid var(--neon-red); color: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
+
+<div id="browser-warning">
+    ⚠️ <b>พบการเปิดใช้งานผ่านแอปแชท</b><br>
+    เพื่อการใช้ไมโครโฟนที่สมบูรณ์ กรุณากดปุ่ม 3 จุด มุมขวาบน แล้วเลือก <b>"เปิดในเบราว์เซอร์ (Open in Browser)"</b> หรือเปิดใน Safari / Chrome ครับ
+</div>
 
 <!-- WELCOME SCREEN -->
 <div id="welcome-screen" class="container">
     <h1 class="font-scifi">VOICE LAB</h1>
     <p style="color: var(--neon-cyan); margin-bottom: 20px;">Unit 3: The Bio-Phantom Crisis</p>
-
-    <!-- IN-APP BROWSER WARNING -->
-    <div id="browser-warning" class="browser-warning">
-        <b>⚠️ คำเตือนเบราว์เซอร์:</b> ตรวจพบว่าคุณเปิดผ่านแอปพลิเคชัน (เช่น LINE / Facebook) ซึ่งอาจบล็อกไมโครโฟน <br>
-        💡 แนะนำให้กดปุ่ม <b>(⋮) หรือ (...)</b> มุมขวาบน แล้วเลือก <b>"เปิดในเบราว์เซอร์ Chrome / Safari"</b> เพื่อความเสถียรสูงสุด!
-    </div>
-
     <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; text-align: left; color: #cbd5e1;">
         <b>🎯 ภารกิจของคุณ:</b><br>
         1. <b>Bio-Scan</b> (วิเคราะห์คำศัพท์พื้นฐาน)<br>
         2. <b>Synthesize Cure</b> (สังเคราะห์ศัพท์ขั้นสูง)<br>
-        3. <b>Boss Fight!</b> (ออกเสียงประโยคโจมตีบอส)
+        3. <b>Boss Fight!</b> (ออกเสียงประโยคโจมตีบอส)<br><br>
+        <span style="color:#facc15; font-size:0.8rem;">💡 หมายเหตุ: กดปุ่มไมค์ 1 ครั้งเพื่อพูดในแต่ละข้อ (ระบบจะขออนุญาตไมค์แค่ครั้งแรกเท่านั้น)</span>
     </div>
-    
     <input type="text" id="sid-input" placeholder="กรอกรหัสนักเรียน (Student ID)">
-    <button class="btn-start" onclick="requestMicAndStart()">🚀 อนุญาตไมค์ & เริ่มภารกิจ</button>
+    <button class="btn-start" onclick="startGame()">🚀 เริ่มภารกิจ</button>
 </div>
 
 <!-- GAME SCREEN -->
@@ -112,14 +110,13 @@
     <!-- CONTROLS -->
     <div id="controls">
         <button class="btn-listen" onclick="playAudio()">🔊 ฟังเสียงตัวอย่าง</button>
-        <!-- ปุ่มสถานะไมค์แบบเปิดสแตนด์บายอัตโนมัติ ไม่ต้องกดเปิด-ปิดซ้ำ -->
-        <div id="btn-mic-status" class="btn-mic-status font-scifi listening">
-            🎙️ <span>MIC ACTIVE (พูดได้เลยครับ)</span>
-        </div>
+        <button id="btn-speak" class="btn-speak font-scifi" onclick="toggleSpeech()">
+            🎙️ <span>TAP TO SPEAK (กดเพื่อพูด)</span>
+        </button>
     </div>
 
     <!-- FEEDBACK -->
-    <div id="feedback-box" class="result-box">ระบบกำลังฟังเสียง... เปล่งเสียงพูดคำศัพท์ด้านบนได้เลย!</div>
+    <div id="feedback-box" class="result-box">กดปุ่มไมค์เพื่อเริ่มพูด...</div>
     
     <!-- PROGRESS -->
     <div id="progress-bar" class="progress-dots"></div>
@@ -138,7 +135,13 @@
 </div>
 
 <script>
-    // --- 1. DATA (คลังคำศัพท์และประโยค) ---
+    // --- In-App Browser Check ---
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    if (ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1 || ua.indexOf("Line") > -1) {
+        document.getElementById("browser-warning").style.display = "block";
+    }
+
+    // --- 1. DATA ---
     const DB = {
         phase1: [
             { word: "crucial", meaning: "(adj.) สำคัญมาก, จำเป็นอย่างยิ่ง" },
@@ -169,84 +172,73 @@
     let currentIndex = 0;
     let currentList = [];
     let bossHP = 100;
-    let isCheckingAnswer = false;
-    let recognition = null;
-    let isRunningContinuous = false;
     const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
 
-    // ตรวจสอบ In-App Browser (LINE, Facebook) ตั้งแต่โหลดหน้าเว็บ
-    window.addEventListener("DOMContentLoaded", () => {
-        const ua = navigator.userAgent || navigator.vendor || window.opera;
-        const isInApp = (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1) || (ua.indexOf('Line') > -1) || (ua.indexOf('Instagram') > -1);
-        if (isInApp) {
-            document.getElementById("browser-warning").style.display = "block";
-        }
-    });
+    // --- 3. SPEECH RECOGNITION (Stable Mode for iOS/Safari) ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let isListening = false;
+    let isCheckingAnswer = false; 
 
-    // --- 3. CONTINUOUS SPEECH RECOGNITION SETUP ---
-    function initContinuousRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("⚠️ เบราว์เซอร์ของคุณไม่รองรับระบบเสียง แนะนำให้ใช้ Google Chrome หรือ Safari ครับ");
-            return false;
-        }
-
+    if (SpeechRecognition) {
         recognition = new SpeechRecognition();
         recognition.lang = 'en-US';
         recognition.interimResults = false;
-        recognition.maxAlternatives = 3; // ขอผลลัพธ์สำรอง 3 แบบ เพื่อเพิ่มความแม่นยำ
-        recognition.continuous = true; // เปิดโหมดฟังต่อเนื่องยาวๆ ไม่ต้องกดปิดเปิดซ้ำ
+        recognition.maxAlternatives = 1;
+        recognition.continuous = false; // บังคับปิด continuous เพื่อให้ทำงานชัวร์ 100% บนมือถือ
 
         recognition.onstart = function() {
-            isRunningContinuous = true;
-            const statusEl = document.getElementById("btn-mic-status");
-            if(statusEl) {
-                statusEl.classList.add("listening");
-                statusEl.innerHTML = "🎙️ <span>MIC ACTIVE (กำลังฟังเสียงอยู่...)</span>";
-            }
+            isListening = true;
+            const btn = document.getElementById("btn-speak");
+            btn.classList.add("listening");
+            btn.innerHTML = "🎙️ <span>กำลังฟัง... (พูดเลย)</span>";
+            document.getElementById("feedback-box").innerHTML = "กำลังฟังเสียงของคุณ...";
+            document.getElementById("feedback-box").className = "result-box text-main";
         };
 
         recognition.onresult = function(event) {
-            if (isCheckingAnswer) return; // ถ้ากำลังตรวจคำตอบอยู่ ให้ข้ามผลลัพธ์ชั่วคราว
-            
-            const results = event.results[event.results.length - 1];
-            let spokenPhrases = [];
-            for (let i = 0; i < results.length; i++) {
-                spokenPhrases.push(results[i].transcript);
+            const spokenText = event.results[0][0].transcript;
+            if (!isCheckingAnswer) {
+                checkAnswer(spokenText);
             }
-            
-            checkAnswerWithFuzzyMatch(spokenPhrases);
         };
 
         recognition.onerror = function(event) {
-            console.log("Speech warning/error: ", event.error);
-            // ข้อผิดพลาดเล็กน้อยปล่อยผ่านให้ระบบ restart ตัวเองอัตโนมัติใน onend
+            let errorMsg = `⚠️ Error: ${event.error}`;
+            if (event.error === 'no-speech') {
+                errorMsg = "⚠️ ไม่ได้ยินเสียงครับ ลองเข้าใกล้ไมค์หรือพูดดังขึ้นหน่อย";
+            } else if (event.error === 'network') {
+                errorMsg = "⚠️ อินเทอร์เน็ตไม่เสถียร";
+            } else if (event.error === 'not-allowed') {
+                errorMsg = "⚠️ ไม่ได้รับอนุญาตให้ใช้ไมค์ (กรุณาอนุญาตบนแถบ URL)";
+            }
+            document.getElementById("feedback-box").innerHTML = errorMsg;
+            document.getElementById("feedback-box").className = "result-box text-wrong";
+            resetMicButton();
         };
 
         recognition.onend = function() {
-            isRunningContinuous = false;
-            // ถ้าเกมยังไม่จบ ให้รีสตาร์ทไมค์ต่ออัตโนมัติทันที เพื่อให้ไมค์เปิดสแตนด์บายตลอดเวลา
-            if (currentSid && document.getElementById("game-screen").classList.contains("hidden") === false) {
-                setTimeout(() => {
-                    try { recognition.start(); } catch(e) {}
-                }, 300);
-            }
+            resetMicButton();
         };
-
-        return true;
+    } else {
+        alert("⚠️ เบราว์เซอร์นี้ไม่รองรับระบบแยกเสียง แนะนำให้ใช้ Google Chrome หรือ Safari ครับ");
     }
 
-    // --- 4. GAME LOGIC & FUZZY MATCHING INTEL ---
-    function requestMicAndStart() {
+    function resetMicButton() {
+        isListening = false;
+        const btn = document.getElementById("btn-speak");
+        btn.classList.remove("listening");
+        btn.classList.remove("processing");
+        if (!isCheckingAnswer) {
+            btn.innerHTML = "🎙️ <span>TAP TO SPEAK (กดเพื่อพูด)</span>";
+        }
+    }
+
+    // --- 4. GAME LOGIC ---
+    function startGame() {
         const sid = document.getElementById("sid-input").value.trim();
         if (!sid) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
         currentSid = sid;
-
-        if (initContinuousRecognition()) {
-            try {
-                recognition.start(); // ขอสิทธิ์ครั้งเดียวตอนกดเริ่ม
-            } catch(e) {}
-        }
         
         document.getElementById("welcome-screen").classList.add("hidden");
         document.getElementById("game-screen").classList.remove("hidden");
@@ -272,12 +264,12 @@
             document.getElementById("phase-badge").innerText = "PHASE 3: BOSS FIGHT!";
             document.getElementById("phase-badge").style.backgroundColor = "var(--neon-red)";
             document.getElementById("boss-area").style.display = "block";
-            document.getElementById("target-word").style.fontSize = "1.3rem";
+            document.getElementById("target-word").style.fontSize = "1.5rem";
         }
 
         renderProgress();
         showCurrentItem();
-        document.getElementById("feedback-box").innerHTML = "ระบบกำลังฟัง... เปล่งเสียงคำศัพท์เป้าหมายได้เลย!";
+        document.getElementById("feedback-box").innerHTML = "กดปุ่มไมค์เพื่อเริ่มพูดคำแรก...";
         document.getElementById("feedback-box").className = "result-box text-main";
     }
 
@@ -301,6 +293,19 @@
         renderProgress();
     }
 
+    function toggleSpeech() {
+        if (!recognition || isCheckingAnswer) return;
+        if (isListening) {
+            recognition.stop();
+        } else {
+            try {
+                recognition.start();
+            } catch (e) {
+                console.log("Mic is busy");
+            }
+        }
+    }
+
     function playAudio() {
         const text = currentList[currentIndex].word;
         const synth = window.speechSynthesis;
@@ -314,54 +319,19 @@
         return str.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
     }
 
-    // ฟังก์ชันอัจฉริยะ Fuzzy Matching ยอมรับความเพี้ยนของเสียงและเช็คคีย์เวิร์ด
-    function checkAnswerWithFuzzyMatch(spokenPhrases) {
-        const targetRaw = currentList[currentIndex].word;
-        const targetClean = cleanString(targetRaw);
+    function checkAnswer(spokenText) {
+        isCheckingAnswer = true;
+        const btn = document.getElementById("btn-speak");
+        btn.classList.add("processing");
+        btn.innerHTML = "⏳ <span>กำลังตรวจสอบ...</span>";
+
+        const target = cleanString(currentList[currentIndex].word);
+        const spoken = cleanString(spokenText);
         const feedback = document.getElementById("feedback-box");
-        
-        let isMatched = false;
-        let bestSpoken = spokenPhrases[0] || "";
 
-        for (let phrase of spokenPhrases) {
-            const spokenClean = cleanString(phrase);
-            
-            // เงื่อนไขที่ 1: ตรงเป๊ะ หรือมีคำเป้าหมายอยู่ในประโยคที่พูด
-            if (spokenClean === targetClean || spokenClean.includes(targetClean)) {
-                isMatched = true;
-                bestSpoken = phrase;
-                break;
-            }
-
-            // เงื่อนไขที่ 2 (Fuzzy): สำหรับคำเดี่ยว ให้ยอมรับความเพี้ยน +/- ตัวอักษร (เช่น เติม s หรือสะกดใกล้เคียง 70%)
-            if (currentPhase < 3) {
-                let targetWords = targetClean.split(' ');
-                let matchCount = 0;
-                for(let tw of targetWords) {
-                    if (spokenClean.includes(tw) || tw.includes(spokenClean) && spokenClean.length >= 3) {
-                        matchCount++;
-                    }
-                }
-                if (matchCount > 0 || (targetClean.length > 4 && spokenClean.startsWith(targetClean.substring(0, 4)))) {
-                    isMatched = true;
-                    bestSpoken = phrase;
-                    break;
-                }
-            } else {
-                // สำหรับประโยคยาวในด่านบอส ขอแค่จับใจความคีย์หลักได้เกิน 60% ให้ผ่านทันที
-                let targetWords = targetClean.split(' ');
-                let matchedWords = targetWords.filter(w => w.length > 2 && spokenClean.includes(w));
-                if (matchedWords.length >= Math.ceil(targetWords.length * 0.5)) {
-                    isMatched = true;
-                    bestSpoken = phrase;
-                    break;
-                }
-            }
-        }
-
-        if (isMatched) {
-            isCheckingAnswer = true;
-            feedback.innerHTML = `✔️ ยอดเยี่ยม! ผ่าน!<span class="text-spoken">คุณพูดว่า: "${bestSpoken}"</span>`;
+        // Fuzzy Matching: เช็คว่ามีคำเป้าหมายอยู่ในประโยคที่พูดไหม
+        if (spoken === target || spoken.includes(target)) {
+            feedback.innerHTML = `✔️ ยอดเยี่ยม!<span class="text-spoken">คุณพูดว่า: "${spokenText}"</span>`;
             feedback.className = "result-box text-correct";
             
             if(currentPhase === 3) {
@@ -372,14 +342,18 @@
                 currentIndex++;
                 isCheckingAnswer = false;
                 showCurrentItem();
-                feedback.innerHTML = "ระบบกำลังฟังคำต่อไป... พูดได้เลย!";
+                resetMicButton();
+                feedback.innerHTML = "กดปุ่มไมค์เพื่อพูดคำต่อไป...";
                 feedback.className = "result-box text-main";
-            }, 1400);
+            }, 1800);
 
         } else {
-            // แสดงผลว่าระบบได้ยินอะไร เพื่อให้เด็กทราบว่าเครื่องรับเสียงได้แต่ไม่ตรงคำตอบ
-            feedback.innerHTML = `❌ ยังไม่ตรงกับเป้าหมาย<span class="text-spoken">ระบบได้ยิน: "${bestSpoken}" (ลองพูดใหม่อีกครั้ง)</span>`;
+            feedback.innerHTML = `❌ ยังไม่เป๊ะ ลองอีกครั้ง!<span class="text-spoken">ระบบได้ยินว่า: "${spokenText}"</span>`;
             feedback.className = "result-box text-wrong";
+            setTimeout(() => {
+                isCheckingAnswer = false;
+                resetMicButton();
+            }, 1000);
         }
     }
 
@@ -396,9 +370,6 @@
     }
 
     async function showSuccess() {
-        if (recognition) {
-            try { recognition.stop(); } catch(e) {}
-        }
         document.getElementById("game-screen").classList.add("hidden");
         document.getElementById("success-screen").classList.remove("hidden");
         
