@@ -195,7 +195,7 @@
     const TAIL_MS = 350;            // หน่วงหลังปล่อยปุ่ม กันคำสุดท้ายขาด
     const MIN_HOLD_MS = 350;        // กดสั้นกว่านี้ถือว่ากดพลาด
     const WATCHDOG_MS = 3500;       // ถ้า recognition ไม่ยอมจบเอง ให้บังคับจบ
-    const MAX_RESTARTS = 3;         // เบราว์เซอร์ตัดเองระหว่างกดค้าง -> เริ่มต่อให้อัตโนมัติ
+    const MAX_RESTARTS = 6;         // เบราว์เซอร์ตัดเองระหว่างกดค้าง -> เริ่มต่อให้อัตโนมัติ
     const FAILS_BEFORE_SKIP = 4;    // พลาดครบกี่ครั้งถึงจะมีปุ่มข้าม
     const SENTENCE_PASS = 0.8;      // สัดส่วนคำที่ต้องตรงสำหรับประโยค
 
@@ -256,6 +256,8 @@
     function toIdle() {
         clearTimeout(tailTimer);
         clearTimeout(watchdogTimer);
+        clearTimeout(coolTimer);
+        clearTimeout(startTimer);
         state = "idle";
         pressed = false;
         setMic("idle");
@@ -321,37 +323,61 @@
     });
 
     // ---------- SPEECH RECOGNITION CORE ----------
+    // iOS Safari: ต้องใช้ตัวแยกเสียงตัวเดียวตลอด, รอให้รอบก่อน "จบจริง" ก่อนเริ่มรอบใหม่, และไม่ใช้ continuous
+    const IS_IOS = /iP(hone|ad|od)/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const COOLDOWN_MS = IS_IOS ? 350 : 0;
+    const START_TIMEOUT_MS = 2500;
+
     const FATAL_ERRORS = {
-        "not-allowed": "ไมค์ถูกบล็อก กรุณาเปิดสิทธิ์ไมโครโฟนให้เว็บนี้ในการตั้งค่าเบราว์เซอร์ แล้วรีเฟรชหน้า",
-        "service-not-allowed": "เบราว์เซอร์ไม่อนุญาตให้ใช้ระบบแยกเสียง ลองเปิดด้วย Chrome / Safari",
+        "not-allowed": "ไมค์ถูกบล็อก กรุณาเปิดสิทธิ์ไมโครโฟนให้เว็บนี้ในการตั้งค่าเบราว์เซอร์ แล้วรีเฟรชหน้า (iPhone: ตั้งค่า > Safari > ไมโครโฟน และเปิด การสั่งงานด้วยเสียง/Dictation ในตั้งค่า > ทั่วไป > แป้นพิมพ์)",
+        "service-not-allowed": "เบราว์เซอร์ไม่อนุญาตให้ใช้ระบบแยกเสียง (iPhone: เปิด Dictation ในตั้งค่า > ทั่วไป > แป้นพิมพ์)",
         "audio-capture": "ไม่พบไมโครโฟน หรือไมค์ถูกแอปอื่นใช้อยู่",
         "network": "ระบบแยกเสียงต้องใช้อินเทอร์เน็ต ตรวจสอบสัญญาณแล้วลองใหม่",
         "language-not-supported": "เบราว์เซอร์ไม่รองรับภาษาอังกฤษสำหรับแยกเสียง"
     };
 
-    function startRec() {
-        const id = ++session;
+    let recognizer = null;     // ตัวแยกเสียงตัวเดียวที่ใช้ซ้ำ
+    let recRunning = false;    // true ตั้งแต่สั่ง start() จนกว่า onend จะมา
+    let pendingStart = false;  // มีคำขอเริ่มใหม่ รอให้รอบเก่าจบก่อน
+    let lastEndAt = 0;
+    let ttsUntil = 0;          // เวลาที่เสียงตัวอย่าง (TTS) คืนระบบเสียงให้ไมค์แล้ว
+    let startTimer = null;
+    let coolTimer = null;
+    let startRetried = false;
+
+    function resetRecognizer() {
+        const old = recognizer;
+        recognizer = null;
+        recRunning = false;
+        pendingStart = false;
+        lastEndAt = Date.now();
+        if (old) {
+            old.onstart = old.onresult = old.onerror = old.onend = null;
+            try { old.abort(); } catch (e) {}
+        }
+    }
+
+    function getRecognizer() {
+        if (recognizer) return recognizer;
         const r = new SR();
         r.lang = "en-US";
         r.interimResults = true;
         r.maxAlternatives = 3;
-        r.continuous = true;
-        rec = r;
+        r.continuous = !IS_IOS;
 
         r.onstart = function () {
-            if (id !== session) return;
-            if (!pressed) {            // ปล่อยปุ่มไปก่อนไมค์จะเริ่ม
-                try { r.stop(); } catch (e) {}
-                return;
+            recRunning = true;
+            clearTimeout(startTimer);
+            if (state === "starting") {
+                state = "listening";
+                setMic("listening");
+                if (!carry) setLive("กำลังฟัง...", true);
             }
-            state = "listening";
-            setMic("listening");
-            if (!carry) setLive("กำลังฟัง...", true);
         };
 
         r.onresult = function (e) {
-            if (id !== session) return;
-            // สร้างข้อความใหม่จากผลทั้งหมดทุกครั้ง (กันข้อความซ้ำบน Android Chrome)
+            if (state !== "listening" && state !== "stopping") return;
+            // สร้างข้อความใหม่จากผลทั้งหมดทุกครั้ง (กันข้อความซ้ำ)
             const variants = [[], [], []];
             for (let i = 0; i < e.results.length; i++) {
                 const res = e.results[i];
@@ -365,44 +391,115 @@
         };
 
         r.onerror = function (e) {
-            if (id !== session) return;
             if (e.error === "aborted" || e.error === "no-speech") return;
             lastErr = e.error;
         };
 
         r.onend = function () {
-            if (id !== session) return;
-            // เบราว์เซอร์ตัดเองระหว่างที่ผู้เล่นยังกดค้างอยู่ -> เริ่มต่อ
-            if (pressed && !FATAL_ERRORS[lastErr] && restarts < MAX_RESTARTS) {
-                restarts++;
-                carry = cands[0] || carry;
-                try { startRec(); return; } catch (err) {}
+            recRunning = false;
+            lastEndAt = Date.now();
+            clearTimeout(startTimer);
+
+            // มีคำขอเริ่มรอบใหม่รออยู่ -> รอบเก่าจบสนิทแล้ว เริ่มได้
+            if (pendingStart) { pendingStart = false; requestStart(); return; }
+
+            if (state === "stopping") { finalize(); return; }
+
+            if (state === "listening") {
+                // เบราว์เซอร์ตัดเอง (iOS จะตัดทุกครั้งที่เงียบ) ทั้งที่ยังกดค้างอยู่ -> เริ่มต่อ
+                if (pressed && !FATAL_ERRORS[lastErr] && restarts < MAX_RESTARTS) {
+                    restarts++;
+                    carry = cands[0] || carry;
+                    state = "starting";
+                    requestStart();
+                    return;
+                }
+                if (pressed) { pressed = false; heldMs = Date.now() - pressStart; }
+                finalize();
+                return;
             }
-            finalize();
+
+            if (state === "starting") handleStartFailure();
         };
 
+        recognizer = r;
+        return r;
+    }
+
+    function requestStart() {
+        if (state !== "starting") return;
+        if (recRunning) {
+            // รอบก่อนยังไม่จบ: สั่ง abort แล้วรอ onend ค่อยเริ่ม (กัน iOS เปิดไมค์ไม่ติด)
+            pendingStart = true;
+            try { getRecognizer().abort(); } catch (e) {}
+            clearTimeout(startTimer);
+            startTimer = setTimeout(function () {
+                if (pendingStart && state === "starting") {
+                    resetRecognizer();
+                    requestStart();
+                }
+            }, 1500);
+            return;
+        }
+        clearTimeout(coolTimer);
+        const wait = Math.max(0, COOLDOWN_MS - (Date.now() - lastEndAt), ttsUntil - Date.now());
+        coolTimer = setTimeout(doStart, wait);
+    }
+
+    function doStart() {
+        if (state !== "starting") return;
+        const r = getRecognizer();
+        clearTimeout(startTimer);
+        startTimer = setTimeout(function () {
+            if (state === "starting") { resetRecognizer(); handleStartFailure(); }
+        }, START_TIMEOUT_MS);
         try {
             r.start();
+            recRunning = true;
         } catch (err) {
-            session++;
-            rec = null;
-            lastErr = "audio-capture";
-            finalize();
+            if (err && err.name === "InvalidStateError") {
+                recRunning = true;
+                pendingStart = true;
+                try { r.abort(); } catch (e) {}
+            } else {
+                clearTimeout(startTimer);
+                lastErr = "audio-capture";
+                finalize();
+            }
         }
+    }
+
+    function handleStartFailure() {
+        clearTimeout(startTimer);
+        if (state !== "starting") return;
+        if (!startRetried) {          // ลองสร้างตัวแยกเสียงใหม่ 1 ครั้ง
+            startRetried = true;
+            resetRecognizer();
+            requestStart();
+            return;
+        }
+        setFeedback("⚠️ ไมค์ไม่ตอบสนอง ปล่อยปุ่มแล้วกดใหม่อีกครั้ง (ถ้ายังไม่ได้ ให้ปิดแท็บแล้วเปิดใหม่)", "text-warn");
+        setLive("...", false);
+        toIdle();
     }
 
     function beginPress() {
         if (state !== "idle" || !SR) return;
-        if (window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+        if (window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
+            try { window.speechSynthesis.cancel(); } catch (e) {}
+            ttsUntil = Date.now() + (IS_IOS ? 600 : 0);   // iOS ต้องรอให้ระบบเสียงกลับมาเป็นโหมดไมค์
+        }
 
         pressed = true;
         state = "starting";
         pressStart = Date.now();
+        heldMs = 0;
         carry = "";
         cands = [];
         lastErr = null;
         restarts = 0;
         discard = false;
+        startRetried = false;
 
         setFeedback("", "");
         $("live-transcript").style.color = "#f8fafc";
@@ -410,23 +507,42 @@
         setLive("กำลังเตรียมไมค์...", true);
         if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
 
-        startRec();
+        requestStart();
     }
 
     function endPress() {
         if (!pressed) return;
         pressed = false;
-        if (state !== "starting" && state !== "listening") return;
-
         heldMs = Date.now() - pressStart;
+
+        if (state === "starting") {
+            clearTimeout(coolTimer);
+            clearTimeout(startTimer);
+            if (cands.length || carry) {          // กำลังรีสตาร์ทกลางทาง แต่มีเสียงที่ได้ไว้แล้ว -> ตรวจเลย
+                state = "stopping";
+                pendingStart = false;
+                if (recRunning && recognizer) { try { recognizer.abort(); } catch (e) {} }
+                finalize();
+                return;
+            }
+            pendingStart = false;                  // กดสั้นจนไมค์ยังไม่ทันเริ่ม
+            if (recRunning && recognizer) { try { recognizer.abort(); } catch (e) {} }
+            setFeedback("กดค้างไว้แล้วพูด ปล่อยเมื่อพูดจบนะ", "text-warn");
+            setLive("...", false);
+            toIdle();
+            return;
+        }
+
+        if (state !== "listening") return;
+
         state = "stopping";
         setMic("stopping");
 
         tailTimer = setTimeout(function () {
-            if (rec) { try { rec.stop(); } catch (e) {} }
+            if (recognizer) { try { recognizer.stop(); } catch (e) {} }
             watchdogTimer = setTimeout(function () {
                 if (state === "stopping") {
-                    if (rec) { try { rec.abort(); } catch (e) {} }
+                    if (recognizer) { try { recognizer.abort(); } catch (e) {} }
                     finalize();
                 }
             }, WATCHDOG_MS);
@@ -434,21 +550,28 @@
     }
 
     function cancelSession() {
-        if (state !== "starting" && state !== "listening" && state !== "stopping") return;
+        if (state === "idle" || state === "processing") return;
         discard = true;
         pressed = false;
-        state = "stopping";
+        pendingStart = false;
+        clearTimeout(coolTimer);
+        clearTimeout(startTimer);
         clearTimeout(tailTimer);
-        if (rec) { try { rec.abort(); } catch (e) {} }
-        clearTimeout(watchdogTimer);
-        watchdogTimer = setTimeout(finalize, 800);
+        if (recRunning && recognizer) {
+            state = "stopping";
+            try { recognizer.abort(); } catch (e) {}
+            clearTimeout(watchdogTimer);
+            watchdogTimer = setTimeout(finalize, 800);
+        } else {
+            finalize();
+        }
     }
 
     function finalize() {
         clearTimeout(tailTimer);
         clearTimeout(watchdogTimer);
-        session++;               // ทำให้ event ที่ค้างอยู่ของ recognition เดิมไม่ทำงานอีก
-        rec = null;
+        clearTimeout(coolTimer);
+        clearTimeout(startTimer);
 
         if (discard) {
             discard = false;
@@ -463,14 +586,12 @@
         if (!candidates.length) {
             if (FATAL_ERRORS[lastErr]) {
                 setFeedback("⚠️ " + FATAL_ERRORS[lastErr], "text-warn");
-                setLive("...", false);
             } else if (heldMs && heldMs < MIN_HOLD_MS) {
                 setFeedback("กดค้างไว้แล้วพูด ปล่อยเมื่อพูดจบนะ", "text-warn");
-                setLive("...", false);
             } else {
                 setFeedback("ไม่ได้ยินเสียง ลองกดค้างแล้วพูดใหม่ครับ", "text-warn");
-                setLive("...", false);
             }
+            setLive("...", false);
             toIdle();
             return;
         }
@@ -626,7 +747,6 @@
 
     // สลับแอป/ปิดจอ/หน้าต่างเสียโฟกัส -> ยกเลิก session อย่างปลอดภัย
     document.addEventListener("visibilitychange", function () { if (document.hidden) cancelSession(); });
-    window.addEventListener("blur", cancelSession);
     window.addEventListener("pagehide", cancelSession);
 
     // ---------- GAME LOGIC ----------
@@ -711,6 +831,9 @@
         u.lang = "en-US";
         u.rate = 0.9;
         if (enVoice) u.voice = enVoice;
+        const markDone = function () { ttsUntil = Date.now() + (IS_IOS ? 600 : 0); };
+        u.onend = markDone;
+        u.onerror = markDone;
         synth.speak(u);
     };
 
