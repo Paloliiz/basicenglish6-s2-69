@@ -285,37 +285,26 @@
     btnSpeak.addEventListener('mouseleave', stopListening); 
 
     // --- 4. GAME LOGIC ---
-    window.startGame = async function() {
+    window.startGame = function() {
         const sidInput = document.getElementById("sid-input");
-        if (!sidInput) return alert("ไม่พบช่องกรอกรหัสนักเรียน");
+        if (!sidInput) {
+            alert("ไม่พบช่องกรอกรหัสนักเรียน");
+            return;
+        }
         
         const sid = sidInput.value.trim();
-        if (!sid) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
+        if (!sid) {
+            alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
+            return;
+        }
         
         currentSid = sid;
-        const startBtn = document.getElementById("btn-main-start");
-        startBtn.innerHTML = "⏳ กำลังขอสิทธิ์ไมโครโฟน...";
-        startBtn.style.pointerEvents = "none";
-
-        try {
-            // ขออนุญาตไมค์ด้วยระบบมาตรฐานของ Browser ทันทีที่กดปุ่มเริ่ม
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                // ปิดสตรีมทันทีหลังได้สิทธิ์ (เพื่อไม่ให้มีไฟแดงโชว์ค้างที่หน้าจอ)
-                stream.getTracks().forEach(track => track.stop());
-            }
-
-            // เมื่อได้สิทธิ์แล้ว สลับหน้าจอเข้าเกม
-            document.getElementById("welcome-screen").classList.add("hidden");
-            document.getElementById("game-screen").classList.remove("hidden");
-            loadPhase(1);
-
-        } catch (err) {
-            alert("⚠️ ไม่สามารถเริ่มภารกิจได้เนื่องจากไม่ได้รับอนุญาตให้ใช้ไมโครโฟน กรุณากด 'อนุญาต (Allow)' ก่อนครับ");
-        } finally {
-            startBtn.innerHTML = "🚀 เริ่มภารกิจ";
-            startBtn.style.pointerEvents = "auto";
-        }
+        
+        // ถอดระบบดักขอไมค์ล่วงหน้าออกทั้งหมด ให้เข้าเกมได้เลยทันที
+        document.getElementById("welcome-screen").classList.add("hidden");
+        document.getElementById("game-screen").classList.remove("hidden");
+        
+        loadPhase(1);
     }
 
     function loadPhase(phaseNum) {
