@@ -43,6 +43,7 @@
         .btn-speak { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; margin: 15px auto; width: 85%; height: 90px; border-radius: 20px; touch-action: none; transition: transform 0.1s, background 0.1s, box-shadow 0.1s;}
         .btn-speak.listening { background: var(--neon-green); color: #000; box-shadow: 0 0 35px var(--neon-green); transform: scale(1.05); }
         .btn-speak.processing { background: #facc15; color: #000; box-shadow: 0 0 25px #facc15; pointer-events: none; }
+        .btn-speak.starting { background: #facc15; color: #000; box-shadow: 0 0 25px #facc15; }
 
         .mic-icon { font-size: 1.8rem; }
         .mic-text { font-size: 0.9rem; letter-spacing: 1px; }
@@ -192,9 +193,9 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
 
     // ---------- CONFIG ----------
-    const TAIL_MS = 350;            // หน่วงหลังปล่อยปุ่ม กันคำสุดท้ายขาด
+    const TAIL_MS = 250;            // หน่วงหลังปล่อยปุ่ม กันคำสุดท้ายขาด
     const MIN_HOLD_MS = 350;        // กดสั้นกว่านี้ถือว่ากดพลาด
-    const WATCHDOG_MS = 3500;       // ถ้า recognition ไม่ยอมจบเอง ให้บังคับจบ
+    const WATCHDOG_MS = 1500;       // ถ้า recognition ไม่ยอมจบเอง ให้บังคับจบ
     const MAX_RESTARTS = 6;         // เบราว์เซอร์ตัดเองระหว่างกดค้าง -> เริ่มต่อให้อัตโนมัติ
     const FAILS_BEFORE_SKIP = 4;    // พลาดครบกี่ครั้งถึงจะมีปุ่มข้าม
     const SENTENCE_PASS = 0.8;      // สัดส่วนคำที่ต้องตรงสำหรับประโยค
@@ -230,6 +231,7 @@
 
     const LABELS = {
         idle: 'HOLD TO TALK<br><span class="sub">(กดค้างเพื่อพูด)</span>',
+        starting: 'GET READY...<br><span class="sub">(รอไมค์พร้อมก่อน แล้วค่อยพูด)</span>',
         listening: 'LISTENING...<br><span class="sub">(พูดได้เลย ปล่อยเมื่อพูดจบ)</span>',
         stopping: 'WAIT...<br><span class="sub">(กำลังรับเสียงช่วงท้าย)</span>',
         processing: 'PROCESSING...<br><span class="sub">(ตรวจคำตอบ)</span>'
@@ -237,6 +239,7 @@
 
     function setMic(mode) {
         btnSpeak.classList.toggle("listening", mode === "listening");
+        btnSpeak.classList.toggle("starting", mode === "starting");
         btnSpeak.classList.toggle("processing", mode === "stopping" || mode === "processing");
         $("mic-label").innerHTML = LABELS[mode];
     }
@@ -388,6 +391,7 @@
             }
             cands = variants.map((v) => (carry + " " + v.join(" ")).trim());
             setLive(cands[0] || "กำลังฟัง...", true);
+            tryEarlyPass();
         };
 
         r.onerror = function (e) {
@@ -487,7 +491,7 @@
         if (state !== "idle" || !SR) return;
         if (window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
             try { window.speechSynthesis.cancel(); } catch (e) {}
-            ttsUntil = Date.now() + (IS_IOS ? 600 : 0);   // iOS ต้องรอให้ระบบเสียงกลับมาเป็นโหมดไมค์
+            ttsUntil = Date.now() + (IS_IOS ? 450 : 0);   // iOS ต้องรอให้ระบบเสียงกลับมาเป็นโหมดไมค์
         }
 
         pressed = true;
@@ -503,7 +507,7 @@
 
         setFeedback("", "");
         $("live-transcript").style.color = "#f8fafc";
-        setMic("listening");
+        setMic("starting");
         setLive("กำลังเตรียมไมค์...", true);
         if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
 
@@ -539,6 +543,8 @@
         setMic("stopping");
 
         tailTimer = setTimeout(function () {
+            const hit = bestPassing(needFor());
+            if (hit) { passNow(hit); return; }
             if (recognizer) { try { recognizer.stop(); } catch (e) {} }
             watchdogTimer = setTimeout(function () {
                 if (state === "stopping") {
@@ -547,6 +553,45 @@
                 }
             }, WATCHDOG_MS);
         }, TAIL_MS);
+    }
+
+    function needFor() {
+        return norm(currentList[currentIndex].word).split(" ").length > 1 ? SENTENCE_PASS : 1;
+    }
+
+    function bestPassing(need) {
+        const item = currentList[currentIndex];
+        if (!item) return null;
+        const toks = norm(item.word).split(" ");
+        let bestS = -1, bestT = null;
+        cands.forEach(function (c) {
+            if (!c) return;
+            const sc = score(toks, norm(c).split(" ").filter(Boolean));
+            if (sc > bestS) { bestS = sc; bestT = c; }
+        });
+        return bestS >= need ? bestT : null;
+    }
+
+    // ฟังตรงเมื่อไหร่ ผ่านทันที ไม่ต้องรอปล่อยปุ่ม/รอผลสุดท้ายจาก iOS
+    function tryEarlyPass() {
+        if (state !== "listening" && state !== "stopping") return;
+        const hit = bestPassing(state === "stopping" ? needFor() : 1);
+        if (hit) passNow(hit);
+    }
+
+    function passNow(text) {
+        clearTimeout(tailTimer);
+        clearTimeout(watchdogTimer);
+        clearTimeout(coolTimer);
+        clearTimeout(startTimer);
+        pendingStart = false;
+        pressed = false;
+        state = "processing";
+        setMic("processing");
+        if (recRunning && recognizer) { try { recognizer.abort(); } catch (e) {} }
+        $("live-transcript").classList.remove("active");
+        setLive(text, false);
+        onCorrect();
     }
 
     function cancelSession() {
@@ -678,7 +723,7 @@
 
         setTimeout(function () {
             advance();
-        }, 1300);
+        }, 900);
     }
 
     function onWrong(targetToks, spokenText, isSentence) {
@@ -698,7 +743,7 @@
         setTimeout(function () {
             $("live-transcript").style.color = "#f8fafc";
             toIdle();
-        }, 900);
+        }, 600);
     }
 
     window.skipItem = function () {
@@ -831,7 +876,7 @@
         u.lang = "en-US";
         u.rate = 0.9;
         if (enVoice) u.voice = enVoice;
-        const markDone = function () { ttsUntil = Date.now() + (IS_IOS ? 600 : 0); };
+        const markDone = function () { ttsUntil = Date.now() + (IS_IOS ? 450 : 0); };
         u.onend = markDone;
         u.onerror = markDone;
         synth.speak(u);
