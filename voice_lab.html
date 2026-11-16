@@ -92,6 +92,7 @@
         3. <b>Boss Fight!</b> (ออกเสียงประโยคโจมตีบอส)<br><br>
         <span style="color:#facc15; font-size:0.85rem;">💡 หมายเหตุ: ใช้ระบบ <b>"กดค้างเพื่อพูด (Hold to Talk)"</b> เหมือนการส่งวอยซ์เมสเสจ ปล่อยปุ่มเมื่อพูดจบครับ</span>
     </div>
+    <!-- ทำให้ช่องกรอกรหัสนักเรียนเป็นแบบ auto-fill จาก URL parameter เหมือนด่านอื่นๆ -->
     <input type="text" id="sid-input" placeholder="กรอกรหัสนักเรียน (Student ID)">
     <button class="btn-start" onclick="startGame()">🚀 เริ่มภารกิจ</button>
 </div>
@@ -102,7 +103,8 @@
     
     <!-- BOSS AREA -->
     <div id="boss-area">
-        <img src="boss_biophantom.png" id="boss-img" alt="The Bio-Phantom">
+        <!-- แก้ไขชื่อไฟล์รูปภาพให้ตรงกับที่อัปโหลด -->
+        <img src="boss_biophantom.png" id="boss-img" alt="The Bio-Phantom" onerror="this.src='https://via.placeholder.com/250x250/1e1541/39ff14?text=Boss+Image+Not+Found'">
         <div class="hp-bar-bg">
             <div id="hp-fill" class="hp-bar-fill"></div>
             <div id="hp-text" class="hp-text">100%</div>
@@ -147,6 +149,15 @@
 </div>
 
 <script>
+    // --- Auto-fill Student ID from URL parameter ---
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sidFromUrl = urlParams.get('sid');
+        if (sidFromUrl && sidFromUrl !== "GUEST") {
+            document.getElementById('sid-input').value = sidFromUrl;
+        }
+    });
+
     // --- In-App Browser Check ---
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if (ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1 || ua.indexOf("Line") > -1) {
@@ -248,7 +259,6 @@
 
     // --- Hold to Talk Events Setup ---
     const btnSpeak = document.getElementById("btn-speak");
-    let holdTimer;
 
     function startListening(e) {
         if(e) e.preventDefault(); // ป้องกันการเด้งเมนูคลิกขวาในมือถือ
@@ -280,14 +290,22 @@
     btnSpeak.addEventListener('mouseleave', stopListening); // ป้องกันกรณีลากเมาส์ออกนอกปุ่ม
 
     // --- 4. GAME LOGIC ---
-    function startGame() {
-        const sid = document.getElementById("sid-input").value.trim();
+    // ฟังก์ชันstartGame นี้จะถูกเรียกเมื่อกดปุ่ม "🚀 เริ่มภารกิจ"
+    window.startGame = function() {
+        const sidInput = document.getElementById("sid-input");
+        if (!sidInput) return alert("ไม่พบช่องกรอกรหัสนักเรียน");
+        
+        const sid = sidInput.value.trim();
         if (!sid) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ!");
+        
         currentSid = sid;
         
         // ขออนุญาตไมค์ล่วงหน้า 1 ครั้ง เพื่อลดการเด้ง
         if (recognition) {
-            try { recognition.start(); setTimeout(() => { recognition.stop(); }, 100); } catch(e) {}
+            try { 
+                recognition.start(); 
+                setTimeout(() => { recognition.stop(); }, 100); 
+            } catch(e) {}
         }
         
         document.getElementById("welcome-screen").classList.add("hidden");
@@ -342,7 +360,8 @@
         renderProgress();
     }
 
-    function playAudio() {
+    // เปิดให้เรียกใช้จากปุ่ม "ฟังเสียงตัวอย่าง"
+    window.playAudio = function() {
         const text = currentList[currentIndex].word;
         const synth = window.speechSynthesis;
         const utterThis = new SpeechSynthesisUtterance(text);
@@ -406,8 +425,10 @@
         document.getElementById("hp-fill").style.width = bossHP + "%";
         document.getElementById("hp-text").innerText = bossHP + "%";
         const bossImg = document.getElementById("boss-img");
-        bossImg.classList.add("hit-effect");
-        setTimeout(() => bossImg.classList.remove("hit-effect"), 500);
+        if(bossImg) {
+            bossImg.classList.add("hit-effect");
+            setTimeout(() => bossImg.classList.remove("hit-effect"), 500);
+        }
     }
 
     async function showSuccess() {
