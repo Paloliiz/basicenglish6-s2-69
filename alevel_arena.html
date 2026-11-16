@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A-Level Arena: Tower of Trials</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                        scifi: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        cosmic: { 950: '#070510', 900: '#0d091d', 800: '#150f2e', 700: '#211844' },
+                        neon: { cyan: '#38bdf8', purple: '#a855f7', pink: '#ec4899', green: '#34d399', red: '#f43f5e', orange: '#fb923c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #070510;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 85%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(21, 15, 46, 0.88), rgba(13, 9, 29, 0.94));
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(56, 189, 248, 0.1);
+            backdrop-filter: blur(12px);
+        }
+        .btn-action {
+            background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            transition: all 0.2s;
+        }
+        .btn-action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 25px rgba(56, 189, 248, 0.6); }
+        .btn-action:disabled { background: #1e293b; color: #64748b; box-shadow: none; cursor: not-allowed; }
+        
+        .choice-btn {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .choice-btn:hover:not(:disabled) { border-color: rgba(56, 189, 248, 0.6); background: rgba(15, 23, 42, 0.9); }
+        .choice-btn.selected {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+        .choice-btn.correct { background: rgba(52, 211, 153, 0.2); border-color: #34d399; box-shadow: 0 0 15px rgba(52, 211, 153, 0.4); }
+        .choice-btn.wrong { background: rgba(244, 63, 94, 0.2); border-color: #f43f5e; }
+        
+        /* Progress Bar */
+        .hp-bar-bg { background: rgba(0,0,0,0.5); border: 1px solid rgba(100,116,139,0.5); border-radius: 999px; overflow: hidden; }
+        .hp-fill { background: linear-gradient(90deg, #38bdf8, #a855f7); transition: width 0.5s ease; }
+        
+        /* Tower Stages */
+        .stage-card {
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(15, 23, 42, 0.6);
+            transition: all 0.3s;
+        }
+        .stage-card.active {
+            border-color: #38bdf8;
+            background: rgba(21, 15, 46, 0.9);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+        .stage-card.locked { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
+        .stage-card.completed { border-color: #34d399; background: rgba(6, 78, 59, 0.4); }
+        
+        .exam-image { transition: transform 0.3s ease; cursor: zoom-in; }
+        .exam-image:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-10 flex flex-col items-center">
+
+    <!-- WELCOME / LOBBY SCREEN -->
+    <div id="lobby-screen" class="glass-panel rounded-3xl max-w-4xl w-full p-6 sm:p-8 relative overflow-hidden">
+        <div class="text-center mb-8">
+            <h1 class="font-scifi text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 mb-2">A-LEVEL ARENA</h1>
+            <p class="text-slate-300 text-sm sm:text-base">Tower of Trials: หอคอยจำลองข้อสอบเข้ามหาวิทยาลัย</p>
+            <p class="text-xs text-cyan-400 mt-2">ทำข้อสอบถูก 1 ข้อ รับ +10 XP | เคลียร์ครบ 4 ชั้น รับกรอบโปรไฟล์พิเศษ!</p>
+        </div>
+
+        <div class="mb-8">
+            <label class="block text-xs font-medium text-cyan-200 mb-2 text-center">กรุณายืนยันรหัสนักเรียน (Student ID)</label>
+            <input type="text" id="sid-input" placeholder="******" class="w-full max-w-xs mx-auto block px-4 py-3 rounded-xl bg-cosmic-900 border border-cyan-500/40 text-center text-white font-scifi focus:border-cyan-400 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="stages-container">
+            <div class="stage-card active rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer" onclick="startStage(1)">
+                <div class="w-12 h-12 rounded-full bg-cyan-900/50 flex items-center justify-center text-xl mb-3 border border-cyan-400/50">💬</div>
+                <h3 class="font-bold text-white text-sm">Floor 1</h3>
+                <p class="text-xs text-slate-300 mb-2">Everyday Comm.</p>
+                <span class="text-[10px] px-2 py-1 rounded bg-cyan-950 border border-cyan-500/50 text-cyan-200">12 ข้อ</span>
+            </div>
+            <div class="stage-card active rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer" onclick="startStage(2)">
+                <div class="w-12 h-12 rounded-full bg-purple-900/50 flex items-center justify-center text-xl mb-3 border border-purple-400/50">📊</div>
+                <h3 class="font-bold text-white text-sm">Floor 2</h3>
+                <p class="text-xs text-slate-300 mb-2">Visuals & Graphs</p>
+                <span class="text-[10px] px-2 py-1 rounded bg-purple-950 border border-purple-500/50 text-purple-200">6 ข้อ</span>
+            </div>
+            <div class="stage-card active rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer" onclick="startStage(3)">
+                <div class="w-12 h-12 rounded-full bg-pink-900/50 flex items-center justify-center text-xl mb-3 border border-pink-400/50">📰</div>
+                <h3 class="font-bold text-white text-sm">Floor 3</h3>
+                <p class="text-xs text-slate-300 mb-2">News & Articles</p>
+                <span class="text-[10px] px-2 py-1 rounded bg-pink-950 border border-pink-500/50 text-pink-200">15 ข้อ</span>
+            </div>
+            <div class="stage-card active rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer" onclick="startStage(4)">
+                <div class="w-12 h-12 rounded-full bg-orange-900/50 flex items-center justify-center text-xl mb-3 border border-orange-400/50">📝</div>
+                <h3 class="font-bold text-white text-sm">Floor 4 (BOSS)</h3>
+                <p class="text-xs text-slate-400 mb-2">Writing Skill</p>
+                <span class="text-[10px] px-2 py-1 rounded bg-orange-950 border border-orange-500/50 text-orange-200">20 ข้อ</span>
+            </div>
+        </div>
+        <div class="text-center">
+            <button onclick="window.close()" class="text-xs text-slate-400 hover:text-white underline">กลับไปหน้า Dashboard</button>
+        </div>
+    </div>
+
+    <!-- EXAM ARENA SCREEN -->
+    <div id="arena-screen" class="glass-panel rounded-3xl max-w-3xl w-full p-5 sm:p-8 hidden relative">
+        <div class="flex items-center justify-between mb-4 border-b border-cyan-500/30 pb-4">
+            <div><span id="arena-stage-name" class="font-scifi font-bold text-cyan-300 text-sm">FLOOR 1: COMMUNICATION</span></div>
+            <div class="text-right"><div class="text-xs text-slate-400 mb-1">Time: <span id="timer-display" class="font-scifi text-white font-bold">15:00</span></div></div>
+        </div>
+
+        <div class="mb-6">
+            <div class="flex justify-between text-xs font-scifi text-slate-300 mb-1">
+                <span id="progress-text">Question 1 / 10</span>
+                <span class="text-amber-300" id="score-text">Score: 0</span>
+            </div>
+            <div class="h-2 hp-bar-bg">
+                <div id="progress-fill" class="h-full hp-fill" style="width: 10%"></div>
+            </div>
+        </div>
+
+        <!-- Question Area -->
+        <div class="bg-cosmic-900/80 rounded-2xl p-5 border border-slate-700/50 mb-6 flex flex-col items-center">
+            <div id="question-content" class="w-full text-center"></div>
+        </div>
+
+        <!-- Choices -->
+        <div id="choices-container" class="space-y-3 mb-4"></div>
+
+        <!-- Explanation Box (New) -->
+        <div id="explanation-box" class="hidden mb-6 p-4 rounded-xl bg-blue-900/40 border border-blue-500/40 text-blue-100 text-sm leading-relaxed">
+            <span class="font-bold text-cyan-300 mr-1">💡 เฉลย/อธิบาย:</span> <span id="explanation-text"></span>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+            <button onclick="returnToLobby()" class="text-xs text-slate-400 hover:text-white">🚪 ถอนตัว (กลับหน้าหลัก)</button>
+            <button id="btn-next-question" onclick="nextQuestion()" disabled class="btn-action px-6 py-2.5 rounded-xl font-bold text-sm text-white flex items-center gap-2">
+                <span>ยืนยันคำตอบ</span> <span>➡️</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="glass-panel rounded-3xl max-w-xl w-full p-8 hidden text-center relative">
+        <div class="text-6xl mb-4" id="result-icon">🎯</div>
+        <h2 class="font-scifi text-2xl font-bold text-white mb-2" id="result-title">STAGE CLEARED!</h2>
+        <p class="text-slate-300 text-sm mb-6" id="result-subtitle">คุณทำข้อสอบ Floor สำเร็จแล้ว</p>
+        
+        <div class="bg-cosmic-900 rounded-2xl p-6 border border-cyan-500/30 mb-6 inline-block w-full max-w-sm mx-auto">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-sm text-slate-400">คะแนนที่ได้</span>
+                <span class="font-bold text-xl text-white" id="result-score">8 / 10</span>
+            </div>
+            <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+                <span class="text-sm text-slate-400">XP ที่ได้รับ</span>
+                <span class="font-scifi font-bold text-amber-300 text-xl" id="result-xp">+80 XP</span>
+            </div>
+        </div>
+        <div id="saving-status" class="text-xs text-cyan-400 mb-6 h-4">กำลังบันทึกผลลงระบบฐานข้อมูล...</div>
+        <button onclick="returnToLobby()" class="btn-action w-full py-3 rounded-xl font-bold text-sm text-white">กลับสู่โถงหอคอย</button>
+    </div>
+
+    <!-- MODAL FOR IMAGE ZOOM -->
+    <div id="image-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md cursor-zoom-out" onclick="closeImageModal()">
+        <img id="zoomed-image" src="" class="max-w-full max-h-full rounded-xl shadow-2xl">
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+        let currentSid = ""; let currentStage = 1; let currentQIndex = 0; let score = 0; let timerInterval; let timeLeft = 900; let hasAnswered = false;
+        
+        // --- ฐานข้อมูลข้อสอบ พร้อมคำอธิบาย ---
+        const EXAM_DB = {
+            1: [
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 1</p><p>Customer: Well, this is the third time my order has taken more than 30 minutes to arrive. _______ but the wait is becoming frustrating.</p>", c: ["I ordered only a simple dish,", "I don't enjoy the service here,", "The place is very crowded,", "The food quality has declined,"], a: 0, exp: "ลูกค้าบ่นว่า 'สั่งแค่อาหารทำง่ายๆ (simple dish) แท้ๆ' แต่กลับรอนานถึง 30 นาที จึงรู้สึกหงุดหงิด (frustrating)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 1</p><p>Waiter: I'm very sorry to hear that. I completely understand your frustration. _______ but there's no excuse.</p>", c: ["Timely food service matters to us,", "We've been a bit short-staffed lately,", "Thanks for bearing with us during the delay,", "Preparing dishes at our restaurant takes short time,"], a: 1, exp: "พนักงานขอโทษและให้เหตุผลว่า 'ช่วงนี้พนักงานขาด (short-staffed)' แต่ก็ยอมรับว่านั่นไม่ใช่ข้อแก้ตัว (there's no excuse)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 1</p><p>Waiter: You're absolutely right. I'll speak with the kitchen and make sure _______.</p>", c: ["they know you are satisfied.", "the chef will enhance the taste.", "your order is prioritized today.", "an extra serving will be removed."], a: 2, exp: "เพื่อแก้ปัญหาเฉพาะหน้า พนักงานจึงบอกว่าจะไปบอกครัวให้ 'ลัดคิว / ให้ความสำคัญกับออเดอร์นี้ก่อน (prioritized)'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 1</p><p>Customer: _______</p><p>Waiter: Thank you for your feedback. We'll do better.</p>", c: ["I don't anticipate a long wait.", "Thank you for addressing my concerns.", "The complimentary drinks won't be enough.", "I am inclined to provide additional feedback."], a: 1, exp: "ลูกค้าพอใจการแก้ปัญหาและของแถม จึงกล่าวว่า 'ขอบคุณที่ช่วยจัดการข้อกังวลให้ (addressing my concerns)'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 2</p><p>Leo: I think I want to travel for a few months. Maybe visit South America. _______ Will you go back to your home country?</p>", c: ["What about you?", "Where did you travel?", "Do you know where it is?", "Have you ever been there?"], a: 0, exp: "Leo พูดถึงแผนของตัวเองเสร็จ จึงถามกลับว่า 'แล้วคุณล่ะ (What about you?) จะกลับประเทศไหม?'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 2</p><p>Maria: I want to find a job first... I need to earn some money before I travel.</p><p>Leo: That's a good idea. _______ Or will you move to a new city?</p>", c: ["Is it easy to apply for a job here?", "I used to work for some companies here.", "You might want to get a job after your travel.", "Do you already have some companies in mind?"], a: 3, exp: "Leo ถามต่อเนื่องเรื่องหางานว่า 'มีบริษัทในใจที่อยากทำแล้วหรือยัง (have some companies in mind)' หรือจะย้ายเมือง" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 2</p><p>Maria: I like this city, so I will try to stay here. _______</p>", c: ["I've started sending my CV to some big companies downtown.", "I'll let you know if I'll be able to go to South America with you.", "I've found the new job very exciting and useful for my experience.", "I'll take some courses in marketing and management next semester."], a: 0, exp: "Maria บอกว่าจะอยู่เมืองนี้ต่อ และเสริมว่า 'ได้เริ่มส่งเรซูเม่ (CV) ไปให้บริษัทใหญ่ๆ ในเมืองแล้ว'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 2</p><p>Leo: We should help each other with our CVs!</p><p>Maria: Yes! That sounds perfect. We can meet next week and look at them together. _______</p>", c: ["I will quit my job soon.", "Then our trip will start immediately.", "We must keep in touch, whatever we do.", "Some companies won't ask for a CV, as far as I know."], a: 2, exp: "นัดเจอกันอาทิตย์หน้าเพื่อทำ CV และ Maria เสริมว่า 'เราต้องติดต่อกันไว้นะ (keep in touch) ไม่ว่าจะไปทำอะไรก็ตาม'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 3</p><p>Pam: Hey, Amy, I'm so stressed out today. I really need somebody to talk to.</p><p>Amy: Sure, Pam, _______. What's up?</p>", c: ["I'm all ears.", "lend me your ear.", "I'm up to my ears.", "my ears are ringing."], a: 0, exp: "สำนวน 'I'm all ears' แปลว่า 'ฉันพร้อมฟังเต็มที่เลย' เหมาะสำหรับการตอบรับเพื่อนที่อยากระบายความเครียด" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 3</p><p>Pam: ...When I got off, it started to rain, and I got all wet. I forgot to bring my umbrella.</p><p>Pam: Then, when I got to school, everything was closed up. There was no one there.</p><p>Amy: Of course, Pam! _______</p>", c: ["We lost a day.", "We're off today.", "We have a full day.", "We're behind a day."], a: 1, exp: "ที่โรงเรียนปิด ไม่มีคนอยู่ เพราะ 'วันนี้เราหยุดเรียน (We're off today)'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 3</p><p>Pam: But, _______ I then got an SMS from Kirk, my boyfriend. He wants to break up with me...</p>", c: ["to spell it out,", "to put it another way,", "to go off on a tangent,", "to make matters worse,"], a: 3, exp: "สำนวน 'to make matters worse' แปลว่า 'ที่แย่ไปกว่านั้นคือ / ซ้ำร้ายไปกว่านั้น' ใช้เล่าเรื่องโชคร้ายที่ซ้อนทับกัน" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Conversation 3</p><p>Amy: Oh, no! A really bad day. It's like the saying: _______</p>", c: ["Save for a rainy day.", "When it rains, it pours.", "It's raining cats and dogs.", "Every cloud has a silver lining."], a: 1, exp: "สำนวน 'When it rains, it pours' แปลว่า 'เวลาเกิดเรื่องร้าย มักจะเกิดซ้อนๆ กันมาเหมือนพายุฝน' (ผีซ้ำด้ำพลอย)" }
+            ],
+            2: [
+                { img: "visual1.png", q: "39. Of the four provinces below, which one had the lowest number of foreign tourists?", c: ["Krabi", "Chonburi", "Nong Khai", "Udon Thani"], a: 3, exp: "จากตาราง Udon Thani มีจำนวน 91,003 คน ซึ่งน้อยที่สุดในบรรดา 4 ตัวเลือกที่ให้มา" },
+                { img: "visual1.png", q: "40. Which pair of provinces showed the closest figures for foreign tourist numbers?", c: ["Surat Thani - Songkhla", "Krabi - Chiang Mai", "Ayutthaya - Nong Khai", "Udon Thani - Samut Prakan"], a: 3, exp: "Udon Thani (91,003) และ Samut Prakan (85,671) มีตัวเลขต่างกันแค่ประมาณ 5,300 ซึ่งใกล้เคียงกันที่สุด" },
+                { img: "visual1.png", q: "41. Bangkok has approximately six times as many foreign tourists as which province?", c: ["Krabi", "Songkhla", "Surat Thani", "Chiang Mai"], a: 1, exp: "Bangkok มี 1.9 ล้านคน ซึ่งคิดเป็นประมาณ 6 เท่าของ Songkhla ที่มี 3.2 แสนคน (323,669 x 6 ≈ 1.94 ล้าน)" },
+                { img: "visual2.png", q: "42. Which group has the third-highest frequency?", c: ["Lesbians", "Gay men", "Bisexuals", "Transgenders"], a: 0, exp: "เรียงลำดับจากมากไปน้อย: Bisexuals (40%) > Gay men (36%) > Lesbians (19%) > Transgender (5%)" },
+                { img: "visual2.png", q: "43. What is the combined percentage of respondents who describe themselves as bisexuals and transgender?", c: ["24 %", "45 %", "51 %", "69 %"], a: 1, exp: "นำ Bisexuals (40%) มารวมกับ Transgender (5%) จะได้เท่ากับ 45%" },
+                { img: "visual2.png", q: "44. Among the total LGBT sample, what percentage difference exists between the women and men who are bisexuals?", c: ["5 %", "11 %", "18 %", "29 %"], a: 2, exp: "Bisexual Women (29%) ลบด้วย Bisexual Men (11%) มีความต่างกันอยู่ที่ 18%" }
+            ],
+            3: [
+                { q: "<p class='text-slate-400 text-xs mb-2'>News Report: The Texas flood</p><p>33. What is the main idea of the news article?</p>", c: ["The president has already announced a full investigation...", "The Texas flash floods raised questions about how authorities responded.", "Residents in Texas are preparing for another flood...", "The government is planning to build a new warning system..."], a: 1, exp: "ย่อหน้าแรกและหัวข้อข่าวพูดชัดเจนว่า 'เกิดคำถามว่าทางการรับมือผิดพลาดอย่างไร (sparks questions about what went wrong / catch authorities off guard)'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>News Report: The Texas flood</p><p>34. According to the article, what issue occurred with the warning alerts?</p>", c: ["The alerts were sent too early.", "Weather officials stopped sending alerts.", "Some people did not receive the messages.", "Some alerts were written in unclear language."], a: 2, exp: "ย่อหน้าที่ 9 ระบุว่า 'some residents say they did not receive the alerts' (ชาวบ้านบางคนไม่ได้รับข้อความเตือนภัย)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>News Report: The Texas flood</p><p>35. What can be inferred about the early morning timing of the flood?</p>", c: ["It increased the danger because most people were unaware...", "It helped many residents prepare because most people were already awake.", "It allowed authorities to respond faster...", "It had little impact because the community had experienced..."], a: 0, exp: "การเกิดน้ำท่วมตอนเช้ามืด (early hours) เพิ่มความอันตราย เพราะคนส่วนใหญ่กำลังหลับและไม่รู้ตัวว่ามีประกาศเตือนภัย" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>News Report: The Texas flood</p><p>36. Why was a public siren warning system not put in place earlier?</p>", c: ["Federal agencies rejected the request.", "Engineers believed it would not work well.", "Many members of the public felt the cost was too high.", "Officials disagreed which part of the region..."], a: 2, exp: "ย่อหน้าที่ 13 ระบุว่า 'the public reeled at the cost' (ประชาชนมองว่ามีค่าใช้จ่ายสูงเกินไป จึงไม่ได้ติดตั้งไซเรน)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>News Report: The Texas flood</p><p>37. What opinion do some meteorologists express about the National Weather Service?</p>", c: ["They argue that the NWS performed its duties well under the circumstances.", "They believe that the forecasts were incorrect...", "They think that the NWS should redesign its communication...", "They claim that the NWS misunderstood weather patterns..."], a: 0, exp: "ย่อหน้าที่ 15 นักอุตุนิยมวิทยาปกป้องการทำงานของ NWS โดยบอกว่าพวกเขาทำหน้าที่ได้ดีที่สุดแล้วในสถานการณ์ที่ท้าทายสุดๆ" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>News Report: The Texas flood</p><p>38. Which detail best supports the idea that the situation was unusually severe?</p>", c: ["The disaster happened when many people were at camps and resorts.", "The floods occurred in early afternoon...", "The water rose slowly over several days...", "The community had already tested emergency equipment..."], a: 0, exp: "ย่อหน้าสุดท้ายระบุว่า เหตุการณ์เลวร้ายขั้นสุด (worst-case scenario) เพราะเกิดตอนคนไปแคมป์และรีสอร์ตกันเต็มไปหมดช่วงวันหยุดยาว" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Article 1: Nonverbal communication</p><p>45. What is the primary purpose of the passage?</p>", c: ["To explain why studying nonverbal communication alone is not enough...", "To propose that nonverbal communication is most important...", "To offer practical advice on how to improve one's nonverbal intercultural competence", "To list the various types of nonverbal cues..."], a: 2, exp: "จุดประสงค์หลักของบทความคือการเสนอ 'คำแนะนำเชิงปฏิบัติ (practical suggestions)' เพื่อพัฒนาทักษะการสื่อสารอวัจนภาษาข้ามวัฒนธรรม" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Article 1: Nonverbal communication</p><p>46. According to the passage, what is the recommended action if a person's verbal message conflicts with his or her nonverbal communication?</p>", c: ["Seek verbal clarification from the individual.", "Change your own nonverbal behavior...", "Assume the nonverbal communication is the true message.", "Immediately point out the contradiction..."], a: 0, exp: "ข้อเสนอแนะที่ 4 (Suggestion 4) ระบุชัดเจนว่า หากคำพูดและการกระทำขัดแย้งกัน ให้ 'ขอความกระจ่างด้วยคำพูด (seek verbal clarification)'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Article 1: Nonverbal communication</p><p>47. Which suggestion does the text offer to communicate respect and the desire to build a relationship with a communication partner?</p>", c: ["Never assume that he or she understands your nonverbal messages.", "Try synchronizing your behavior to that of your communication partners.", "Be aware that your physical appearance...", "Recognize that people communicate with different volumes..."], a: 1, exp: "ข้อเสนอแนะที่ 11 แนะนำให้ 'ลองปรับพฤติกรรมให้สอดคล้องกับคู่สนทนา (synchronizing behavior)' เพื่อแสดงความเคารพและอยากสานสัมพันธ์" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Article 1: Nonverbal communication</p><p>48. What can be inferred from the text's overall message regarding nonverbal communication competence?</p>", c: ["Learning the nonverbal rules of every culture can guarantee...", "It is an ability that is fixed by a person's cultural background...", "Nonverbal interaction skills can be enhanced by awareness, observation, and practice.", "Complete competence is impossible to achieve..."], a: 2, exp: "สรุปใจความทั้งบทความคือ ทักษะอวัจนภาษาสามารถพัฒนาได้ผ่าน 'ความตระหนักรู้ การสังเกต และการฝึกฝน (awareness, observation, practice)'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Article 1: Nonverbal communication</p><p>49. What is the organization of the paragraph that presents suggestion no. 5?</p>", c: ["Cause and effect", "Fact and opinion", "General and specific", "Problem and solution"], a: 2, exp: "ย่อหน้าที่ 5 เริ่มด้วยประโยคกว้างๆ (General) ว่าเรามักถูกประเมินจากท่าทาง แล้วค่อยยกตัวอย่างเจาะจง (Specific) เช่น สถานการณ์การสัมภาษณ์" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Article 1: Nonverbal communication</p><p>50. Suggestion no. 9 reveals that people might _______.</p>", c: ["behave differently when they deliver verbal messages", "find intercultural nonverbal messages interesting to learn", "react negatively to nonverbal behavior in another culture", "interpret verbal messages based on their nonverbal behavior"], a: 2, exp: "ข้อ 9 กล่าวถึง adverse reaction (การตอบสนองเชิงลบ) เมื่อเจอพฤติกรรมต่างวัฒนธรรม เช่น การมายืนใกล้ๆ แล้วทำให้รู้สึกอึดอัด (uneasy)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Article 2: Seeing isn't believing</p><p>53. What is the main idea of the article?</p>", c: ["AI fakes will soon replace Hollywood...", "AI apps are improving the ability...", "AI video generators are now so good that you can no longer trust your eyes.", "AI-generated videos will not last long..."], a: 2, exp: "ใจความหลักคือ AI สร้างวิดีโอได้เนียนมากจน 'เราไม่สามารถเชื่อสายตาตัวเองได้อีกต่อไป (end of visual fact)'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Article 2: Seeing isn't believing</p><p>54. In paragraph 2, the sentence \"Sora has been as entertaining as it has been disturbing\" means _______.</p>", c: ["Sora can be both amusing and worrying", "Sora is enjoyable because it is trouble-free...", "Sora has been interesting without bothering others", "Sora used to be fun to use, but it has become dangerous"], a: 0, exp: "Entertaining (ให้ความบันเทิง/amusing) ในขณะเดียวกันก็ Disturbing (น่ากังวล/worrying เพราะอาจถูกใช้หลอกลวงได้)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Article 2: Seeing isn't believing</p><p>55. The word \"nefarious\" in paragraph 3 can be best replaced by _______.</p>", c: ["fun", "evil", "legal", "future"], a: 1, exp: "Nefarious แปลว่า ชั่วร้าย, ผิดกฎหมาย (evil) สังเกตจากบริบทที่พูดถึงการสร้างวิดีโออาชญากรรมปลอมเพื่อสร้างข่าวลวง" }
+            ],
+            4: [
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 1</p><p>Bilingualism is far more than a cognitive advantage; it is deeply tied to people, relationships, and the cultural threads _______ (61) generations.</p>", c: ["connect", "that connect", "are connected", "that are connected"], a: 1, exp: "'that connect' (ที่เชื่อมต่อ) ทำหน้าที่เป็น Relative Clause ขยายคำว่า threads (เส้นใยวัฒนธรรม 'ที่เชื่อม' คนแต่ละรุ่นเข้าด้วยกัน)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 1</p><p>...he or she _______ (62) practicing speech but expressing respect, belonging, and pride in her origins.</p>", c: ["is simply not", "is not simply", "simply is not", "not simply is"], a: 1, exp: "ใช้โครงสร้างคู่ขนาน 'is not simply [V.ing] ... but [V.ing]' แปลว่า 'ไม่ใช่เพียงแค่... แต่ยัง...'" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 1</p><p>_______ (63) this pride often comes with pressure. Many children act as language brokers...</p>", c: ["So", "Or", "Yet", "For"], a: 2, exp: "ประโยคก่อนหน้าพูดถึงข้อดี (pride) แต่ประโยคนี้บอกว่ามาพร้อมความกดดัน (pressure) จึงต้องใช้ 'Yet' (แต่ทว่า) ขัดแย้งกัน" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 1</p><p>...some youth thrived in their brokering roles, _______ (64) others struggled with stress.</p>", c: ["while", "unlike", "however", "although"], a: 0, exp: "'while' (ในขณะที่) ใช้เชื่อมประโยคที่แสดงความแตกต่างระหว่างคนสองกลุ่ม (กลุ่มหนึ่งรุ่งโรจน์ ในขณะที่อีกกลุ่มเครียด)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 1</p><p>For children, language is _______ (65) - empowering, yet sometimes demanding.</p>", c: ["identity", "identical", "identically", "identification"], a: 0, exp: "ต้องการคำนาม (Noun) มาเติมหลัง is แปลว่า 'ภาษาคือตัวตน (identity)' ส่วน identical เป็น Adjective" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 2</p><p>...IQ scores rose steadily, _______ (66) as the \"Flynn Effect,\" discovered by researcher James Flynn.</p>", c: ["a trend known", "a trend, known", "a trend is known", "a trend, is known"], a: 0, exp: "'a trend known as' เป็นการลดรูปมาจาก a trend which is known as (แนวโน้มที่ถูกรู้จักกันในชื่อ...)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 2</p><p>Since intelligence also declined within families, the cause was _______ (67) environmental.</p>", c: ["like", "alike", "likely", "likeliness"], a: 2, exp: "'likely' เป็น Adverb ในที่นี้แปลว่า 'เป็นไปได้มากว่า/มีแนวโน้มว่า' สาเหตุจะมาจากสิ่งแวดล้อม" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 2</p><p>Experts suggest several possible reasons... including changes in education, nutrition, and the media, _______ (68) reduced reading and increased online activity.</p>", c: ["and", "also", "in addition", "as well as"], a: 3, exp: "'as well as' (ตลอดจน / รวมถึง) ใช้เชื่อมคำนามกลุ่มหลังเข้ากับลิสต์ด้านหน้าได้อย่างสละสลวย" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 2</p><p>_______ (69) argue that IQ tests now favor learned knowledge over problem-solving ability...</p>", c: ["Any", "Some", "Another", "Other"], a: 1, exp: "'Some' (บางคน / ผู้เชี่ยวชาญบางส่วน) ทำหน้าที่เป็นประธานของประโยคพหูพจน์ (argue)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 2</p><p>A University of Texas study found that people think and remember _______ (70) when their smartphones are nearby...</p>", c: ["less effect", "less effective", "less effectively", "less effectiveness"], a: 2, exp: "ต้องการ Adverb มาขยายกริยา think และ remember จึงต้องตอบ 'less effectively' (อย่างมีประสิทธิภาพน้อยลง)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 3</p><p>One rises, leaves its mark, and the next _______ (71) builds on it or pushes back.</p>", c: ["both", "either", "neither", "not only"], a: 1, exp: "ใช้คู่กับ or ด้านหลัง กลายเป็นโครงสร้าง 'either... or...' (ไม่...ก็... / ไม่อย่างใดก็อย่างหนึ่ง)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 3</p><p>...and is molded by defining events _______ (72) wars, crises, and cultural shifts.</p>", c: ["as", "to", "like", "through"], a: 2, exp: "'like' ในบริบทนี้ทำหน้าที่เป็น Preposition แปลว่า 'เช่น' ใช้ยกตัวอย่าง (เช่น สงคราม, วิกฤต)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 3</p><p>That's when the cycle turns again: _______ (73) generation challenges the old and creates the new.</p>", c: ["all", "some", "every", "another"], a: 3, exp: "'another generation' (คนรุ่นต่อไป/รุ่นอื่น) เป็นเอกพจน์ เข้ากับกริยา challenges และ creates ที่เติม s" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 3</p><p>Eventually, their ideas become _______ (74).</p>", c: ["to question the next foundation", "the next foundation to question", "to be questioned the next foundation", "the next foundation to be questioned"], a: 3, exp: "แปลว่า 'กลายเป็นรากฐานถัดไปที่จะถูกตั้งคำถาม' (the next foundation + infinitive passive 'to be questioned')" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Passage 3</p><p>This generational rhythm moves _______ (75) four recurring stages: revolution, stability, pragmatism, and crisis...</p>", c: ["to", "from", "toward", "through"], a: 3, exp: "move 'through' แปลว่า 'เคลื่อนผ่าน' ดำเนินผ่าน 4 ขั้นตอนที่วนลูปกลับมา" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Paragraph Organization (76)</p><p>A. The most critical... toxic...<br>B. The waste produced... falls into three major classifications...<br>C. A more resource-focused category...<br>D. The most basic category...</p>", c: ["A-B-C-D", "A-C-D-B", "B-A-C-D", "B-D-C-A"], a: 3, exp: "ประโยค B เปิดเรื่องว่าขยะแบ่งเป็น 3 ประเภทหลัก -> D พูดถึงประเภทพื้นฐานที่สุด -> C พูดถึงประเภทเน้นทรัพยากร -> A ปิดท้ายด้วยประเภทที่อันตรายที่สุด (B-D-C-A)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Paragraph Organization (77)</p><p>A. Online and classroom... provide distinct advantages.<br>B. Online learning offers greater flexibility...<br>C. Ultimately, both approaches can be highly effective...<br>D. Classroom learning fosters face-to-face interaction...</p>", c: ["A-B-D-C", "B-C-D-A", "C-D-A-B", "D-A-B-C"], a: 0, exp: "A เปิดเรื่องพูดถึงข้อดีของ 2 แบบ -> B อธิบายแบบออนไลน์ -> D อธิบายแบบในห้องเรียน -> C สรุปปิดท้ายว่าดีทั้งคู่ขึ้นอยู่กับผู้เรียน (A-B-D-C)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Paragraph Organization (78)</p><p>A. Employees who possess this ability...<br>B. For example, a marketing team...<br>C. Having this ability, they can help their companies stay innovative...<br>D. Ideation has become a highly sought-after skill...</p>", c: ["D-B-A-C", "D-C-A-B", "D-B-C-A", "D-A-C-B"], a: 3, exp: "D เปิดเรื่องกล่าวถึงทักษะ Ideation -> A ขยายความว่าพนักงานที่มีทักษะนี้ทำอะไรได้ -> C สรุปว่ามันช่วยบริษัทอย่างไร -> B ยกตัวอย่างที่เป็นรูปธรรมปิดท้าย (D-A-C-B)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Paragraph Organization (79)</p><p>A. Ultimately, the fast fashion cycle encourages...<br>B. However, this approach has severe negative consequences...<br>C. This speed is achieved by using low-quality materials...<br>D. Fast fashion is a business model...</p>", c: ["A-B-C-D", "A-C-D-B", "D-C-B-A", "D-B-C-A"], a: 2, exp: "D นิยามว่า Fast Fashion คืออะไร -> C อธิบายว่าความเร็วนี้ทำได้อย่างไร -> B แย้งว่าวิธินี้มีผลเสียร้ายแรง -> A สรุปว่ามันนำไปสู่วัฒนธรรมใช้แล้วทิ้ง (D-C-B-A)" },
+                { q: "<p class='text-slate-400 text-xs mb-2'>Paragraph Organization (80)</p><p>A. This anxiety causes an increase in the stress hormones...<br>B. Consequently, this phenomenon might result in unnecessary prescription...<br>C. Because the blood pressure reading is artificially high...<br>D. White coat syndrome is often triggered by the anxiety...</p>", c: ["C-A-B-D", "C-D-A-B", "D-B-C-A", "D-A-C-B"], a: 3, exp: "D เปิดด้วยนิยามของโรคกลัวเสื้อกาวน์ (White coat syndrome) เกิดจากความกังวล -> A ขยายความว่าความกังวลทำให้ความดันสูงชั่วคราว -> C ส่งผลให้อ่านค่าความดันผิดพลาด -> B สรุปผลลัพธ์ว่าอาจทำให้จ่ายยาผิด (D-A-C-B)" }
+            ]
+        };
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sid = urlParams.get('sid');
+            if (sid && sid !== "GUEST") {
+                document.getElementById('sid-input').value = sid;
+            }
+        });
+
+        function startStage(stageNum) {
+            const sidInput = document.getElementById("sid-input").value.trim();
+            if (!sidInput) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ");
+            
+            currentSid = sidInput;
+            currentStage = stageNum;
+            currentQIndex = 0;
+            score = 0;
+            hasAnswered = false;
+            timeLeft = 900;
+            
+            document.getElementById("lobby-screen").classList.add("hidden");
+            document.getElementById("arena-screen").classList.remove("hidden");
+            
+            const stageNames = {1: "COMMUNICATION", 2: "VISUALS & GRAPHS", 3: "NEWS & ARTICLES", 4: "WRITING SKILL"};
+            document.getElementById("arena-stage-name").textContent = `FLOOR ${stageNum}: ${stageNames[stageNum]}`;
+            
+            startTimer();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            hasAnswered = false;
+            const btnNext = document.getElementById("btn-next-question");
+            btnNext.disabled = true;
+            btnNext.innerHTML = "<span>ยืนยันคำตอบ</span> <span>➡️</span>";
+
+            // ซ่อนกล่องอธิบาย
+            const expBox = document.getElementById("explanation-box");
+            expBox.classList.add("hidden");
+
+            const qData = EXAM_DB[currentStage][currentQIndex];
+            const totalQ = EXAM_DB[currentStage].length;
+
+            document.getElementById("progress-text").textContent = `Question ${currentQIndex + 1} / ${totalQ}`;
+            document.getElementById("score-text").textContent = `Score: ${score}`;
+            document.getElementById("progress-fill").style.width = `${((currentQIndex) / totalQ) * 100}%`;
+            
+            let htmlContent = "";
+            if (qData.img) {
+                htmlContent += `<img src="${qData.img}" onclick="openImageModal('${qData.img}')" class="exam-image w-full max-w-md mx-auto rounded-xl mb-4 border border-slate-600 shadow-md bg-white" alt="Exam Visual" onerror="this.src='https://via.placeholder.com/600x400/090514/38bdf8?text=รออัปโหลดรูป+${qData.img}'">`;
+            }
+            htmlContent += `<div class="text-sm sm:text-base text-white leading-relaxed text-left w-full">${qData.q}</div>`;
+            
+            document.getElementById("question-content").innerHTML = htmlContent;
+
+            const choicesContainer = document.getElementById("choices-container");
+            choicesContainer.innerHTML = "";
+            
+            qData.c.forEach((choice, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "choice-btn w-full p-4 rounded-xl text-sm text-slate-200 block";
+                btn.innerHTML = `<span class="inline-block w-6 font-bold text-cyan-400">${String.fromCharCode(65+idx)}.</span> ${choice}`;
+                btn.onclick = () => selectChoice(idx, btn);
+                choicesContainer.appendChild(btn);
+            });
+        }
+
+        let selectedAnsIdx = -1;
+
+        function selectChoice(idx, btnEl) {
+            if (hasAnswered) return; 
+            const btns = document.querySelectorAll(".choice-btn");
+            btns.forEach(b => b.classList.remove("selected"));
+            btnEl.classList.add("selected");
+            selectedAnsIdx = idx;
+            document.getElementById("btn-next-question").disabled = false;
+        }
+
+        function nextQuestion() {
+            const qData = EXAM_DB[currentStage][currentQIndex];
+            const btnNext = document.getElementById("btn-next-question");
+            const btns = document.querySelectorAll(".choice-btn");
+            const expBox = document.getElementById("explanation-box");
+
+            if (!hasAnswered) {
+                hasAnswered = true;
+                if (selectedAnsIdx === qData.a) {
+                    btns[selectedAnsIdx].classList.add("correct");
+                    score++;
+                } else {
+                    btns[selectedAnsIdx].classList.add("wrong");
+                    btns[qData.a].classList.add("correct");
+                }
+                
+                document.getElementById("score-text").textContent = `Score: ${score}`;
+                
+                // โชว์คำอธิบาย (ถ้ามี)
+                if (qData.exp) {
+                    document.getElementById("explanation-text").innerHTML = qData.exp;
+                    expBox.classList.remove("hidden");
+                }
+                
+                if (currentQIndex < EXAM_DB[currentStage].length - 1) {
+                    btnNext.innerHTML = "<span>ไปข้อถัดไป</span> <span>⏭️</span>";
+                } else {
+                    btnNext.innerHTML = "<span>ดูผลสอบ</span> <span>🎯</span>";
+                    btnNext.classList.replace("from-sky-600", "from-fuchsia-600");
+                }
+                return;
+            }
+
+            currentQIndex++;
+            if (currentQIndex < EXAM_DB[currentStage].length) {
+                loadQuestion();
+            } else {
+                finishStage();
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                const s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById("timer-display").textContent = `${m}:${s}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("หมดเวลาทำข้อสอบ!");
+                    finishStage();
+                }
+            }, 1000);
+        }
+
+        async function finishStage() {
+            clearInterval(timerInterval);
+            document.getElementById("arena-screen").classList.add("hidden");
+            document.getElementById("result-screen").classList.remove("hidden");
+            
+            const totalQ = EXAM_DB[currentStage].length;
+            const earnedXp = score * 10;
+            
+            document.getElementById("result-subtitle").textContent = `คุณทำข้อสอบ Floor ${currentStage} สำเร็จแล้ว`;
+            document.getElementById("result-score").textContent = `${score} / ${totalQ}`;
+            document.getElementById("result-xp").textContent = `+${earnedXp} XP`;
+            
+            const statusEl = document.getElementById("saving-status");
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "recordActivity",
+                        studentId: currentSid,
+                        activityType: "ALEVEL_ARENA",
+                        itemId: `F${currentStage}`,
+                        xp: earnedXp,
+                        details: `จำลองสอบ A-Level ชั้นที่ ${currentStage} ได้ ${score}/${totalQ} คะแนน`
+                    })
+                });
+                const result = await response.json();
+                if(result.status === "success") {
+                    statusEl.innerHTML = "✔️ บันทึก XP ลงระบบสำเร็จแล้ว!";
+                    statusEl.className = "text-xs text-emerald-400 mb-6 h-4";
+                    
+                    if(currentStage < 4) {
+                         const nextStageCard = document.querySelectorAll('.stage-card')[currentStage];
+                         if (nextStageCard) {
+                             nextStageCard.classList.remove('locked');
+                             nextStageCard.classList.add('active');
+                             nextStageCard.setAttribute('onclick', `startStage(${currentStage + 1})`);
+                         }
+                    } else if (currentStage === 4) {
+                         statusEl.innerHTML += "<br>🎉 ยินดีด้วย! คุณเคลียร์หอคอยครบทุกชั้นแล้ว!";
+                    }
+                }
+            } catch (error) {
+                statusEl.innerHTML = "⚠️ ไม่สามารถบันทึก XP ได้";
+                statusEl.className = "text-xs text-rose-400 mb-6 h-4";
+            }
+        }
+
+        function returnToLobby() {
+            clearInterval(timerInterval);
+            document.getElementById("arena-screen").classList.add("hidden");
+            document.getElementById("result-screen").classList.add("hidden");
+            document.getElementById("lobby-screen").classList.remove("hidden");
+        }
+        
+        function openImageModal(imgSrc) {
+            document.getElementById("zoomed-image").src = imgSrc;
+            document.getElementById("image-modal").classList.remove("hidden");
+            document.getElementById("image-modal").classList.add("flex");
+        }
+        
+        function closeImageModal() {
+            document.getElementById("image-modal").classList.add("hidden");
+            document.getElementById("image-modal").classList.remove("flex");
+        }
+    </script>
+</body>
+</html>
