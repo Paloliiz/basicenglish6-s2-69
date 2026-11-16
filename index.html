@@ -195,9 +195,10 @@
                         <span class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-red-900/80 border border-red-400/50 text-[10px] font-scifi text-red-100 animate-pulse">BOSS</span>
                     </button>
 
-                    <button onclick="showToast('🔒 สนามจำลองข้อสอบ A-Level กำลังรวบรวมคลังข้อสอบ เปิดเร็วๆ นี้!', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
-                        <span class="flex items-center gap-2.5"><span class="text-base grayscale">🎯</span><span>จำลองสอบ A-Level</span></span>
-                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full border border-slate-600 text-[10px] font-scifi text-slate-500">🔒</span>
+                    <!-- A-Level Arena Button Unlocked! -->
+                    <button onclick="openALevelArena()" class="module-nav-btn flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                        <span class="flex items-center gap-2.5"><span class="text-base">🎯</span><span>จำลองสอบ A-Level</span></span>
+                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-cyan-900/80 border border-cyan-400/50 text-[10px] font-scifi text-cyan-100 animate-pulse">ARENA</span>
                     </button>
 
                     <button onclick="showToast('🔒 ระบบซ่อมข้อสอบกลางภาค จะเปิดให้ใช้งานหลังประกาศผลสอบ', 'info')" class="flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-500 opacity-50 cursor-not-allowed whitespace-nowrap">
@@ -389,8 +390,10 @@
         <button onclick="openVoiceLab()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-300 hover:text-red-300 transition">
             <span class="text-base">🎙️</span><span>พูดคำศัพท์</span>
         </button>
-        <button onclick="showToast('🔒 สนามสอบจำลอง A-Level กำลังรวบรวมข้อสอบ', 'info')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500">
-            <span class="text-base grayscale">🎯</span><span>A-Level</span>
+        
+        <!-- A-Level Arena Mobile Button Unlocked! -->
+        <button onclick="openALevelArena()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-300 hover:text-cyan-300 transition">
+            <span class="text-base">🎯</span><span>A-Level</span>
         </button>
     </div>
 
@@ -581,6 +584,12 @@
         function openVoiceLab() {
             const sid = appState.user ? appState.user.studentId : "GUEST";
             window.open('voice_lab.html?sid=' + sid, '_blank');
+        }
+
+        // ฟังก์ชันเปิดหน้า A-Level Arena (ใหม่)
+        function openALevelArena() {
+            const sid = appState.user ? appState.user.studentId : "GUEST";
+            window.open('alevel_arena.html?sid=' + sid, '_blank');
         }
 
         window.addEventListener("DOMContentLoaded", () => {
