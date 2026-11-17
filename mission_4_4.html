@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mission M08: Financial Problem | PARALLEL DIMENSION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ================= CSS VARIABLES & GLOBALS ================= */
+        :root {
+            --bg-space: #020617; --bg-panel: #0f172a; --bg-card: #1e293b;
+            --unit-money: #059669; --unit-money-light: #10b981; /* ธีมสีเขียวมรกต (การเงิน) */
+            --neon-cyan: #06b6d4; --neon-blue: #3b82f6; 
+            --neon-orange: #f59e0b; --neon-red: #ef4444; --gold: #facc15;
+            --neon-green: #22c55e; /* สีเขียวสำหรับข้อที่ถูก */
+            --text-main: #f8fafc; --text-muted: #94a3b8; --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Kanit', sans-serif; background-color: var(--bg-space); color: var(--text-main); 
+            display: flex; flex-direction: column; min-height: 100vh; padding: 15px;
+            background-image: radial-gradient(circle at 50% 10%, rgba(5, 150, 105, 0.1) 0%, transparent 60%);
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--bg-panel); border-top: 4px solid var(--unit-money); border-radius: var(--radius);
+            padding: 20px; max-width: 800px; width: 100%; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease; position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Poppins', 'Kanit', sans-serif; }
+        .text-cyan { color: var(--neon-cyan); }
+        .section-title { background: var(--unit-money); color: white; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;}
+        
+        .card { background: var(--bg-card); border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 20px; animation: fadeIn 0.4s ease-out; }
+
+        /* ================= FORM & INPUTS ================= */
+        select, input[type="text"], input[type="number"] {
+            font-size: 16px !important; width: 100%; padding: 10px; border-radius: 6px; 
+            border: 1px solid #475569; background: #020617; color: #fff; font-family: 'Kanit';
+        }
+        select:focus, input:focus { border-color: var(--unit-money-light); outline: none; }
+        
+        /* Dropdown สำหรับเติมคำแบบเนียนๆ */
+        select.blank-input {
+            border: none; border-bottom: 2px solid var(--unit-money);
+            background: rgba(2, 6, 23, 0.5) !important; color: var(--gold) !important;
+            text-align: left; padding: 2px 5px; border-radius: 4px 4px 0 0;
+            display: inline-block; font-weight: bold; width: auto; min-width: 150px; font-size: 0.95rem !important; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select.blank-input:focus { border-bottom-color: var(--unit-money-light); outline: none; background: #020617 !important;}
+
+        .is-correct { color: var(--neon-green) !important; font-weight: bold; }
+
+        button {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; font-family: 'Kanit'; margin-top: 10px; transition: all 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        .btn-check { background: var(--unit-money); color: white; }
+        .btn-check:hover { background: var(--unit-money-light); }
+        .btn-next { background: var(--neon-cyan); color: #000; animation: pulse 1.5s infinite;}
+        .btn-back { background: transparent; border: 1px solid #475569; color: #cbd5e1; margin-top: 15px; }
+
+        /* ================= MISSION UI ================= */
+        .header-mission { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #334155; padding-bottom: 15px; margin-bottom: 20px; }
+        .header-mission h2 { font-family: 'Poppins', sans-serif; color: var(--unit-money-light); margin: 0; font-size: 1.5rem;}
+        
+        .question { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+        .question:last-child { border-bottom: none; padding-bottom: 0;}
+        .q-text { font-size: 1rem; margin-bottom: 10px; color: #f8fafc;}
+
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        @media (min-width: 600px) { .vocab-grid { grid-template-columns: repeat(4, 1fr); } }
+        .vocab-item { background: rgba(2, 6, 23, 0.5); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #475569; font-weight: bold; font-size: 1rem; color: var(--unit-money-light);}
+        .vocab-item input { width: 100%; margin-top: 10px; text-align: center; color: var(--gold);}
+
+        .word-bank { background: rgba(2, 6, 23, 0.5); border: 1px dashed var(--unit-money); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .word-chip { background: #1e293b; color: var(--unit-money-light); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; border: 1px solid #334155; }
+
+        .audio-container { background: #020617; border: 1px solid #475569; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        audio { width: 100%; height: 40px; outline: none; }
+
+        /* Article Box */
+        .article-box { background: rgba(2, 6, 23, 0.6); padding: 25px; border-radius: 10px; border: 1px solid #334155; line-height: 2.2; font-size: 1rem; color: #cbd5e1; margin-bottom: 20px;}
+        .article-box p { margin-bottom: 20px; text-indent: 30px; }
+        .article-box select { margin: 0 5px; }
+
+        /* ================= TABS ================= */
+        .tab-container { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;}
+        .tab-btn { background: #1e293b; color: var(--text-muted); border: 1px solid #475569; font-size: 0.85rem; margin: 0; padding: 8px 15px; flex: 1; border-radius: 6px; cursor: pointer; font-family: 'Kanit'; transition: 0.3s;}
+        .tab-btn.active { background: var(--unit-money); color: #fff; border-color: var(--unit-money); font-weight: bold;}
+        .tab-btn:hover { transform: none; background: #334155;}
+
+        .master-feedback { display: none; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; text-align: center; font-weight: bold; line-height: 1.6;}
+        .correct { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); }
+        .wrong { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); }
+
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div id="view-mission" class="container">
+    
+    <!-- STUDENT VERIFICATION PANEL -->
+    <div id="student-verification-panel" class="card" style="border-color: var(--neon-cyan); background: rgba(6, 182, 212, 0.05); margin-bottom: 25px;">
+        <h3 style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 1.1rem;">👤 ยืนยันตัวตนก่อนทำภารกิจ</h3>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="verify-sid" placeholder="กรอกรหัสนักเรียน 5 หลัก" style="flex: 1;">
+            <button onclick="verifyStudent()" style="width: auto; margin-top: 0; background: var(--neon-cyan); color: #000; padding: 10px 20px;">ตรวจสอบ</button>
+        </div>
+        <div id="verify-result" style="margin-top: 10px; font-size: 0.9rem; font-weight: bold;"></div>
+    </div>
+
+    <!-- MISSION CONTENT (Hidden by default) -->
+    <div id="mission-content" class="hidden">
+    
+    <!-- MISSION NAV -->
+    <div id="missionNav" class="tab-container">
+        <button id="tab1" class="tab-btn active" onclick="goToPhase(1)">Vocab (Page 52)</button>
+        <button id="tab2" class="tab-btn" onclick="goToPhase(2)">Writing (Page 53)</button>
+    </div>
+
+    <div class="header-mission" id="mainHeader">
+        <h2>Mission M08: Financial Problem</h2>
+        <span id="pageBadge" style="background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;">Page 52-53</span>
+    </div>
+
+    <!-- PHASE 1: VOCABULARY (Page 52) -->
+    <div id="phase1">
+        <div class="section-title">D. Writing: Vocabulary</div>
+        <div class="card">
+            <p style="color: var(--unit-money-light); margin-bottom: 10px; font-size: 0.95rem;"><b>1. Read the words in the box. Then listen and write the vocabulary word you hear.</b></p>
+            
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 4-06</span>
+                <audio controls><source src="4-06.mp3" type="audio/mpeg"></audio>
+            </div>
+
+            <div class="word-bank">
+                <span class="word-chip">debit card</span>
+                <span class="word-chip">addiction</span>
+                <span class="word-chip">transfer</span>
+                <span class="word-chip">guidance</span>
+                <span class="word-chip">obsession</span>
+                <span class="word-chip">level</span>
+                <span class="word-chip">withdraw</span>
+                <span class="word-chip">allowance</span>
+            </div>
+
+            <div class="vocab-grid" style="margin-bottom: 30px;">
+                <div class="vocab-item">Picture 1 <input type="text" id="v52_1" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 2 <input type="text" id="v52_2" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 3 <input type="text" id="v52_3" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 4 <input type="text" id="v52_4" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 5 <input type="text" id="v52_5" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 6 <input type="text" id="v52_6" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 7 <input type="text" id="v52_7" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 8 <input type="text" id="v52_8" placeholder="คำศัพท์"></div>
+            </div>
+
+            <p style="color: var(--unit-money-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>2. Fill in the blanks with the best vocabulary words.</b></p>
+            
+            <div class="question"><div class="q-text">1. I'm trying to figure out what to buy. Can you give me some <select class="word-dropdown blank-input" id="f52_1"><option value="">-- เลือกคำ --</option></select>?</div></div>
+            <div class="question"><div class="q-text">2. You can <select class="word-dropdown blank-input" id="f52_2"><option value="">-- เลือกคำ --</option></select> money from your savings account into your debit account.</div></div>
+            <div class="question"><div class="q-text">3. I need to <select class="word-dropdown blank-input" id="f52_3"><option value="">-- เลือกคำ --</option></select> $2,000 from the bank.</div></div>
+            <div class="question"><div class="q-text">4. I'm worried about Jane. She seems to have developed a(n) <select class="word-dropdown blank-input" id="f52_4"><option value="">-- เลือกคำ --</option></select> to fast food.</div></div>
+            <div class="question"><div class="q-text">5. Jamie, have I given you your <select class="word-dropdown blank-input" id="f52_5"><option value="">-- เลือกคำ --</option></select> this week?</div></div>
+            <div class="question"><div class="q-text">6. I can't believe these shoes! They take fashion to a whole new <select class="word-dropdown blank-input" id="f52_6"><option value="">-- เลือกคำ --</option></select>.</div></div>
+            <div class="question"><div class="q-text">7. I have this new <select class="word-dropdown blank-input" id="f52_7"><option value="">-- เลือกคำ --</option></select> with paper fans. I buy a new one once a month.</div></div>
+            <div class="question" style="border-bottom: none;"><div class="q-text">8. Have you seen my <select class="word-dropdown blank-input" id="f52_8"><option value="">-- เลือกคำ --</option></select>? It was in my wallet yesterday.</div></div>
+
+            <div id="fb-p1" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-1" onclick="checkPhase1()">ตรวจคำตอบ</button>
+            <button class="btn-next hidden" id="btn-next-1" onclick="goToPhase(2)">➔ ไปด่าน Writing</button>
+        </div>
+    </div>
+
+    <!-- PHASE 2: WRITING (Page 53) -->
+    <div id="phase2" class="hidden">
+        <div class="section-title">D. Writing: Complete the letter</div>
+        <div class="card">
+            
+            <p style="color: var(--unit-money-light); margin-bottom: 10px; font-size: 0.95rem;"><b>4. Fill in the blanks with the words in the box.</b></p>
+
+            <div class="article-box">
+                <p>
+                    Dear Money Talks,
+                </p>
+                <p>
+                    I am writing to you because you provide free financial advice. First, let me give you some context: I am in the 11th grade, my parents provide me with a small 
+                    <span style="color: var(--unit-money-light); font-weight: bold;">1.</span><select class="word-dropdown blank-input" id="r53_1"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    every week, and I also work a part-time job. I used to spend my earnings hanging out with friends at the movies or the arcade. However, I recently developed an intense 
+                    <span style="color: var(--unit-money-light); font-weight: bold;">2.</span><select class="word-dropdown blank-input" id="r53_2"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    with fast fashion. There's a store named Araz's that gives you a 15% discount if you bring in old clothes to donate!
+                </p>
+                <p>
+                    My parents believe I have a severe shopping 
+                    <span style="color: var(--unit-money-light); font-weight: bold;">3.</span><select class="word-dropdown blank-input" id="r53_3"><option value="">-- เลือกคำศัพท์ --</option></select>. 
+                    My father joked that if he sewed all my blouses together, he could build a hot-air balloon and fly to the moon. They even threatened to take away my 
+                    <span style="color: var(--unit-money-light); font-weight: bold;">4.</span><select class="word-dropdown blank-input" id="r53_4"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    if I don't change my habits.
+                </p>
+                <p>
+                    I fear they might be correct. Just last week, I decided to 
+                    <span style="color: var(--unit-money-light); font-weight: bold;">5.</span><select class="word-dropdown blank-input" id="r53_5"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    some funds from my savings account so I could purchase a pair of exclusive sneakers. I know it was a foolish decision to 
+                    <span style="color: var(--unit-money-light); font-weight: bold;">6.</span><select class="word-dropdown blank-input" id="r53_6"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    that money—since it is meant for my university education. I am becoming very concerned about my 
+                    <span style="color: var(--unit-money-light); font-weight: bold;">7.</span><select class="word-dropdown blank-input" id="r53_7"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                    of spending. I am starting to believe that even if I had a million dollars, I would still manage to spend it all in a single week.
+                </p>
+                <p>
+                    I absolutely love shopping, and if I give it up, I will be miserable. But I know I cannot continue spending like this, or I will end up in serious trouble. That is why I am writing to ask for your 
+                    <span style="color: var(--unit-money-light); font-weight: bold;">8.</span><select class="word-dropdown blank-input" id="r53_8"><option value="">-- เลือกคำศัพท์ --</option></select>.
+                </p>
+                <p>
+                    Thanks, Money Talks!<br>
+                    Signed,<br>
+                    Anonymous
+                </p>
+            </div>
+
+            <div id="fb-p2" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-2" onclick="checkPhase2()">ตรวจคำตอบ & จบภารกิจ</button>
+            <button class="btn-back" onclick="goToPhase(1)">⬅️ ย้อนกลับ</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    // ================= API CONFIG =================
+    const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+    let verifiedStudentId = "";
+
+    async function verifyStudent() {
+        const sid = document.getElementById('verify-sid').value.trim();
+        const resDiv = document.getElementById('verify-result');
+        if(!sid) { resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ กรุณากรอกรหัสนักเรียน</span>'; return; }
+        
+        resDiv.innerHTML = '<span style="color: var(--text-muted);">กำลังตรวจสอบข้อมูล...</span>';
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "verifyStudent", studentId: sid })
+            });
+            const data = await response.json();
+            if (data.status === "success") {
+                verifiedStudentId = sid;
+                resDiv.innerHTML = `<span style="color: var(--neon-green);">✔️ ยืนยันตัวตนสำเร็จ: สวัสดี ${data.name}</span>`;
+                document.getElementById('mission-content').classList.remove('hidden');
+                document.getElementById('verify-sid').disabled = true;
+            } else {
+                resDiv.innerHTML = `<span style="color: var(--neon-red);">${data.message}</span>`;
+            }
+        } catch (e) {
+            resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ การเชื่อมต่อล้มเหลว</span>';
+        }
+    }
+
+    // 1. ดึงคำศัพท์ไปใส่ใน Dropdown อัตโนมัติ
+    const vocabList = ["addiction", "allowance", "debit card", "guidance", "level", "obsession", "transfer", "withdraw"];
+    const dropdowns = document.querySelectorAll('.word-dropdown');
+    
+    dropdowns.forEach(dropdown => {
+        vocabList.forEach(word => {
+            let option = document.createElement('option');
+            option.value = word; option.textContent = word;
+            dropdown.appendChild(option);
+        });
+    });
+
+    // 2. ระบบสลับหน้า
+    function goToPhase(phaseNum) {
+        document.querySelectorAll('#phase1, #phase2').forEach(el => el.classList.add('hidden'));
+        document.getElementById('phase' + phaseNum).classList.remove('hidden');
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('tab' + phaseNum).classList.add('active');
+
+        const badge = document.getElementById('pageBadge');
+        if(phaseNum === 1) badge.innerText = "Page 52"; 
+        else badge.innerText = "Page 53";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ฟังก์ชันทำความสะอาดข้อความ
+    function cleanStr(s) {
+        return s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    }
+
+    // 3. ตรวจคำตอบหน้า 52 (Vocab)
+    function checkPhase1() {
+        // อิงจากคำที่น่าจะสัมพันธ์กับรูปภาพ และเฉลยในแบบฝึกหัด
+        const ansNum = { v52_1: 'allowance', v52_2: 'transfer', v52_3: 'obsession', v52_4: 'debit card', v52_5: 'level', v52_6: 'guidance', v52_7: 'addiction', v52_8: 'withdraw' }; 
+        const ansFill = { f52_1: 'guidance', f52_2: 'transfer', f52_3: 'withdraw', f52_4: 'addiction', f52_5: 'allowance', f52_6: 'level', f52_7: 'obsession', f52_8: 'debit card' };
+        
+        let correct = true;
+        
+        for (let key in ansNum) {
+            let el = document.getElementById(key);
+            if (cleanStr(el.value) !== ansNum[key]) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        for (let key in ansFill) {
+            let el = document.getElementById(key);
+            if (el.value !== ansFill[key]) { 
+                correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p1'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab1').innerHTML = "Vocab (Page 52) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ยอดเยี่ยม! ไปช่วยตอบจดหมายในด่านต่อไปกันเลย`; 
+            document.getElementById('btn-next-1').classList.remove('hidden');
+            document.getElementById('btn-check-1').classList.add('hidden');
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีข้อที่ผิด สังเกตสีของกรอบนะคะ`;
+        }
+    }
+
+    // 4. ตรวจคำตอบหน้า 53 (Writing)
+    function checkPhase2() {
+        // ข้อ 5 กับ 6 สามารถใช้สลับกันได้ตามบริบทประโยค
+        const ans = { 
+            r53_1: 'allowance', 
+            r53_2: 'obsession', 
+            r53_3: 'addiction', 
+            r53_4: 'debit card', 
+            r53_5: ['withdraw', 'transfer'], 
+            r53_6: ['transfer', 'withdraw'], 
+            r53_7: 'level', 
+            r53_8: 'guidance' 
+        }; 
+        
+        let correct = true;
+        for (let key in ans) {
+            let el = document.getElementById(key);
+            let isMatch = Array.isArray(ans[key]) ? ans[key].includes(el.value) : el.value === ans[key];
+            
+            if (!isMatch) { 
+                correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p2'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab2').innerHTML = "Writing (Page 53) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ตรวจสอบถูกต้อง! กำลังบันทึกข้อมูล...`; 
+            document.getElementById('btn-check-2').disabled = true;
+            
+            // บันทึก Log ไปยังระบบ
+            fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "recordActivity",
+                    studentId: verifiedStudentId,
+                    activityType: "WORKSHEET_M08",
+                    itemId: "M08",
+                    details: "Completed Financial Problem (Pages 52-53)"
+                })
+            }).then(r => r.json()).then(data => {
+                if(data.status === "success") {
+                    fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์!<br><br><span style="font-size:1.2rem; color: var(--gold);">รหัสลับของคุณคือ: <b>U44-{CIPHER}</b></span><br><br><span style="font-size:0.85rem; color: #fff;">นำรหัสนี้ไปกรอกในหน้าต่าง Quest ของเว็บหลักเพื่อรับ XP นะคะ!</span>`;
+                } else {
+                    fb.innerHTML = `❌ ระบบบันทึกข้อมูลขัดข้อง กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+                }
+            }).catch(e => {
+                fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+            });
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ เลือกผิดบางข้อ ลองอ่านบริบทจดหมายทบทวนอีกครั้งนะ`;
+        }
+    }
+</script>
+</body>
+</html>
