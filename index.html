@@ -324,7 +324,7 @@
                 <div class="p-4 sm:p-6 bg-cosmic-950/80 border border-purple-500/30 rounded-2xl space-y-4 relative shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
                     <div class="flex flex-wrap justify-between items-center mb-2 gap-3">
                         
-                        <!-- Dropdown เลือกหัวข้อ (NEW) -->
+                        <!-- Dropdown เลือกหัวข้อ -->
                         <div class="relative">
                             <select id="grammar-topic-select" onchange="changeGrammarTopic(this.value)" class="bg-cosmic-900 border border-cyan-500/40 text-cyan-300 font-bold text-sm sm:text-base rounded-xl px-4 py-2 focus:outline-none focus:border-cyan-400 shadow-md cursor-pointer appearance-none pr-10">
                                 <option value="future_forms">Unit 3: Future Forms</option>
@@ -393,7 +393,7 @@
                     <!-- Real-world Quests -->
                     <div class="bg-cosmic-950/80 border border-pink-500/30 rounded-2xl p-5 shadow-lg">
                         <h4 class="font-bold text-pink-300 border-b border-pink-500/30 pb-3 mb-4 flex items-center gap-2">
-                            <span>📚</span> ภารกิจโลกจริง (รอครูตรวจหนังสือ New Frontiers 6)
+                            <span>📚</span> ภารกิจโลกจริง (รอครูตรวจ)
                         </h4>
                         <div id="quest-book-list" class="space-y-3">
                             <!-- Injected by JS -->
@@ -442,8 +442,8 @@
         <button onclick="switchModule('grammar')" id="nav-grammar-mobile" class="module-nav-btn flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500 hover:text-purple-200 transition">
             <span class="text-base">📘</span><span>แกรมม่า</span>
         </button>
-        <button onclick="switchModule('questlog')" id="nav-questlog-mobile" class="module-nav-btn flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500 hover:text-pink-300 transition">
-            <span class="text-base">📋</span><span>สถานะ</span>
+        <button onclick="openVoiceLab()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-300 hover:text-red-300 transition">
+            <span class="text-base">🎙️</span><span>มินิเกม</span>
         </button>
         <button onclick="openALevelArena()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-300 hover:text-cyan-300 transition">
             <span class="text-base">🎯</span><span>A-Level</span>
@@ -577,7 +577,7 @@
         let unit3Completed = false;
 
         // ==========================================
-        // 📚 ระบบสไลด์ Grammar Codex (รองรับหลายหัวข้อ)
+        // 📚 ระบบสไลด์ Grammar Codex
         // ==========================================
         const GRAMMAR_TOPICS = {
             "future_forms": { folder: "U3_Future_Form/", prefix: "U3_Future_Form_", ext: ".PNG", total: 21 },
@@ -620,8 +620,10 @@
             currentSlide = 1;
             updateSlide();
         }
-        // ==========================================
 
+        // ==========================================
+        // ระบบนำทางสลับโมดูล
+        // ==========================================
         function switchModule(modId) {
             appState.activeModule = modId;
             
@@ -645,7 +647,6 @@
             const mobileBtnQuestlog = document.getElementById('nav-questlog-mobile');
             
             if(mobileBtnMissions && mobileBtnGrammar) {
-                // Reset all to gray first
                 [mobileBtnMissions, mobileBtnGrammar, mobileBtnQuestlog].forEach(btn => {
                     if(btn) { btn.classList.replace('text-purple-200', 'text-slate-500'); btn.classList.replace('text-pink-300', 'text-slate-500'); }
                 });
@@ -694,8 +695,6 @@
                     localStorage.removeItem("pd_portal_session");
                 }
             }
-            
-            // Set initial slide
             updateSlide();
         });
 
@@ -726,18 +725,15 @@
 
         function checkFrameUnlockStatus(frame) {
             if (frame.id === "Frame00") return true;
-            
             if (frame.reqLevel) {
                 const totalXp = Number(appState.user.totalXp) || 0;
                 const level = Math.floor(totalXp / 500) + 1;
                 return level >= frame.reqLevel;
             }
-            
             if (frame.reqMission) {
                 const mission = appState.missions.find(m => m.missionId === frame.reqMission);
                 return mission && mission.state === "COMPLETED";
             }
-            
             return false;
         }
 
@@ -821,16 +817,15 @@
             const bookList = document.getElementById("quest-book-list");
             
             const missions = appState.missions || [];
-            // สมมติว่ามีข้อมูล offlineTasks ส่งมาจาก Google Sheets
             const offline = (appState.user && appState.user.offlineTasks) || {}; 
             
-            // 1. Render Web Quests
+            // 1. Render Web Quests (งานออนไลน์)
             const webQuests = [
-                { id: "M01", name: "ภารกิจ M01" },
-                { id: "M02", name: "ภารกิจ M02" },
-                { id: "M03", name: "ภารกิจ M03" },
-                { id: "M04", name: "ภารกิจ M04" },
-                { id: "V_U3", name: "มินิเกมคำศัพท์" }
+                { id: "M01", name: "แบบฝึกหัด M01" },
+                { id: "M02", name: "แบบฝึกหัด M02" },
+                { id: "M03", name: "แบบฝึกหัด M03" },
+                { id: "M04", name: "แบบฝึกหัด M04" },
+                { id: "V_U3", name: "ทดสอบศัพท์ Voice Lab (5 คะแนน)" }
             ];
             
             webList.innerHTML = webQuests.map(q => {
@@ -846,12 +841,10 @@
                 `;
             }).join("");
 
-            // 2. Render Book Quests (อิงตาม M01-M04)
+            // 2. Render Real-world Quests (งานออฟไลน์)
             const bookQuests = [
-                { id: "M01_Book", name: "ส่งแบบฝึกหัดหน้า 34-35" },
-                { id: "M02_Book", name: "ส่งแบบฝึกหัดหน้า 36-37" },
-                { id: "M03_Book", name: "ส่งแบบฝึกหัดหน้า 38-39" },
-                { id: "M04_Book", name: "ส่งแบบฝึกหัดหน้า 40-41" }
+                { id: "Book", name: "ส่งหนังสือเรียน/สมุด (5 คะแนน)" },
+                { id: "XmasCard", name: "ทำการ์ดคริสต์มาส 🎄 (10 คะแนน)" }
             ];
 
             bookList.innerHTML = bookQuests.map(q => {
@@ -869,7 +862,7 @@
 
         // ระบบนับถอยหลังสมมติ (ตั้งเดดไลน์ได้ที่นี่)
         setInterval(() => {
-            const deadline = new Date("2026-11-30T23:59:59").getTime(); // เปลี่ยนวันที่ตรงนี้ได้
+            const deadline = new Date("2026-11-30T23:59:59").getTime(); 
             const now = new Date().getTime();
             const distance = deadline - now;
             
@@ -886,7 +879,7 @@
             document.getElementById("quest-countdown").innerHTML = 
                 `${days}d : ${hours.toString().padStart(2, '0')}h : ${minutes.toString().padStart(2, '0')}m : ${seconds.toString().padStart(2, '0')}s`;
         }, 1000);
-        
+
         function checkUnit3Completion() {
             const reqMissions = ["M01", "M02", "M03", "M04", "V_U3"];
             const completedMissions = appState.missions.filter(m => m.state === "COMPLETED").map(m => m.missionId);
