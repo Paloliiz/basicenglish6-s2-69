@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mission M06: Spending Habits | PARALLEL DIMENSION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ================= CSS VARIABLES & GLOBALS ================= */
+        :root {
+            --bg-space: #020617; --bg-panel: #0f172a; --bg-card: #1e293b;
+            --unit-money: #059669; --unit-money-light: #10b981;
+            --neon-cyan: #06b6d4; --neon-blue: #3b82f6; 
+            --neon-orange: #f59e0b; --neon-red: #ef4444; --gold: #facc15;
+            --neon-green: #22c55e;
+            --text-main: #f8fafc; --text-muted: #94a3b8; --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Kanit', sans-serif; background-color: var(--bg-space); color: var(--text-main); 
+            display: flex; flex-direction: column; min-height: 100vh; padding: 15px;
+            background-image: radial-gradient(circle at 50% 10%, rgba(5, 150, 105, 0.1) 0%, transparent 60%);
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--bg-panel); border-top: 4px solid var(--unit-money); border-radius: var(--radius);
+            padding: 20px; max-width: 800px; width: 100%; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease; position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Poppins', 'Kanit', sans-serif; }
+        .text-cyan { color: var(--neon-cyan); }
+        .section-title { background: var(--unit-money); color: white; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;}
+        
+        .card { background: var(--bg-card); border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 20px; animation: fadeIn 0.4s ease-out; }
+
+        /* ================= FORM & INPUTS ================= */
+        select, input[type="text"], input[type="number"] {
+            font-size: 16px !important; width: 100%; padding: 10px; border-radius: 6px; 
+            border: 1px solid #475569; background: #020617; color: #fff; font-family: 'Kanit';
+        }
+        select:focus, input:focus { border-color: var(--unit-money-light); outline: none; }
+        
+        select.blank-input {
+            border: none; border-bottom: 2px solid var(--unit-money);
+            background: rgba(2, 6, 23, 0.5) !important; color: var(--gold) !important;
+            text-align: left; padding: 2px 5px; border-radius: 4px 4px 0 0;
+            display: inline-block; font-weight: bold; width: auto; min-width: 150px; font-size: 0.95rem !important; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select.blank-input:focus { border-bottom-color: var(--unit-money-light); outline: none; background: #020617 !important;}
+        
+        input[type="text"].sentence-input {
+            width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #475569; border-radius: 6px;
+            background: #020617; color: var(--gold); font-size: 0.95rem !important;
+        }
+
+        .is-correct { color: var(--neon-green) !important; font-weight: bold; }
+
+        button {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; font-family: 'Kanit'; margin-top: 10px; transition: all 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        .btn-check { background: var(--unit-money); color: white; }
+        .btn-check:hover { background: var(--unit-money-light); }
+        .btn-next { background: var(--neon-cyan); color: #000; animation: pulse 1.5s infinite;}
+        .btn-back { background: transparent; border: 1px solid #475569; color: #cbd5e1; margin-top: 15px; }
+
+        /* ================= MISSION UI ================= */
+        .header-mission { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #334155; padding-bottom: 15px; margin-bottom: 20px; }
+        .header-mission h2 { font-family: 'Poppins', sans-serif; color: var(--unit-money-light); margin: 0; font-size: 1.5rem;}
+        
+        .question { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+        .question:last-child { border-bottom: none; padding-bottom: 0;}
+        .q-text { font-size: 1rem; margin-bottom: 10px; color: #f8fafc;}
+
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        @media (min-width: 600px) { .vocab-grid { grid-template-columns: repeat(4, 1fr); } }
+        .vocab-item { background: rgba(2, 6, 23, 0.5); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #475569; font-weight: bold; font-size: 1rem; color: var(--unit-money-light);}
+        .vocab-item input { width: 100%; margin-top: 10px; text-align: center; color: var(--gold);}
+
+        .word-bank { background: rgba(2, 6, 23, 0.5); border: 1px dashed var(--unit-money); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .word-chip { background: #1e293b; color: var(--unit-money-light); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; border: 1px solid #334155; }
+
+        .audio-container { background: #020617; border: 1px solid #475569; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        audio { width: 100%; height: 40px; outline: none; }
+
+        /* Grammar Table */
+        .grammar-slide { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #475569; border-radius: 12px; padding: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.2); margin-bottom: 20px;}
+        .grammar-detail-box { background: rgba(2, 6, 23, 0.5); padding: 15px; border-radius: 8px; border-left: 4px solid; margin-top: 15px; font-size: 0.95rem; line-height: 1.8;}
+        .grammar-detail-box.type2 { border-color: var(--neon-cyan); }
+
+        /* ================= TABS ================= */
+        .tab-container { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;}
+        .tab-btn { background: #1e293b; color: var(--text-muted); border: 1px solid #475569; font-size: 0.85rem; margin: 0; padding: 8px 15px; flex: 1; border-radius: 6px; cursor: pointer; font-family: 'Kanit'; transition: 0.3s;}
+        .tab-btn.active { background: var(--unit-money); color: #fff; border-color: var(--unit-money); font-weight: bold;}
+        .tab-btn:hover { transform: none; background: #334155;}
+
+        .master-feedback { display: none; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; text-align: center; font-weight: bold; line-height: 1.6;}
+        .correct { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); }
+        .wrong { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); }
+
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div id="view-mission" class="container">
+    
+    <!-- STUDENT VERIFICATION PANEL -->
+    <div id="student-verification-panel" class="card" style="border-color: var(--neon-cyan); background: rgba(6, 182, 212, 0.05); margin-bottom: 25px;">
+        <h3 style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 1.1rem;">👤 ยืนยันตัวตนก่อนทำภารกิจ</h3>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="verify-sid" placeholder="กรอกรหัสนักเรียน 5 หลัก" style="flex: 1;">
+            <button onclick="verifyStudent()" style="width: auto; margin-top: 0; background: var(--neon-cyan); color: #000; padding: 10px 20px;">ตรวจสอบ</button>
+        </div>
+        <div id="verify-result" style="margin-top: 10px; font-size: 0.9rem; font-weight: bold;"></div>
+    </div>
+
+    <!-- MISSION CONTENT (Hidden by default) -->
+    <div id="mission-content" class="hidden">
+    
+    <!-- MISSION NAV -->
+    <div id="missionNav" class="tab-container">
+        <button id="tab1" class="tab-btn active" onclick="goToPhase(1)">Vocab (Page 48)</button>
+        <button id="tab2" class="tab-btn" onclick="goToPhase(2)">Grammar (Page 49)</button>
+    </div>
+
+    <div class="header-mission" id="mainHeader">
+        <h2>Mission M06: Spending Habits</h2>
+        <span id="pageBadge" style="background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;">Page 48-49</span>
+    </div>
+
+    <!-- PHASE 1: VOCABULARY (Page 48) -->
+    <div id="phase1">
+        <div class="section-title">B. Speaking: Vocabulary</div>
+        <div class="card">
+            <p style="color: var(--unit-money-light); margin-bottom: 10px; font-size: 0.95rem;"><b>1. Read the words in the box. Then listen and write the vocabulary word you hear. (พิมพ์คำศัพท์ที่ได้ยินลงในช่อง)</b></p>
+            
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 4-03</span>
+                <audio controls><source src="Track 4-03.mp3" type="audio/mpeg"></audio>
+            </div>
+
+            <div class="word-bank">
+                <span class="word-chip">upset</span>
+                <span class="word-chip">management</span>
+                <span class="word-chip">rate</span>
+                <span class="word-chip">assess</span>
+                <span class="word-chip">point</span>
+                <span class="word-chip">panic</span>
+                <span class="word-chip">interest</span>
+                <span class="word-chip">dedicated</span>
+            </div>
+
+            <div class="vocab-grid" style="margin-bottom: 30px;">
+                <div class="vocab-item">Picture 1 <input type="text" id="v48_1" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 2 <input type="text" id="v48_2" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 3 <input type="text" id="v48_3" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 4 <input type="text" id="v48_4" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 5 <input type="text" id="v48_5" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 6 <input type="text" id="v48_6" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 7 <input type="text" id="v48_7" placeholder="คำศัพท์"></div>
+                <div class="vocab-item">Picture 8 <input type="text" id="v48_8" placeholder="คำศัพท์"></div>
+            </div>
+
+            <p style="color: var(--unit-money-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>2. Fill in the blanks with the best vocabulary words.</b></p>
+            
+            <div class="question"><div class="q-text">1. At the <select class="word-dropdown blank-input" id="f48_1"><option value="">-- เลือกคำ --</option></select> that we're saving, we'll have enough money to buy a car next year.</div></div>
+            <div class="question"><div class="q-text">2. If you run out of money, don't <select class="word-dropdown blank-input" id="f48_2"><option value="">-- เลือกคำ --</option></select>. You can always borrow some from me.</div></div>
+            <div class="question"><div class="q-text">3. I'm so <select class="word-dropdown blank-input" id="f48_3"><option value="">-- เลือกคำ --</option></select>. I spent way too much money at the mall last month.</div></div>
+            <div class="question"><div class="q-text">4. At this company, loyal and <select class="word-dropdown blank-input" id="f48_4"><option value="">-- เลือกคำ --</option></select> employees are often promoted.</div></div>
+            <div class="question"><div class="q-text">5. I've been learning about money <select class="word-dropdown blank-input" id="f48_5"><option value="">-- เลือกคำ --</option></select>. So far, I've made a budget and opened a savings account.</div></div>
+            <div class="question"><div class="q-text">6. Before you get a credit card, check how much the <select class="word-dropdown blank-input" id="f48_6"><option value="">-- เลือกคำ --</option></select> rate is.</div></div>
+            <div class="question"><div class="q-text">7. This card rewards you with one <select class="word-dropdown blank-input" id="f48_7"><option value="">-- เลือกคำ --</option></select> for every purchase.</div></div>
+            <div class="question" style="border-bottom: none;"><div class="q-text">8. Always <select class="word-dropdown blank-input" id="f48_8"><option value="">-- เลือกคำ --</option></select> the situation before making a decision.</div></div>
+
+            <div id="fb-p1" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-1" onclick="checkPhase1()">ตรวจคำตอบ</button>
+            <button class="btn-next hidden" id="btn-next-1" onclick="goToPhase(2)">➔ ไปด่าน Grammar</button>
+        </div>
+    </div>
+
+    <!-- PHASE 2: GRAMMAR (Page 49 Ex 4 & 5) -->
+    <div id="phase2" class="hidden">
+        <div class="section-title">Grammar</div>
+        
+        <p style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 1.05rem;"><b>4. Look at the table. (ศึกษาหลักไวยากรณ์)</b></p>
+        <div class="grammar-slide" style="border-color: var(--unit-money-light); padding: 15px;">
+            
+            <div class="grammar-detail-box type2">
+                <h3 style="color: var(--neon-cyan); margin-bottom: 5px;">📘 Type 2 Conditional <br><span style="font-size: 0.9rem; font-weight: normal; color:#94a3b8;">(If + past simple, would/could + V.infinitive)</span></h3>
+                <p>ใช้เพื่อบอก <b>"เรื่องสมมติที่ไม่เป็นจริงในปัจจุบัน"</b> หรือเป็นไปได้ยากมากในอนาคต (ถ้า...จะ...)</p>
+                <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 10px;">
+                    <b style="color: var(--gold);">ตัวอย่าง:</b> <span style="color: var(--neon-cyan);">If I met</span> the Queen of England, <span style="color: var(--neon-cyan);">I'd (would) ask</span> her to lend me some money.<br>
+                    <i style="color: #94a3b8;">(ถ้าฉันได้พบราชินีอังกฤษ ฉันจะขอยืมเงินท่าน - ความเป็นจริงคือไม่ได้พบ)</i><br><br>
+                    <b style="color: var(--gold);">ตัวอย่าง 2:</b> <span style="color: var(--neon-cyan);">I'd fly</span> to the moon <span style="color: var(--neon-cyan);">if I had</span> enough money to build a rocket.
+                </div>
+            </div>
+            <p style="color: #cbd5e1; font-size: 0.85rem; margin-top: 15px;"><b>Note:</b> ใน Type 2 Conditional หากประธานเป็น I/He/She/It สามารถใช้ <b>were</b> แทน <b>was</b> ได้ทั้งหมดเลยค่ะ</p>
+
+        </div>
+
+        <div class="card">
+            <p style="color: var(--unit-money-light); margin-bottom: 15px; font-size: 0.95rem;"><b>5. Combine the sentences to create a type 2 conditional sentence.</b></p>
+            <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--neon-orange); padding: 10px; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;">
+                <b>💡 คำแนะนำ:</b> พิมพ์รวมเป็นประโยคเงื่อนไขแบบที่ 2 (If clause) ให้สมบูรณ์ <span style="color:var(--neon-orange);">ไม่ต้องใส่จุดท้ายประโยค</span>
+            </div>
+
+            <div class="question">
+                <div class="q-text">1. William is the president. He lives in a mansion.</div>
+                <input type="text" id="g49_1" class="sentence-input" placeholder="พิมพ์ประโยคใหม่...">
+            </div>
+            <div class="question">
+                <div class="q-text">2. I can fly. I travel all over the world.</div>
+                <input type="text" id="g49_2" class="sentence-input" placeholder="พิมพ์ประโยคใหม่...">
+            </div>
+            <div class="question" style="border-bottom: none;">
+                <div class="q-text">3. I'm an animal. I'm a wolf.</div>
+                <input type="text" id="g49_3" class="sentence-input" placeholder="พิมพ์ประโยคใหม่...">
+            </div>
+
+            <div id="fb-p2" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-2" onclick="checkPhase2()">ตรวจคำตอบ & จบภารกิจ</button>
+            <button class="btn-back" onclick="goToPhase(1)">⬅️ ย้อนกลับ</button>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script>
+    // ================= API CONFIG =================
+    const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+    let verifiedStudentId = "";
+
+    async function verifyStudent() {
+        const sid = document.getElementById('verify-sid').value.trim();
+        const resDiv = document.getElementById('verify-result');
+        if(!sid) { resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ กรุณากรอกรหัสนักเรียน</span>'; return; }
+        
+        resDiv.innerHTML = '<span style="color: var(--text-muted);">กำลังตรวจสอบข้อมูล...</span>';
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "verifyStudent", studentId: sid })
+            });
+            const data = await response.json();
+            if (data.status === "success") {
+                verifiedStudentId = sid;
+                resDiv.innerHTML = `<span style="color: var(--neon-green);">✔️ ยืนยันตัวตนสำเร็จ: สวัสดี ${data.name}</span>`;
+                document.getElementById('mission-content').classList.remove('hidden');
+                document.getElementById('verify-sid').disabled = true;
+            } else {
+                resDiv.innerHTML = `<span style="color: var(--neon-red);">${data.message}</span>`;
+            }
+        } catch (e) {
+            resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ การเชื่อมต่อล้มเหลว</span>';
+        }
+    }
+
+    // 1. ดึงคำศัพท์ไปใส่ใน Dropdown Ex 2 อัตโนมัติ
+    const vocabList = ["assess", "dedicated", "interest", "management", "panic", "point", "rate", "upset"];
+    const dropdowns = document.querySelectorAll('.word-dropdown');
+    
+    dropdowns.forEach(dropdown => {
+        vocabList.forEach(word => {
+            let option = document.createElement('option');
+            option.value = word; option.textContent = word;
+            dropdown.appendChild(option);
+        });
+    });
+
+    // 2. ระบบสลับหน้า
+    function goToPhase(phaseNum) {
+        document.querySelectorAll('#phase1, #phase2').forEach(el => el.classList.add('hidden'));
+        document.getElementById('phase' + phaseNum).classList.remove('hidden');
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('tab' + phaseNum).classList.add('active');
+
+        const badge = document.getElementById('pageBadge');
+        if(phaseNum === 1) badge.innerText = "Page 48"; 
+        else badge.innerText = "Page 49";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ฟังก์ชันทำความสะอาดข้อความ
+    function cleanStr(s) {
+        return s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    }
+
+    // 3. ตรวจคำตอบหน้า 48 (Vocab)
+    function checkPhase1() {
+        const ansNum = { v48_1: 'rate', v48_2: 'assess', v48_3: 'point', v48_4: 'interest', v48_5: 'upset', v48_6: 'management', v48_7: 'panic', v48_8: 'dedicated' }; 
+        const ansFill = { f48_1: 'rate', f48_2: 'panic', f48_3: 'upset', f48_4: 'dedicated', f48_5: 'management', f48_6: 'interest', f48_7: 'point', f48_8: 'assess' };
+        
+        let correct = true;
+        
+        for (let key in ansNum) {
+            let el = document.getElementById(key);
+            if (cleanStr(el.value) !== ansNum[key]) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        for (let key in ansFill) {
+            let el = document.getElementById(key);
+            if (el.value !== ansFill[key]) { 
+                correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p1'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab1').innerHTML = "Vocab (Page 48) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ยอดเยี่ยม! ไปด่าน Grammar กันต่อเลย`; 
+            document.getElementById('btn-next-1').classList.remove('hidden');
+            document.getElementById('btn-check-1').classList.add('hidden');
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีข้อที่ผิด สังเกตสีของกรอบนะคะ`;
+        }
+    }
+
+    // 4. ตรวจคำตอบหน้า 49 (Grammar Type 2)
+    function checkPhase2() {
+        const ans = { 
+            g49_1: ['if william was the president he would live in a mansion', 'if william were the president he would live in a mansion'], 
+            g49_2: ['if i could fly i would travel all over the world'], 
+            g49_3: ['if i was an animal i would be a wolf', 'if i were an animal i would be a wolf'] 
+        }; 
+        
+        let correct = true;
+        for (let key in ans) {
+            let el = document.getElementById(key);
+            let val = cleanStr(el.value).replace(/'/g, ''); // เอา ' ออกเพื่อตรวจความยืดหยุ่น
+            if (!ans[key].includes(val)) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p2'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab2').innerHTML = "Grammar (Page 49) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ตรวจสอบถูกต้อง! กำลังบันทึกข้อมูล...`; 
+            document.getElementById('btn-check-2').disabled = true;
+            
+            // บันทึก Log ไปยังระบบ
+            fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "recordActivity",
+                    studentId: verifiedStudentId,
+                    activityType: "WORKSHEET_M06",
+                    itemId: "M06",
+                    details: "Completed Spending Habits (Pages 48-49)"
+                })
+            }).then(r => r.json()).then(data => {
+                if(data.status === "success") {
+                    fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์!<br><br><span style="font-size:1.2rem; color: var(--gold);">รหัสลับของคุณคือ: <b>U42-{CIPHER}</b></span><br><br><span style="font-size:0.85rem; color: #fff;">นำรหัสนี้ไปกรอกในหน้าต่าง Quest ของเว็บหลักเพื่อรับ XP นะคะ!</span>`;
+                } else {
+                    fb.innerHTML = `❌ ระบบบันทึกข้อมูลขัดข้อง กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+                }
+            }).catch(e => {
+                fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+            });
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตช่องที่มีสีแดงนะ (เช็ค past tense หลัง If และไม่ต้องใส่จุดท้ายประโยค)`;
+        }
+    }
+</script>
+</body>
+</html>
