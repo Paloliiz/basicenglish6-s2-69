@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mission M07: Market Trends | PARALLEL DIMENSION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ================= CSS VARIABLES & GLOBALS ================= */
+        :root {
+            --bg-space: #020617; --bg-panel: #0f172a; --bg-card: #1e293b;
+            --unit-money: #059669; --unit-money-light: #10b981;
+            --neon-cyan: #06b6d4; --neon-blue: #3b82f6; 
+            --neon-orange: #f59e0b; --neon-red: #ef4444; --gold: #facc15;
+            --neon-green: #22c55e;
+            --text-main: #f8fafc; --text-muted: #94a3b8; --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Kanit', sans-serif; background-color: var(--bg-space); color: var(--text-main); 
+            display: flex; flex-direction: column; min-height: 100vh; padding: 15px;
+            background-image: radial-gradient(circle at 50% 10%, rgba(5, 150, 105, 0.1) 0%, transparent 60%);
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--bg-panel); border-top: 4px solid var(--unit-money); border-radius: var(--radius);
+            padding: 20px; max-width: 800px; width: 100%; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease; position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Poppins', 'Kanit', sans-serif; }
+        .text-cyan { color: var(--neon-cyan); }
+        .section-title { background: var(--unit-money); color: white; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;}
+        
+        .card { background: var(--bg-card); border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 20px; animation: fadeIn 0.4s ease-out; }
+
+        /* ================= FORM & INPUTS ================= */
+        select, input[type="text"], input[type="number"] {
+            font-size: 16px !important; width: 100%; padding: 10px; border-radius: 6px; 
+            border: 1px solid #475569; background: #020617; color: #fff; font-family: 'Kanit';
+        }
+        select:focus, input:focus { border-color: var(--unit-money-light); outline: none; }
+        
+        select.blank-input {
+            border: none; border-bottom: 2px solid var(--unit-money);
+            background: rgba(2, 6, 23, 0.5) !important; color: var(--gold) !important;
+            text-align: left; padding: 2px 5px; border-radius: 4px 4px 0 0;
+            display: inline-block; font-weight: bold; width: auto; min-width: 150px; font-size: 0.95rem !important; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select.blank-input:focus { border-bottom-color: var(--unit-money-light); outline: none; background: #020617 !important;}
+
+        .is-correct { color: var(--neon-green) !important; font-weight: bold; }
+
+        button {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; font-family: 'Kanit'; margin-top: 10px; transition: all 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        .btn-check { background: var(--unit-money); color: white; }
+        .btn-check:hover { background: var(--unit-money-light); }
+        .btn-next { background: var(--neon-cyan); color: #000; animation: pulse 1.5s infinite;}
+        .btn-back { background: transparent; border: 1px solid #475569; color: #cbd5e1; margin-top: 15px; }
+
+        /* ================= MISSION UI ================= */
+        .header-mission { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #334155; padding-bottom: 15px; margin-bottom: 20px; }
+        .header-mission h2 { font-family: 'Poppins', sans-serif; color: var(--unit-money-light); margin: 0; font-size: 1.5rem;}
+        
+        .question { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+        .question:last-child { border-bottom: none; padding-bottom: 0;}
+        .q-text { font-size: 1rem; margin-bottom: 10px; color: #f8fafc;}
+
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        @media (min-width: 600px) { .vocab-grid { grid-template-columns: repeat(4, 1fr); } }
+        .vocab-item { background: rgba(2, 6, 23, 0.5); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #475569; font-weight: bold; font-size: 1rem; color: var(--unit-money-light);}
+        .vocab-item input { width: 100%; margin-top: 10px; text-align: center; color: var(--gold);}
+
+        .audio-container { background: #020617; border: 1px solid #475569; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        audio { width: 100%; height: 40px; outline: none; }
+
+        /* Article Box */
+        .article-box { background: rgba(2, 6, 23, 0.6); padding: 25px; border-radius: 10px; border: 1px solid #334155; line-height: 2.2; font-size: 1rem; color: #cbd5e1; margin-bottom: 20px;}
+        .article-box p { margin-bottom: 20px; text-indent: 30px; }
+
+        /* ================= TABS ================= */
+        .tab-container { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;}
+        .tab-btn { background: #1e293b; color: var(--text-muted); border: 1px solid #475569; font-size: 0.85rem; margin: 0; padding: 8px 15px; flex: 1; border-radius: 6px; cursor: pointer; font-family: 'Kanit'; transition: 0.3s;}
+        .tab-btn.active { background: var(--unit-money); color: #fff; border-color: var(--unit-money); font-weight: bold;}
+        .tab-btn:hover { transform: none; background: #334155;}
+
+        .master-feedback { display: none; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; text-align: center; font-weight: bold; line-height: 1.6;}
+        .correct { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); }
+        .wrong { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); }
+
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div id="view-mission" class="container">
+    
+    <!-- STUDENT VERIFICATION PANEL -->
+    <div id="student-verification-panel" class="card" style="border-color: var(--neon-cyan); background: rgba(6, 182, 212, 0.05); margin-bottom: 25px;">
+        <h3 style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 1.1rem;">👤 ยืนยันตัวตนก่อนทำภารกิจ</h3>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="verify-sid" placeholder="กรอกรหัสนักเรียน 5 หลัก" style="flex: 1;">
+            <button onclick="verifyStudent()" style="width: auto; margin-top: 0; background: var(--neon-cyan); color: #000; padding: 10px 20px;">ตรวจสอบ</button>
+        </div>
+        <div id="verify-result" style="margin-top: 10px; font-size: 0.9rem; font-weight: bold;"></div>
+    </div>
+
+    <!-- MISSION CONTENT (Hidden by default) -->
+    <div id="mission-content" class="hidden">
+    
+    <!-- MISSION NAV -->
+    <div id="missionNav" class="tab-container">
+        <button id="tab1" class="tab-btn active" onclick="goToPhase(1)">Vocab (Page 50)</button>
+        <button id="tab2" class="tab-btn" onclick="goToPhase(2)">Reading (Page 51)</button>
+    </div>
+
+    <div class="header-mission" id="mainHeader">
+        <h2>Mission M07: Market Trends</h2>
+        <span id="pageBadge" style="background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;">Page 50-51</span>
+    </div>
+
+    <!-- PHASE 1: VOCABULARY (Page 50) -->
+    <div id="phase1">
+        <div class="section-title">C. Reading: Vocabulary</div>
+        <div class="card">
+            <p style="color: var(--unit-money-light); margin-bottom: 10px; font-size: 0.95rem;"><b>1. Listen and number. (ฟังเสียงและใส่ตัวเลข 1-8 ลงในช่อง)</b></p>
+            
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 4-04</span>
+                <audio controls><source src="Track 4-04.mp3" type="audio/mpeg"></audio>
+            </div>
+
+            <div class="vocab-grid" style="margin-bottom: 30px;">
+                <div class="vocab-item">deal <input type="number" id="v50_1" placeholder="No."></div>
+                <div class="vocab-item">recession <input type="number" id="v50_2" placeholder="No."></div>
+                <div class="vocab-item">exclusive <input type="number" id="v50_3" placeholder="No."></div>
+                <div class="vocab-item">standard <input type="number" id="v50_4" placeholder="No."></div>
+                <div class="vocab-item">moderate <input type="number" id="v50_5" placeholder="No."></div>
+                <div class="vocab-item">impact <input type="number" id="v50_6" placeholder="No."></div>
+                <div class="vocab-item">consumer <input type="number" id="v50_7" placeholder="No."></div>
+                <div class="vocab-item">evaluate <input type="number" id="v50_8" placeholder="No."></div>
+            </div>
+
+            <p style="color: var(--unit-money-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>2. Match the words with the definitions. (เลือกคำศัพท์ให้ตรงกับความหมาย)</b></p>
+            
+            <div class="question"><div class="q-text">a. expensive and only available to certain people</div>
+                <select class="word-dropdown blank-input" id="m50_a"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">b. someone who buys goods or services</div>
+                <select class="word-dropdown blank-input" id="m50_b"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">c. a middle amount; neither large nor small; average</div>
+                <select class="word-dropdown blank-input" id="m50_c"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">d. to consider something carefully and decide its worth</div>
+                <select class="word-dropdown blank-input" id="m50_d"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">e. an accepted measurement or value</div>
+                <select class="word-dropdown blank-input" id="m50_e"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">f. a period of time when businesses aren't doing well</div>
+                <select class="word-dropdown blank-input" id="m50_f"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question"><div class="q-text">g. to have an effect on a situation, person, or event</div>
+                <select class="word-dropdown blank-input" id="m50_g"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+            <div class="question" style="border-bottom: none;"><div class="q-text">h. an arrangement or agreement, especially in business</div>
+                <select class="word-dropdown blank-input" id="m50_h"><option value="">-- เลือกคำศัพท์ --</option></select>
+            </div>
+
+            <div id="fb-p1" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-1" onclick="checkPhase1()">ตรวจคำตอบ</button>
+            <button class="btn-next hidden" id="btn-next-1" onclick="goToPhase(2)">➔ ไปด่าน Reading</button>
+        </div>
+    </div>
+
+    <!-- PHASE 2: READING COMPREHENSION (Page 51) -->
+    <div id="phase2" class="hidden">
+        <div class="section-title">C. Reading: Comprehension</div>
+        <div class="card">
+            
+            <p style="color: var(--unit-money-light); margin-bottom: 10px; font-size: 0.95rem;"><b>4. Read the article. (อ่านหรือฟังบทความ และตอบคำถามด้านล่าง)</b></p>
+            
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 4-05</span>
+                <audio controls><source src="Track 4-05.mp3" type="audio/mpeg"></audio>
+            </div>
+
+            <div class="article-box">
+                <h3 style="text-align: center; color: var(--gold); margin-bottom: 15px; font-family: 'Poppins';">Who's in a Hurry?</h3>
+                <p>If dining at an expensive restaurant is out of your budget, fast-casual dining is a great alternative. It may not be as luxurious as a traditional sit-down restaurant, but it provides a better standard of food than typical fast-food chains, meaning you can enjoy a meal without a huge impact on your finances. This dining concept began in the early 1990s but really gained popularity in the 2000s. It continues to grow, even during times of economic recession, because it meets the demands of the modern consumer: healthy options, moderate prices, and a trendy atmosphere.</p>
+                <p>Another major trend affecting our spending habits is fast fashion. Similar to fast-casual food, this industry targets consumers who want stylish clothes but prefer not to pay extremely high prices. While high-fashion brands create unique and exclusive trends, fast-fashion companies take inspiration from these exclusive designs and produce affordable versions for the general public.</p>
+                <p>Buying fast fashion might seem like a great deal at first glance, but it often isn't when you consider the "cost-per-wear." This concept measures the true value of an item over time. For instance, purchasing $30 shoes that you only wear once means your cost-per-wear is $30. However, if you invest $150 in a quality pair of shoes and wear them daily for a year, the cost-per-wear drops to less than $1.</p>
+                <p>The reality is that fast-fashion items usually have a high cost-per-wear. Since they are manufactured using cheaper materials, they tend to wear out quickly. If you have to constantly replace damaged clothes, you aren't actually saving money. Furthermore, low prices encourage people to buy outfits for one-off occasions, which also leads to poor cost-per-wear. Ultimately, calculating this cost is an excellent way to evaluate if your purchases are genuinely economical.</p>
+                <p>Enjoying trendy food and fashion is fun, but it shouldn't empty your bank account. Unless you are a famous movie star or somehow find a way to grow money on trees, you need to be mindful of your spending habits if you truly want to save money.</p>
+            </div>
+
+            <p style="color: var(--unit-money-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>5. Circle the answers. (เลือกคำตอบที่ถูกต้อง)</b></p>
+            
+            <div class="question">
+                <div class="q-text">1. What is the purpose of this reading?</div>
+                <select id="r51_1">
+                    <option value="">-- เลือกคำตอบ --</option>
+                    <option value="a">a. to convince people to stop shopping at "fast" retailers</option>
+                    <option value="b">b. to promote fast-casual dining</option>
+                    <option value="c">c. to help consumers evaluate "fast" retailers</option>
+                    <option value="d">d. to explain why "fast" retailers are popular</option>
+                </select>
+            </div>
+            <div class="question">
+                <div class="q-text">2. Fast-casual dining ________________________.</div>
+                <select id="r51_2">
+                    <option value="">-- เลือกคำตอบ --</option>
+                    <option value="a">a. became popular quickly</option>
+                    <option value="b">b. caused a recession</option>
+                    <option value="c">c. is like fast food</option>
+                    <option value="d">d. is moderately priced</option>
+                </select>
+            </div>
+            <div class="question">
+                <div class="q-text">3. How can you make better decisions about what clothing you purchase?</div>
+                <select id="r51_3">
+                    <option value="">-- เลือกคำตอบ --</option>
+                    <option value="a">a. by calculating your cost-per-wear</option>
+                    <option value="b">b. by buying many cheap items</option>
+                    <option value="c">c. by evaluating every dollar you spend</option>
+                    <option value="d">d. by buying only exclusive items</option>
+                </select>
+            </div>
+            <div class="question" style="border-bottom: none;">
+                <div class="q-text">4. The purpose of the fourth paragraph is to ____________________.</div>
+                <select id="r51_4">
+                    <option value="">-- เลือกคำตอบ --</option>
+                    <option value="a">a. explain the difference between fast fashion and high fashion</option>
+                    <option value="b">b. explain why low prices are bad</option>
+                    <option value="c">c. explain saving money is beneficial</option>
+                    <option value="d">d. explain why fast-fashion items aren't a good deal</option>
+                </select>
+            </div>
+
+            <div id="fb-p2" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-2" onclick="checkPhase2()">ตรวจคำตอบ & จบภารกิจ</button>
+            <button class="btn-back" onclick="goToPhase(1)">⬅️ ย้อนกลับ</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    // ================= API CONFIG =================
+    const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+    let verifiedStudentId = "";
+
+    async function verifyStudent() {
+        const sid = document.getElementById('verify-sid').value.trim();
+        const resDiv = document.getElementById('verify-result');
+        if(!sid) { resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ กรุณากรอกรหัสนักเรียน</span>'; return; }
+        
+        resDiv.innerHTML = '<span style="color: var(--text-muted);">กำลังตรวจสอบข้อมูล...</span>';
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "verifyStudent", studentId: sid })
+            });
+            const data = await response.json();
+            if (data.status === "success") {
+                verifiedStudentId = sid;
+                resDiv.innerHTML = `<span style="color: var(--neon-green);">✔️ ยืนยันตัวตนสำเร็จ: สวัสดี ${data.name}</span>`;
+                document.getElementById('mission-content').classList.remove('hidden');
+                document.getElementById('verify-sid').disabled = true;
+            } else {
+                resDiv.innerHTML = `<span style="color: var(--neon-red);">${data.message}</span>`;
+            }
+        } catch (e) {
+            resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ การเชื่อมต่อล้มเหลว</span>';
+        }
+    }
+
+    // 1. ดึงคำศัพท์ไปใส่ใน Dropdown อัตโนมัติ
+    const vocabList = ["consumer", "deal", "evaluate", "exclusive", "impact", "moderate", "recession", "standard"];
+    const dropdowns = document.querySelectorAll('.word-dropdown');
+    
+    dropdowns.forEach(dropdown => {
+        vocabList.forEach(word => {
+            let option = document.createElement('option');
+            option.value = word; option.textContent = word;
+            dropdown.appendChild(option);
+        });
+    });
+
+    // 2. ระบบสลับหน้า
+    function goToPhase(phaseNum) {
+        document.querySelectorAll('#phase1, #phase2').forEach(el => el.classList.add('hidden'));
+        document.getElementById('phase' + phaseNum).classList.remove('hidden');
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('tab' + phaseNum).classList.add('active');
+
+        const badge = document.getElementById('pageBadge');
+        if(phaseNum === 1) badge.innerText = "Page 50"; 
+        else badge.innerText = "Page 51";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ฟังก์ชันทำความสะอาดข้อความ
+    function cleanStr(s) {
+        return s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    }
+
+    // 3. ตรวจคำตอบหน้า 50 (Vocab)
+    function checkPhase1() {
+        const ansNum = { v50_1: '4', v50_2: '7', v50_3: '8', v50_4: '6', v50_5: '3', v50_6: '2', v50_7: '5', v50_8: '1' }; 
+        const ansMatch = { m50_a: 'exclusive', m50_b: 'consumer', m50_c: 'moderate', m50_d: 'evaluate', m50_e: 'standard', m50_f: 'recession', m50_g: 'impact', m50_h: 'deal' };
+        
+        let correct = true;
+        
+        for (let key in ansNum) {
+            let el = document.getElementById(key);
+            if (cleanStr(el.value) !== ansNum[key]) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        for (let key in ansMatch) {
+            let el = document.getElementById(key);
+            if (el.value !== ansMatch[key]) { 
+                correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p1'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab1').innerHTML = "Vocab (Page 50) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ยอดเยี่ยม! ไปด่าน Reading กันต่อเลย`; 
+            document.getElementById('btn-next-1').classList.remove('hidden');
+            document.getElementById('btn-check-1').classList.add('hidden');
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีข้อที่ผิด สังเกตสีของกรอบนะคะ`;
+        }
+    }
+
+    // 4. ตรวจคำตอบหน้า 51 (Reading)
+    function checkPhase2() {
+        const ans = { r51_1: 'c', r51_2: 'd', r51_3: 'a', r51_4: 'd' }; 
+        
+        let correct = true;
+        for (let key in ans) {
+            let el = document.getElementById(key);
+            if (el.value !== ans[key]) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p2'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab2').innerHTML = "Reading (Page 51) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ตรวจสอบถูกต้อง! กำลังบันทึกข้อมูล...`; 
+            document.getElementById('btn-check-2').disabled = true;
+            
+            // บันทึก Log ไปยังระบบ
+            fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "recordActivity",
+                    studentId: verifiedStudentId,
+                    activityType: "WORKSHEET_M07",
+                    itemId: "M07",
+                    details: "Completed Market Trends (Pages 50-51)"
+                })
+            }).then(r => r.json()).then(data => {
+                if(data.status === "success") {
+                    fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์!<br><br><span style="font-size:1.2rem; color: var(--gold);">รหัสลับของคุณคือ: <b>U43-{CIPHER}</b></span><br><br><span style="font-size:0.85rem; color: #fff;">นำรหัสนี้ไปกรอกในหน้าต่าง Quest ของเว็บหลักเพื่อรับ XP นะคะ!</span>`;
+                } else {
+                    fb.innerHTML = `❌ ระบบบันทึกข้อมูลขัดข้อง กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+                }
+            }).catch(e => {
+                fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+            });
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ เลือกผิดบางข้อ ลองกลับไปอ่านวิเคราะห์หรือฟังบทความอีกรอบนะ`;
+        }
+    }
+</script>
+</body>
+</html>
