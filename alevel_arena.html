@@ -89,10 +89,20 @@
 
     <!-- WELCOME / LOBBY SCREEN -->
     <div id="lobby-screen" class="glass-panel rounded-3xl max-w-4xl w-full p-6 sm:p-8 relative overflow-hidden">
-        <div class="text-center mb-8">
+        <div class="text-center mb-6">
             <h1 class="font-scifi text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 mb-2">A-LEVEL ARENA</h1>
-            <p class="text-slate-300 text-sm sm:text-base">Tower of Trials: หอคอยจำลองข้อสอบเข้ามหาวิทยาลัย</p>
-            <p class="text-xs text-cyan-400 mt-2">ทำข้อสอบถูก 1 ข้อ รับ +10 XP | เคลียร์ครบ 4 ชั้น รับกรอบโปรไฟล์พิเศษ!</p>
+            <p class="text-slate-300 text-sm sm:text-base">จำลองข้อสอบ A-Level (53 ข้อ)</p>
+        </div>
+        
+        <div class="bg-black/50 p-5 rounded-2xl border border-cyan-500/30 text-left text-sm text-slate-300 space-y-2 mb-8 max-w-2xl mx-auto">
+            <p class="font-bold text-cyan-400">📋 เกณฑ์การให้คะแนนเก็บ (เต็ม 10 คะแนน):</p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-xs">
+                <li><span class="text-rose-400 font-bold">ต่ำกว่า 30% (0-15 ข้อ)</span> = ยังไม่ผ่านเกณฑ์ (ต้องสอบใหม่)</li>
+                <li><span class="text-amber-400 font-bold">30 - 49% (16-25 ข้อ)</span> = ได้ <strong class="text-white">7</strong> / 10 คะแนน (ระดับเอาตัวรอด)</li>
+                <li><span class="text-emerald-400 font-bold">50 - 69% (26-36 ข้อ)</span> = ได้ <strong class="text-white">8.5</strong> / 10 คะแนน (ระดับพร้อมรบ)</li>
+                <li><span class="text-cyan-400 font-bold">70% ขึ้นไป (37 ข้อขึ้นไป)</span> = ได้ <strong class="text-white">10</strong> / 10 คะแนน (ระดับแนวหน้า)</li>
+            </ul>
+            <p class="text-[10px] text-slate-500 mt-2">* ระบบเปิดโอกาสให้สอบซ่อม (Retake) ได้จนกว่าจะพอใจกับคะแนน!</p>
         </div>
 
         <div class="mb-8">
@@ -100,30 +110,12 @@
             <input type="text" id="sid-input" placeholder="******" class="w-full max-w-xs mx-auto block px-4 py-3 rounded-xl bg-cosmic-900 border border-cyan-500/40 text-center text-white font-scifi focus:border-cyan-400 focus:outline-none">
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="stages-container">
-            <div class="stage-card active rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer" onclick="startStage(1)">
-                <div class="w-12 h-12 rounded-full bg-cyan-900/50 flex items-center justify-center text-xl mb-3 border border-cyan-400/50">💬</div>
-                <h3 class="font-bold text-white text-sm">Floor 1</h3>
-                <p class="text-xs text-slate-300 mb-2">Everyday Comm.</p>
-                <span class="text-[10px] px-2 py-1 rounded bg-cyan-950 border border-cyan-500/50 text-cyan-200">12 ข้อ</span>
-            </div>
-            <div class="stage-card active rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer" onclick="startStage(2)">
-                <div class="w-12 h-12 rounded-full bg-purple-900/50 flex items-center justify-center text-xl mb-3 border border-purple-400/50">📊</div>
-                <h3 class="font-bold text-white text-sm">Floor 2</h3>
-                <p class="text-xs text-slate-300 mb-2">Visuals & Graphs</p>
-                <span class="text-[10px] px-2 py-1 rounded bg-purple-950 border border-purple-500/50 text-purple-200">6 ข้อ</span>
-            </div>
-            <div class="stage-card active rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer" onclick="startStage(3)">
-                <div class="w-12 h-12 rounded-full bg-pink-900/50 flex items-center justify-center text-xl mb-3 border border-pink-400/50">📰</div>
-                <h3 class="font-bold text-white text-sm">Floor 3</h3>
-                <p class="text-xs text-slate-300 mb-2">News & Articles</p>
-                <span class="text-[10px] px-2 py-1 rounded bg-pink-950 border border-pink-500/50 text-pink-200">15 ข้อ</span>
-            </div>
-            <div class="stage-card active rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer" onclick="startStage(4)">
-                <div class="w-12 h-12 rounded-full bg-orange-900/50 flex items-center justify-center text-xl mb-3 border border-orange-400/50">📝</div>
-                <h3 class="font-bold text-white text-sm">Floor 4 (BOSS)</h3>
-                <p class="text-xs text-slate-400 mb-2">Writing Skill</p>
-                <span class="text-[10px] px-2 py-1 rounded bg-orange-950 border border-orange-500/50 text-orange-200">20 ข้อ</span>
+        <div class="flex justify-center mb-8" id="stages-container">
+            <div class="stage-card active rounded-2xl p-6 flex flex-col items-center text-center cursor-pointer w-full max-w-sm hover:scale-105 transition-transform" onclick="startFullExam()">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-600 to-purple-600 flex items-center justify-center text-3xl mb-4 shadow-[0_0_20px_rgba(56,189,248,0.5)]">🔥</div>
+                <h3 class="font-scifi font-bold text-white text-lg mb-1">ENTER THE ARENA</h3>
+                <p class="text-xs text-slate-300 mb-4">ทำข้อสอบต่อเนื่อง 53 ข้อ (เวลา 90 นาที)</p>
+                <span class="text-xs font-bold px-4 py-2 rounded-xl bg-cosmic-950 border border-cyan-500/50 text-cyan-300">คลิกเพื่อเริ่มทำข้อสอบ</span>
             </div>
         </div>
         <div class="text-center">
@@ -173,21 +165,30 @@
     <!-- RESULT SCREEN -->
     <div id="result-screen" class="glass-panel rounded-3xl max-w-xl w-full p-8 hidden text-center relative">
         <div class="text-6xl mb-4" id="result-icon">🎯</div>
-        <h2 class="font-scifi text-2xl font-bold text-white mb-2" id="result-title">STAGE CLEARED!</h2>
-        <p class="text-slate-300 text-sm mb-6" id="result-subtitle">คุณทำข้อสอบ Floor สำเร็จแล้ว</p>
+        <h2 class="font-scifi text-2xl sm:text-3xl font-bold text-white mb-2" id="result-title">EXAM COMPLETED!</h2>
+        <p class="text-slate-300 text-sm mb-6" id="result-subtitle">จำลองสอบ A-Level เสร็จสิ้น</p>
         
-        <div class="bg-cosmic-900 rounded-2xl p-6 border border-cyan-500/30 mb-6 inline-block w-full max-w-sm mx-auto">
+        <div class="bg-black/60 rounded-2xl p-6 border border-cyan-500/30 mb-6 inline-block w-full max-w-sm mx-auto shadow-lg">
             <div class="flex justify-between items-center mb-3">
-                <span class="text-sm text-slate-400">คะแนนที่ได้</span>
-                <span class="font-bold text-xl text-white" id="result-score">8 / 10</span>
+                <span class="text-sm text-slate-400">ทำถูกทั้งหมด</span>
+                <span class="font-bold text-xl text-white" id="result-score">0 / 53 ข้อ</span>
             </div>
-            <div class="flex justify-between items-center pt-3 border-t border-slate-800">
-                <span class="text-sm text-slate-400">XP ที่ได้รับ</span>
-                <span class="font-scifi font-bold text-amber-300 text-xl" id="result-xp">+80 XP</span>
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-sm text-slate-400">คิดเป็นร้อยละ</span>
+                <span class="font-bold text-xl text-white" id="result-percent">0%</span>
+            </div>
+            <div class="flex justify-between items-center pt-4 border-t border-slate-700/50 mt-2">
+                <span class="text-sm font-bold text-cyan-300">คะแนนเก็บ (เต็ม 10)</span>
+                <span class="font-scifi font-black text-2xl text-amber-400" id="result-grade">0 / 10</span>
             </div>
         </div>
-        <div id="saving-status" class="text-xs text-cyan-400 mb-6 h-4">กำลังบันทึกผลลงระบบฐานข้อมูล...</div>
-        <button onclick="returnToLobby()" class="btn-action w-full py-3 rounded-xl font-bold text-sm text-white">กลับสู่โถงหอคอย</button>
+        
+        <div id="result-feedback" class="text-sm font-bold mb-6 h-4"></div>
+        <div id="saving-status" class="text-[10px] text-slate-500 mb-6 h-4 font-scifi uppercase"></div>
+        
+        <div class="space-y-3" id="result-actions">
+            <!-- Injected by JS (Retake or Back) -->
+        </div>
     </div>
 
     <!-- MODAL FOR IMAGE ZOOM -->
@@ -197,7 +198,9 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
-        let currentSid = ""; let currentStage = 1; let currentQIndex = 0; let score = 0; let timerInterval; let timeLeft = 900; let hasAnswered = false;
+        let currentSid = ""; let currentQIndex = 0; let score = 0; let timerInterval; let timeLeft = 5400; // 90 นาที
+        let hasAnswered = false;
+        let ALL_QUESTIONS = []; // เก็บข้อสอบทั้งหมด 53 ข้อ
         
         // --- ฐานข้อมูลข้อสอบ พร้อมคำอธิบาย ---
         const EXAM_DB = {
@@ -272,22 +275,27 @@
             }
         });
 
-        function startStage(stageNum) {
+        function startFullExam() {
             const sidInput = document.getElementById("sid-input").value.trim();
             if (!sidInput) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ");
             
+            // รวมข้อสอบทุก Floor เข้าด้วยกันเป็น Array เดียว
+            ALL_QUESTIONS = [];
+            for (let i = 1; i <= 4; i++) {
+                if(EXAM_DB[i]) {
+                    ALL_QUESTIONS = ALL_QUESTIONS.concat(EXAM_DB[i]);
+                }
+            }
+            
             currentSid = sidInput;
-            currentStage = stageNum;
             currentQIndex = 0;
             score = 0;
             hasAnswered = false;
-            timeLeft = 900;
+            timeLeft = 5400; // 90 นาที
             
             document.getElementById("lobby-screen").classList.add("hidden");
             document.getElementById("arena-screen").classList.remove("hidden");
-            
-            const stageNames = {1: "COMMUNICATION", 2: "VISUALS & GRAPHS", 3: "NEWS & ARTICLES", 4: "WRITING SKILL"};
-            document.getElementById("arena-stage-name").textContent = `FLOOR ${stageNum}: ${stageNames[stageNum]}`;
+            document.getElementById("arena-stage-name").textContent = `A-LEVEL FINAL ARENA`;
             
             startTimer();
             loadQuestion();
@@ -303,8 +311,8 @@
             const expBox = document.getElementById("explanation-box");
             expBox.classList.add("hidden");
 
-            const qData = EXAM_DB[currentStage][currentQIndex];
-            const totalQ = EXAM_DB[currentStage].length;
+            const qData = ALL_QUESTIONS[currentQIndex];
+            const totalQ = ALL_QUESTIONS.length;
 
             document.getElementById("progress-text").textContent = `Question ${currentQIndex + 1} / ${totalQ}`;
             document.getElementById("score-text").textContent = `Score: ${score}`;
@@ -342,7 +350,7 @@
         }
 
         function nextQuestion() {
-            const qData = EXAM_DB[currentStage][currentQIndex];
+            const qData = ALL_QUESTIONS[currentQIndex];
             const btnNext = document.getElementById("btn-next-question");
             const btns = document.querySelectorAll(".choice-btn");
             const expBox = document.getElementById("explanation-box");
@@ -365,7 +373,7 @@
                     expBox.classList.remove("hidden");
                 }
                 
-                if (currentQIndex < EXAM_DB[currentStage].length - 1) {
+                if (currentQIndex < ALL_QUESTIONS.length - 1) {
                     btnNext.innerHTML = "<span>ไปข้อถัดไป</span> <span>⏭️</span>";
                 } else {
                     btnNext.innerHTML = "<span>ดูผลสอบ</span> <span>🎯</span>";
@@ -375,7 +383,7 @@
             }
 
             currentQIndex++;
-            if (currentQIndex < EXAM_DB[currentStage].length) {
+            if (currentQIndex < ALL_QUESTIONS.length) {
                 loadQuestion();
             } else {
                 finishStage();
@@ -403,7 +411,7 @@
             document.getElementById("arena-screen").classList.add("hidden");
             document.getElementById("result-screen").classList.remove("hidden");
             
-            const totalQ = EXAM_DB[currentStage].length;
+            const totalQ = ALL_QUESTIONS.length;
             const earnedXp = score * 10;
             
             document.getElementById("result-subtitle").textContent = `คุณทำข้อสอบ Floor ${currentStage} สำเร็จแล้ว`;
