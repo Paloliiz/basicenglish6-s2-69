@@ -823,11 +823,15 @@
             
             // 1. Render Web Quests (งานออนไลน์)
             const webQuests = [
-                { id: "M01", name: "แบบฝึกหัด M01" },
-                { id: "M02", name: "แบบฝึกหัด M02" },
-                { id: "M03", name: "แบบฝึกหัด M03" },
-                { id: "M04", name: "แบบฝึกหัด M04" },
-                { id: "V_U3", name: "ทดสอบศัพท์ Voice Lab (5 คะแนน)" }
+                { id: "M01", name: "ภารกิจ M01" },
+                { id: "M02", name: "ภารกิจ M02" },
+                { id: "M03", name: "ภารกิจ M03" },
+                { id: "M04", name: "ภารกิจ M04" },
+                { id: "V_U3", name: "มินิเกมคำศัพท์ Voice Lab" },
+                { id: "M05", name: "ภารกิจ M05" },
+                { id: "M06", name: "ภารกิจ M06" },
+                { id: "M07", name: "ภารกิจ M07" },
+                { id: "M08", name: "ภารกิจ M08" }
             ];
             
             webList.innerHTML = webQuests.map(q => {
@@ -843,10 +847,17 @@
                 `;
             }).join("");
 
-            // 2. Render Real-world Quests (งานออฟไลน์)
+            // 2. Render Real-world Quests (งานออฟไลน์) แยกตามหน้าย่อย
             const bookQuests = [
-                { id: "Book", name: "ส่งหนังสือเรียน/สมุด (5 คะแนน)" },
-                { id: "XmasCard", name: "ทำการ์ดคริสต์มาส 🎄 (10 คะแนน)" }
+                { id: "M01_Book", name: "ส่งแบบฝึกหัดหน้า 34-35" },
+                { id: "M02_Book", name: "ส่งแบบฝึกหัดหน้า 36-37" },
+                { id: "M03_Book", name: "ส่งแบบฝึกหัดหน้า 38-39" },
+                { id: "M04_Book", name: "ส่งแบบฝึกหัดหน้า 40-41" },
+                { id: "M05_Book", name: "ส่งแบบฝึกหัดหน้า 46-47" },
+                { id: "M06_Book", name: "ส่งแบบฝึกหัดหน้า 48-49" },
+                { id: "M07_Book", name: "ส่งแบบฝึกหัดหน้า 50-51" },
+                { id: "M08_Book", name: "ส่งแบบฝึกหัดหน้า 52-53" },
+                { id: "XmasCard", name: "ทำการ์ดคริสต์มาส 🎄" }
             ];
 
             bookList.innerHTML = bookQuests.map(q => {
@@ -855,7 +866,7 @@
                     <div class="flex items-center justify-between bg-cosmic-900 p-3 rounded-xl border ${isCompleted ? 'border-pink-500/50 shadow-[0_0_10px_rgba(236,72,153,0.1)]' : 'border-slate-700'}">
                         <span class="text-sm ${isCompleted ? 'text-pink-300 font-medium' : 'text-slate-400'}">${q.name}</span>
                         <span class="text-[10px] font-bold px-2 py-1 rounded font-scifi tracking-wider ${isCompleted ? 'bg-pink-900/50 text-pink-400' : 'bg-slate-800 text-slate-500'}">
-                            ${isCompleted ? '★ VERIFIED' : 'รอครูตรวจ'}
+                            ${isCompleted ? '★ VERIFIED' : '⏳ MISSING'}
                         </span>
                     </div>
                 `;
