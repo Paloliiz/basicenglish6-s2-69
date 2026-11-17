@@ -335,7 +335,7 @@
                     
                     <!-- ส่วนแสดงรูปภาพสไลด์ -->
                     <div class="relative w-full rounded-xl overflow-hidden border border-slate-700 bg-black flex items-center justify-center min-h-[250px] sm:min-h-[450px]">
-                        <img id="current-slide-img" src="U3_Future_Form_1.PNG" alt="Grammar Slide" 
+                        <img id="current-slide-img" src="slides_u3/U3_Future_Form_1.PNG" alt="Grammar Slide" 
                             class="max-w-full max-h-[65vh] object-contain transition-opacity duration-300 shadow-2xl" 
                             onerror="this.src='https://via.placeholder.com/800x450/090514/38bdf8?text=Image+Not+Found'; showToast('ไม่พบไฟล์รูปภาพ ตรวจสอบชื่อไฟล์บน GitHub', 'error');">
                     </div>
@@ -532,11 +532,11 @@
         let unit3Completed = false;
 
         // ==========================================
-        // 📚 ระบบสไลด์ Grammar Codex (รองรับหลายหัวข้อ)
+        // 📚 ระบบสไลด์ Grammar Codex (รองรับหลายหัวข้อและโฟลเดอร์)
         // ==========================================
         const GRAMMAR_TOPICS = {
-            "future_forms": { prefix: "U3_Future_Form_", ext: ".PNG", total: 21 },
-            "future_perfect": { prefix: "Future_Perfect_", ext: ".png", total: 20 }
+            "future_forms": { folder: "slides_u3/", prefix: "U3_Future_Form_", ext: ".PNG", total: 21 },
+            "future_perfect": { folder: "slides_u4/", prefix: "Future_Perfect_", ext: ".png", total: 20 }
         };
         let currentGrammarTopic = "future_forms";
         let currentSlide = 1;
@@ -547,7 +547,7 @@
             imgEl.style.opacity = 0.5; 
             
             setTimeout(() => {
-                imgEl.src = `${topic.prefix}${currentSlide}${topic.ext}`;
+                imgEl.src = `${topic.folder}${topic.prefix}${currentSlide}${topic.ext}`;
                 document.getElementById('slide-counter').innerText = `${currentSlide} / ${topic.total}`;
                 imgEl.style.opacity = 1;
             }, 150);
@@ -645,7 +645,6 @@
                 }
             }
             
-            // Set initial slide
             updateSlide();
         });
 
@@ -676,20 +675,15 @@
 
         function checkFrameUnlockStatus(frame) {
             if (frame.id === "Frame00") return true;
-            
-            // เช็คเลเวล
             if (frame.reqLevel) {
                 const totalXp = Number(appState.user.totalXp) || 0;
                 const level = Math.floor(totalXp / 500) + 1;
                 return level >= frame.reqLevel;
             }
-            
-            // เช็คว่าผ่านด่านรึยัง
             if (frame.reqMission) {
                 const mission = appState.missions.find(m => m.missionId === frame.reqMission);
                 return mission && mission.state === "COMPLETED";
             }
-            
             return false;
         }
 
