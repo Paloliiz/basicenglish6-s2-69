@@ -187,7 +187,7 @@
 
                     <button onclick="switchModule('grammar')" id="nav-grammar" class="module-nav-btn flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap">
                         <span class="flex items-center gap-2.5"><span class="text-base">📘</span><span>คลังความรู้ (Grammar)</span></span>
-                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-blue-900/60 border border-blue-400/40 text-[10px] font-scifi text-blue-200">U3</span>
+                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-blue-900/60 border border-blue-400/40 text-[10px] font-scifi text-blue-200">2 บท</span>
                     </button>
 
                     <button onclick="openVoiceLab()" class="module-nav-btn flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap shadow-[0_0_15px_rgba(168,85,247,0.2)]">
@@ -303,7 +303,7 @@
                 <div id="missions-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
             </section>
 
-            <!-- MODULE: GRAMMAR CODEX -->
+            <!-- MODULE: GRAMMAR CODEX (UPDATED WITH DROPDOWN) -->
             <section id="module-grammar" class="module-section hidden cosmic-card rounded-3xl p-5 sm:p-7 space-y-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
@@ -318,13 +318,23 @@
                 <!-- Slide Viewer UI -->
                 <div class="p-4 sm:p-6 bg-cosmic-950/80 border border-purple-500/30 rounded-2xl space-y-4 relative shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
                     <div class="flex flex-wrap justify-between items-center mb-2 gap-3">
-                        <h4 class="font-bold text-cyan-300 text-sm sm:text-base">Unit 3: Future Forms</h4>
+                        
+                        <!-- Dropdown เลือกหัวข้อ (NEW) -->
+                        <div class="relative">
+                            <select id="grammar-topic-select" onchange="changeGrammarTopic(this.value)" class="bg-cosmic-900 border border-cyan-500/40 text-cyan-300 font-bold text-sm sm:text-base rounded-xl px-4 py-2 focus:outline-none focus:border-cyan-400 shadow-md cursor-pointer appearance-none pr-10">
+                                <option value="future_forms">Unit 3: Future Forms</option>
+                                <option value="future_perfect">Unit 4: Future Perfect Simple & Continuous</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-cyan-400">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                            </div>
+                        </div>
+
                         <span id="slide-counter" class="px-4 py-1.5 rounded-full bg-blue-900/60 border border-blue-400/40 text-xs sm:text-sm font-scifi font-bold text-blue-100 shadow-md">1 / 21</span>
                     </div>
                     
                     <!-- ส่วนแสดงรูปภาพสไลด์ -->
                     <div class="relative w-full rounded-xl overflow-hidden border border-slate-700 bg-black flex items-center justify-center min-h-[250px] sm:min-h-[450px]">
-                        <!-- แก้ชื่อไฟล์ตรงนี้ให้สอดคล้องกับ U3_Future_Form_1.PNG -->
                         <img id="current-slide-img" src="U3_Future_Form_1.PNG" alt="Grammar Slide" 
                             class="max-w-full max-h-[65vh] object-contain transition-opacity duration-300 shadow-2xl" 
                             onerror="this.src='https://via.placeholder.com/800x450/090514/38bdf8?text=Image+Not+Found'; showToast('ไม่พบไฟล์รูปภาพ ตรวจสอบชื่อไฟล์บน GitHub', 'error');">
@@ -393,7 +403,7 @@
         <button onclick="openALevelArena()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-300 hover:text-cyan-300 transition">
             <span class="text-base">🎯</span><span>A-Level</span>
         </button>
-        <!-- Mobile Unit 3 Exam Button with dynamic styling via JS -->
+        <!-- Mobile Unit 3 Exam Button -->
         <button id="nav-unit3-exam-mobile" onclick="openUnit3Exam()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500 transition cursor-not-allowed grayscale">
             <span class="text-base">⚠️</span><span id="exam-btn-text-mobile">สอบ U3</span>
         </button>
@@ -519,25 +529,33 @@
             missions: []
         };
 
-        let unit3Completed = false; // ตัวแปรเก็บสถานะการผ่าน Unit 3
+        let unit3Completed = false;
 
-        // --- ระบบสไลด์ Grammar Codex ---
+        // ==========================================
+        // 📚 ระบบสไลด์ Grammar Codex (รองรับหลายหัวข้อ)
+        // ==========================================
+        const GRAMMAR_TOPICS = {
+            "future_forms": { prefix: "U3_Future_Form_", ext: ".PNG", total: 21 },
+            "future_perfect": { prefix: "Future_Perfect_", ext: ".png", total: 20 }
+        };
+        let currentGrammarTopic = "future_forms";
         let currentSlide = 1;
-        const totalSlides = 21; // จำนวนสไลด์ทั้งหมด
 
         function updateSlide() {
+            const topic = GRAMMAR_TOPICS[currentGrammarTopic];
             const imgEl = document.getElementById('current-slide-img');
             imgEl.style.opacity = 0.5; 
             
             setTimeout(() => {
-                imgEl.src = `U3_Future_Form_${currentSlide}.PNG`;
-                document.getElementById('slide-counter').innerText = `${currentSlide} / ${totalSlides}`;
+                imgEl.src = `${topic.prefix}${currentSlide}${topic.ext}`;
+                document.getElementById('slide-counter').innerText = `${currentSlide} / ${topic.total}`;
                 imgEl.style.opacity = 1;
             }, 150);
         }
 
         function nextSlide() {
-            if (currentSlide < totalSlides) {
+            const topic = GRAMMAR_TOPICS[currentGrammarTopic];
+            if (currentSlide < topic.total) {
                 currentSlide++;
                 updateSlide();
             } else {
@@ -552,7 +570,13 @@
             }
         }
 
-        // --- ระบบนำทางสลับโมดูล (Switch Module) ---
+        function changeGrammarTopic(topicKey) {
+            currentGrammarTopic = topicKey;
+            currentSlide = 1;
+            updateSlide();
+        }
+        // ==========================================
+
         function switchModule(modId) {
             appState.activeModule = modId;
             
@@ -561,7 +585,7 @@
             
             document.querySelectorAll('.module-nav-btn').forEach(btn => {
                 btn.classList.remove('nav-btn-active', 'text-white');
-                if(!btn.classList.contains('border-rose-500/30')) { // ยกเว้นปุ่มสอบเก็บคะแนน
+                if(!btn.classList.contains('border-rose-500/30')) {
                     btn.classList.add('text-slate-300');
                 }
             });
@@ -597,7 +621,6 @@
             window.open('alevel_arena.html?sid=' + sid, '_blank');
         }
 
-        // ฟังก์ชันตรวจสอบและเปิดหน้าสอบ Unit 3
         function openUnit3Exam() {
             if (!unit3Completed) {
                 showToast('🔒 ต้องทำแบบฝึกหัด M01-M04 และ V_U3 ให้ผ่านทั้งหมดก่อน ถึงจะมีสิทธิ์เข้าสอบ!', 'error');
@@ -621,6 +644,9 @@
                     localStorage.removeItem("pd_portal_session");
                 }
             }
+            
+            // Set initial slide
+            updateSlide();
         });
 
         function togglePasswordVisibility(inputId, iconId) {
@@ -736,24 +762,20 @@
 
         function renderAllModules() {
             renderProfileHeader(); renderMissionsGrid(); renderRightWidgets(); renderWardrobeItems();
-            checkUnit3Completion(); // อัปเดตสถานะปุ่มสอบ
+            checkUnit3Completion(); 
         }
         
-        // --- ฟังก์ชันตรวจเช็คการผ่านด่าน Unit 3 ทั้งหมด ---
         function checkUnit3Completion() {
             const reqMissions = ["M01", "M02", "M03", "M04", "V_U3"];
             const completedMissions = appState.missions.filter(m => m.state === "COMPLETED").map(m => m.missionId);
             
-            // เช็คว่าผ่านครบทุกด่านที่กำหนดไหม
             unit3Completed = reqMissions.every(mId => completedMissions.includes(mId));
             
             const btnDesktop = document.getElementById("nav-unit3-exam");
             const btnMobile = document.getElementById("nav-unit3-exam-mobile");
-            const btnTextMobile = document.getElementById("exam-btn-text-mobile");
             const badgeDesktop = document.getElementById("exam-btn-badge");
             
             if (unit3Completed) {
-                // ปลดล็อกปุ่ม
                 if (btnDesktop) {
                     btnDesktop.classList.remove("opacity-50", "cursor-not-allowed", "grayscale");
                     badgeDesktop.classList.remove("hidden");
@@ -763,7 +785,6 @@
                     btnMobile.classList.add("text-slate-300", "hover:text-rose-400");
                 }
             } else {
-                // ล็อกปุ่ม
                 if (btnDesktop) {
                     btnDesktop.classList.add("opacity-50", "cursor-not-allowed", "grayscale");
                     badgeDesktop.classList.add("hidden");
@@ -794,7 +815,6 @@
             document.getElementById("hero-skin-container").innerHTML = getSkinVisualHtml(curSkin);
             document.getElementById("current-skin-badge").textContent = SKIN_CATALOG[curSkin].name;
             
-            // แสดงกรอบ
             const frameClass = getFrameCssClass(appState.currentFrameId);
             document.getElementById("hero-frame-container").className = `frame-base ${frameClass}`;
         }
@@ -842,7 +862,6 @@
                     btnHtml = `<span class="text-slate-500 text-[11px]">ต้องผ่านด่าน ${m.prerequisite || 'ก่อนหน้า'} ก่อน</span>`;
                 }
 
-                // แจกสกิน หรือ แจกกรอบ
                 let rewardBadge = "";
                 if (m.rewardSkin) {
                      rewardBadge = `<span class="px-2 py-0.5 rounded bg-pink-900/80 border border-pink-400/50 text-[9px] text-pink-200">🎁 สกิน: ${m.rewardSkin}</span>`;
@@ -886,7 +905,6 @@
             }
         }
 
-        // --- ระบบ TABS ในตู้เสื้อผ้า ---
         function switchWardrobeTab(tabName) {
             document.getElementById('wardrobe-skins-view').classList.add('hidden');
             document.getElementById('wardrobe-frames-view').classList.add('hidden');
@@ -908,7 +926,6 @@
         }
 
         function renderWardrobeItems() {
-            // Render Skins
             const list = document.getElementById("sidebar-skins-list");
             const grid = document.getElementById("wardrobe-modal-grid");
             const unlocked = (appState.user && appState.user.unlockedSkins) || ["Skin01"];
@@ -934,7 +951,6 @@
             const customInput = document.getElementById("custom-avatar-url");
             if (customInput) customInput.value = appState.customAvatarUrl || "";
 
-            // Render Frames
             const framesGrid = document.getElementById("wardrobe-frames-grid");
             const curFrame = appState.currentFrameId;
             
@@ -952,9 +968,7 @@
                         
                         <div class="relative w-16 h-16 flex items-center justify-center flex-shrink-0 mt-2">
                             <div class="absolute inset-0 bg-cosmic-900 rounded-full"></div>
-                            <!-- รูป Avatar ปัจจุบันที่อยู่ข้างในกรอบ -->
                             <div class="absolute inset-1 rounded-full overflow-hidden opacity-50">${getSkinVisualHtml(curSkin)}</div>
-                            <!-- ตัวกรอบรูป -->
                             <div class="frame-base ${frame.cssClass}"></div>
                         </div>
 
@@ -1083,7 +1097,6 @@
                     appState.missions = res.missions;
                     saveSession(); renderAllModules(); closeMissionModal();
                     
-                    // แจ้งเตือนพิเศษถ้าผ่านด่าน V_U3
                     if (appState.activeModalMissionId === "V_U3") {
                          showToast("🎉 คุณได้รับกรอบโปรไฟล์ใหม่: Biohazard Aura ไปดูที่ตู้เสื้อผ้าได้เลย!", "success");
                     } else {
