@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Voice Lab: The Gilded Glitch | PARALLEL DIMENSION</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                        scifi: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        cosmic: { 950: '#070510', 900: '#0d091d', 800: '#150f2e', 700: '#211844', 600: '#2f2260' },
+                        neon: { cyan: '#38bdf8', purple: '#a855f7', pink: '#ec4899', green: '#34d399', red: '#f43f5e', orange: '#fb923c', gold: '#facc15' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #070510;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(250, 204, 21, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 45%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(21, 15, 46, 0.88), rgba(13, 9, 29, 0.94));
+            border: 1px solid rgba(250, 204, 21, 0.35);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(250, 204, 21, 0.1);
+            backdrop-filter: blur(12px);
+        }
+        .btn-action {
+            background: linear-gradient(90deg, #d97706 0%, #f59e0b 100%);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+            transition: all 0.2s;
+        }
+        .btn-action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 25px rgba(245, 158, 11, 0.6); }
+        .btn-action:active:not(:disabled) { transform: translateY(1px); }
+        .btn-action:disabled { background: #1e293b; color: #64748b; box-shadow: none; cursor: not-allowed; }
+        
+        .boss-img { filter: drop-shadow(0 0 25px rgba(250, 204, 21, 0.4)); animation: floatSlow 4s ease-in-out infinite; }
+        .boss-hit { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; filter: drop-shadow(0 0 35px rgba(244, 63, 94, 0.8)) hue-rotate(300deg); }
+        .boss-attack { animation: lunge 0.8s ease-in-out; filter: drop-shadow(0 0 35px rgba(250, 204, 21, 0.8)) brightness(1.2); }
+        
+        .hp-bar-bg { background: rgba(0,0,0,0.5); border: 2px solid rgba(250, 204, 21, 0.5); border-radius: 999px; overflow: hidden; }
+        .hp-fill { background: linear-gradient(90deg, #f59e0b, #facc15); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 0 10px rgba(255,255,255,0.5); }
+        
+        @keyframes floatSlow { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+        @keyframes lunge { 0% { transform: scale(1); } 50% { transform: scale(1.1) translateY(10px); } 100% { transform: scale(1); } }
+        @keyframes popScore { 0% { opacity: 0; transform: translateY(0) scale(1); } 50% { opacity: 1; transform: translateY(-30px) scale(1.5); } 100% { opacity: 0; transform: translateY(-50px) scale(1); } }
+
+        .dmg-text { position: absolute; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 2rem; color: #facc15; text-shadow: 0 0 10px #f59e0b, 2px 2px 0 #000; pointer-events: none; animation: popScore 1.2s forwards; z-index: 50; }
+        .miss-text { color: #f43f5e; text-shadow: 0 0 10px #e11d48, 2px 2px 0 #000; }
+
+        .recording-pulse { animation: pulseBg 1.5s infinite; }
+        @keyframes pulseBg { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-10 flex flex-col items-center">
+
+    <!-- SCREEN 1: PRE-COMBAT LOBBY -->
+    <div id="screen-lobby" class="glass-panel rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative overflow-hidden">
+        <div class="text-center mb-6">
+            <h1 class="font-scifi text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-500 mb-2">VOICE LAB: U4</h1>
+            <p class="text-slate-300 text-sm sm:text-base">Target: The Gilded Glitch (บอสแห่งความมัวเมาในทรัพย์)</p>
+        </div>
+        
+        <div class="bg-black/40 p-5 rounded-2xl border border-yellow-500/30 text-center mb-6 shadow-inner relative">
+            <img src="boss_thegildedglitch.png" alt="The Gilded Glitch" class="w-32 h-32 object-contain mx-auto mb-4 boss-img" onerror="this.src='https://via.placeholder.com/150/090514/facc15?text=BOSS'">
+            <div class="text-xs text-slate-300 space-y-1.5 font-medium mb-4 text-left px-4">
+                <p class="text-yellow-400 font-bold mb-2">📜 COMBAT BRIEFING:</p>
+                <p>1. ระบบจะสุ่มคำศัพท์/ประโยคภาษาอังกฤษจาก Unit 4</p>
+                <p>2. กดปุ่ม <span class="text-red-400 font-bold">[MIC]</span> และออกเสียงคำศัพท์ให้ถูกต้อง (ภาษาอังกฤษเท่านั้น)</p>
+                <p>3. หากออกเสียงถูก จะสร้างความเสียหายให้บอส (ATK)</p>
+                <p>4. หากเวลาหมดหรือออกเสียงผิด บอสจะโจมตีคุณ (HP ลด)</p>
+                <p>5. ปราบบอสให้สำเร็จเพื่อรับรหัสลับ <strong class="text-yellow-400">V04-{CIPHER}</strong> และ <strong class="text-yellow-400">200 XP</strong></p>
+            </div>
+            <div class="mb-4 text-left px-4">
+                <label class="block text-xs font-medium text-yellow-200 mb-2">กรุณายืนยันรหัสนักเรียน (Student ID)</label>
+                <input type="text" id="sid-input" placeholder="******" class="w-full px-4 py-2.5 rounded-xl bg-cosmic-900 border border-yellow-500/40 text-white focus:border-yellow-400 focus:outline-none text-center font-scifi">
+            </div>
+        </div>
+
+        <button onclick="startCombat()" class="btn-action w-full py-3.5 rounded-xl font-bold text-sm text-white font-scifi tracking-widest flex items-center justify-center gap-2">
+            <span>ENGAGE COMBAT</span> <span>⚔️</span>
+        </button>
+        <button onclick="window.close()" class="w-full mt-3 py-3 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition">
+            กลับหน้า Lobby
+        </button>
+    </div>
+
+    <!-- SCREEN 2: BATTLE ARENA -->
+    <div id="screen-battle" class="glass-panel rounded-3xl max-w-4xl w-full p-4 sm:p-6 lg:p-8 hidden relative flex flex-col h-[90vh] max-h-[800px]">
+        
+        <!-- Top Bar: Player vs Boss HP -->
+        <div class="flex justify-between items-end mb-4 sm:mb-8 gap-4 flex-shrink-0">
+            <!-- Player Status -->
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1.5">
+                    <div class="w-8 h-8 rounded-full bg-cyan-900 border border-cyan-400 flex items-center justify-center text-xs">🦊</div>
+                    <span class="font-scifi font-bold text-xs sm:text-sm text-cyan-300">PLAYER</span>
+                </div>
+                <div class="h-3 hp-bar-bg border-cyan-500/50">
+                    <div id="player-hp-fill" class="h-full hp-fill bg-gradient-to-r from-cyan-600 to-cyan-400 shadow-[0_0_10px_#22d3ee]" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="text-2xl sm:text-4xl font-scifi font-black text-red-500/50 italic px-2 pb-1">VS</div>
+
+            <!-- Boss Status -->
+            <div class="flex-1 text-right">
+                <div class="flex items-center justify-end gap-2 mb-1.5">
+                    <span class="font-scifi font-bold text-xs sm:text-sm text-yellow-400">THE GILDED GLITCH</span>
+                    <div class="w-8 h-8 rounded-full bg-yellow-900 border border-yellow-500 flex items-center justify-center text-xs">💰</div>
+                </div>
+                <div class="h-3 hp-bar-bg flex justify-end">
+                    <div id="boss-hp-fill" class="h-full hp-fill" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle: Boss Visual & Word Prompt -->
+        <div class="flex-grow flex flex-col items-center justify-center relative my-4 sm:my-0">
+            <!-- Boss Sprite -->
+            <div id="boss-sprite-container" class="relative mb-6">
+                <img src="boss_thegildedglitch.png" id="boss-sprite" class="w-40 h-40 sm:w-56 sm:h-56 object-contain boss-img" onerror="this.src='https://via.placeholder.com/200/090514/facc15?text=BOSS'">
+                <!-- Damage numbers will pop up here -->
+            </div>
+
+            <!-- Word Display Box -->
+            <div class="w-full max-w-md bg-black/60 border-2 border-yellow-500/40 rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(250,204,21,0.15)] relative overflow-hidden">
+                <div id="timer-bar" class="absolute top-0 left-0 h-1.5 bg-yellow-400 shadow-[0_0_10px_#facc15] transition-all duration-[50ms]" style="width: 100%"></div>
+                
+                <p class="text-xs text-yellow-500 font-bold mb-2 font-scifi tracking-widest">PRONOUNCE TO ATTACK</p>
+                <div id="target-word" class="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-wide font-sans">READY...</div>
+                <div id="word-translation" class="text-sm text-slate-400 mb-4 h-5"></div>
+                
+                <!-- Speech recognition feedback -->
+                <div class="h-10 flex items-center justify-center bg-cosmic-950 rounded-xl border border-slate-700/50 px-4">
+                    <span id="speech-result" class="text-sm text-slate-500 italic">" พูดผ่านไมโครโฟน... "</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom: Controls -->
+        <div class="mt-4 flex-shrink-0 flex justify-center pb-2">
+            <button id="mic-btn" onmousedown="startListening()" onmouseup="stopListening()" ontouchstart="startListening(event)" ontouchend="stopListening(event)" disabled
+                class="w-24 h-24 rounded-full bg-cosmic-900 border-4 border-yellow-500/30 flex items-center justify-center text-4xl shadow-lg transition-all active:scale-95 touch-none">
+                🎙️
+            </button>
+        </div>
+        <p class="text-center text-[10px] text-slate-500 mt-3 font-scifi uppercase">Hold Mic to speak • Release to attack</p>
+    </div>
+
+    <!-- SCREEN 3: RESULT -->
+    <div id="screen-result" class="glass-panel rounded-3xl max-w-xl w-full p-8 hidden text-center relative">
+        <div class="text-6xl mb-4" id="result-icon">🏆</div>
+        <h2 class="font-scifi text-2xl sm:text-3xl font-bold text-white mb-2" id="result-title">BOSS DEFEATED!</h2>
+        <p class="text-slate-300 text-sm mb-6" id="result-subtitle">คุณปราบ The Gilded Glitch สำเร็จแล้ว</p>
+        
+        <div class="bg-black/60 rounded-2xl p-6 border border-yellow-500/30 mb-6 inline-block w-full max-w-sm mx-auto shadow-lg">
+            <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-700/50">
+                <span class="text-sm text-slate-400">Word Cleared</span>
+                <span class="font-bold text-xl text-white" id="result-cleared">0</span>
+            </div>
+            <div class="flex justify-between items-center pt-1">
+                <span class="text-sm font-bold text-yellow-300">XP REWARD</span>
+                <span class="font-scifi font-black text-2xl text-yellow-400" id="result-xp">+200 XP</span>
+            </div>
+        </div>
+        
+        <div id="saving-status" class="text-[10px] text-slate-500 mb-6 h-4 font-scifi uppercase"></div>
+        <div id="passcode-box" class="hidden mb-6 p-4 rounded-xl bg-yellow-900/40 border border-yellow-500/40">
+            <p class="text-xs text-yellow-200 mb-1">รหัสลับสำหรับรับ XP (V_U4)</p>
+            <p class="font-scifi font-bold text-2xl text-yellow-400 tracking-widest" id="passcode-display">V04-XXXX</p>
+        </div>
+        
+        <div class="space-y-3" id="result-actions">
+            <button onclick="window.close()" class="btn-action w-full py-3.5 rounded-xl font-bold text-sm text-white shadow-lg transition">กลับสู่หน้า Dashboard</button>
+        </div>
+    </div>
+
+    <!-- API SCRIPT -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+        
+        // --- WORD DATABASE (UNIT 4) ---
+        const WORD_DB = [
+            { en: "percentage", th: "เปอร์เซ็นต์ / ร้อยละ" },
+            { en: "typical", th: "ทั่วไป / เป็นปกติ" },
+            { en: "wise", th: "ฉลาด / มีวิจารณญาณ" },
+            { en: "foolish", th: "โง่เขลา / ไม่ฉลาด" },
+            { en: "mature", th: "เป็นผู้ใหญ่ / โตแล้ว" },
+            { en: "substantial", th: "มากมาย / ยิ่งใหญ่" },
+            { en: "charge", th: "คิดราคา / เรียกเก็บเงิน" },
+            { en: "deal", th: "ข้อตกลง / การจัดการ" },
+            { en: "recession", th: "ภาวะเศรษฐกิจถดถอย" },
+            { en: "exclusive", th: "พิเศษ / เฉพาะกลุ่ม" },
+            { en: "standard", th: "มาตรฐาน" },
+            { en: "moderate", th: "ปานกลาง / พอประมาณ" },
+            { en: "impact", th: "ผลกระทบ" },
+            { en: "consumer", th: "ผู้บริโภค" },
+            { en: "evaluate", th: "ประเมินผล" },
+            { en: "addiction", th: "การเสพติด" },
+            { en: "transfer", th: "โอน(เงิน) / ย้าย" },
+            { en: "guidance", th: "คำแนะนำ" },
+            { en: "obsession", th: "ความหมกมุ่น" },
+            { en: "level", th: "ระดับ" },
+            { en: "withdraw", th: "ถอน(เงิน)" },
+            { en: "allowance", th: "เงินค่าขนม" },
+            { en: "interest rate", th: "อัตราดอกเบี้ย" },
+            { en: "debit card", th: "บัตรเดบิต" }
+        ];
+
+        let currentSid = "";
+        let playerMaxHp = 3; let playerHp = 3;
+        let bossMaxHp = 10; let bossHp = 10; // ต้องตอบถูก 10 คำเพื่อปราบ
+        
+        let currentWordObj = null;
+        let timerInterval;
+        let timeLeft = 0; const MAX_TIME = 8000; // 8 วิ ต่อ 1 คำ
+        
+        let recognition = null;
+        let isRecording = false;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('sid')) {
+                document.getElementById('sid-input').value = urlParams.get('sid');
+            }
+            initSpeechRecognition();
+        });
+
+        function initSpeechRecognition() {
+            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (window.SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.lang = 'en-US';
+                recognition.interimResults = true; // ให้แสดงผลระหว่างพูดได้
+                recognition.maxAlternatives = 1;
+                
+                recognition.onstart = function() {
+                    isRecording = true;
+                    document.getElementById("mic-btn").classList.add("recording-pulse", "border-red-500");
+                    document.getElementById("mic-btn").classList.remove("border-yellow-500/30");
+                    document.getElementById("speech-result").innerHTML = '<span class="text-blue-400">กำลังฟัง...</span>';
+                };
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById("speech-result").innerHTML = `<span class="text-white">"${transcript}"</span>`;
+                    
+                    // ตรวจคำตอบแบบ Real-time ถ้าถูกให้หยุดฟังแล้วโจมตีเลย (เด็กจะได้ไม่ต้องรอกดปล่อยปุ่ม)
+                    if (checkAnswer(transcript)) {
+                        recognition.stop();
+                    }
+                };
+                
+                recognition.onend = function() {
+                    isRecording = false;
+                    document.getElementById("mic-btn").classList.remove("recording-pulse", "border-red-500");
+                    document.getElementById("mic-btn").classList.add("border-yellow-500/30");
+                    
+                    if (playerHp > 0 && bossHp > 0) {
+                        const finalTranscript = document.getElementById("speech-result").innerText.replace(/"/g, '').trim();
+                        if(finalTranscript && finalTranscript !== "กำลังฟัง..." && finalTranscript !== "พูดผ่านไมโครโฟน...") {
+                            if(!checkAnswer(finalTranscript)) {
+                                processMiss();
+                            }
+                        }
+                    }
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error("Speech recognition error", event.error);
+                    isRecording = false;
+                    document.getElementById("mic-btn").classList.remove("recording-pulse", "border-red-500");
+                    document.getElementById("mic-btn").classList.add("border-yellow-500/30");
+                    if(event.error === 'not-allowed') {
+                        alert("กรุณาอนุญาตให้ใช้งานไมโครโฟนก่อนเล่นเกมครับ");
+                    }
+                };
+            } else {
+                alert("เบราว์เซอร์ของคุณไม่รองรับระบบสั่งงานด้วยเสียง แนะนำให้ใช้ Google Chrome หรือ Safari เวอร์ชันล่าสุดครับ");
+                document.getElementById("mic-btn").disabled = true;
+            }
+        }
+
+        function startCombat() {
+            const sidInput = document.getElementById("sid-input").value.trim();
+            if (!sidInput) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ");
+            
+            if(!window.SpeechRecognition) {
+                return alert("ต้องใช้เบราว์เซอร์ที่รองรับไมค์ (Chrome/Safari) นะครับ");
+            }
+            
+            currentSid = sidInput;
+            document.getElementById("screen-lobby").classList.add("hidden");
+            document.getElementById("screen-battle").classList.remove("hidden");
+            document.getElementById("screen-battle").classList.add("flex");
+            
+            playerHp = playerMaxHp;
+            bossHp = bossMaxHp;
+            updateHpBars();
+            
+            // สุ่มคำศัพท์แรกและเริ่มเกม
+            setTimeout(nextTurn, 1000);
+        }
+
+        function updateHpBars() {
+            const playerPct = (playerHp / playerMaxHp) * 100;
+            const bossPct = (bossHp / bossMaxHp) * 100;
+            document.getElementById("player-hp-fill").style.width = `${playerPct}%`;
+            document.getElementById("boss-hp-fill").style.width = `${bossPct}%`;
+            
+            // เปลี่ยนสีหลอดเลือดตามปริมาณ
+            const pFill = document.getElementById("player-hp-fill");
+            if(playerPct <= 35) pFill.className = "h-full hp-fill bg-gradient-to-r from-red-600 to-red-400 shadow-[0_0_10px_#ef4444]";
+            else pFill.className = "h-full hp-fill bg-gradient-to-r from-cyan-600 to-cyan-400 shadow-[0_0_10px_#22d3ee]";
+        }
+
+        function nextTurn() {
+            if (playerHp <= 0) return gameOver(false);
+            if (bossHp <= 0) return gameOver(true);
+            
+            // สุ่มคำศัพท์
+            const randomIndex = Math.floor(Math.random() * WORD_DB.length);
+            currentWordObj = WORD_DB[randomIndex];
+            
+            document.getElementById("target-word").textContent = currentWordObj.en;
+            document.getElementById("word-translation").textContent = currentWordObj.th;
+            document.getElementById("speech-result").innerHTML = '<span class="text-slate-500 italic">" พูดผ่านไมโครโฟน... "</span>';
+            
+            document.getElementById("mic-btn").disabled = false;
+            
+            // รีเซ็ตและเริ่มหลอดเวลา
+            timeLeft = MAX_TIME;
+            clearInterval(timerInterval);
+            
+            const timerBar = document.getElementById("timer-bar");
+            timerBar.style.transition = "none";
+            timerBar.style.width = "100%";
+            timerBar.className = "absolute top-0 left-0 h-1.5 bg-yellow-400 shadow-[0_0_10px_#facc15]";
+            
+            setTimeout(() => {
+                timerBar.style.transition = "width 50ms linear";
+                timerInterval = setInterval(() => {
+                    timeLeft -= 50;
+                    const timePct = (timeLeft / MAX_TIME) * 100;
+                    timerBar.style.width = `${timePct}%`;
+                    
+                    if (timePct < 30) {
+                        timerBar.className = "absolute top-0 left-0 h-1.5 bg-red-500 shadow-[0_0_10px_#ef4444]";
+                    }
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        if(isRecording && recognition) recognition.stop();
+                        processBossAttack(); // เวลาหมด บอสโจมตี
+                    }
+                }, 50);
+            }, 50);
+        }
+
+        function startListening(e) {
+            if(e) e.preventDefault(); // กันคลิกเบิ้ลในมือถือ
+            if (document.getElementById("mic-btn").disabled || isRecording) return;
+            try { recognition.start(); } catch(err) {}
+        }
+        
+        function stopListening(e) {
+            if(e) e.preventDefault();
+            if (isRecording) {
+                try { recognition.stop(); } catch(err) {}
+            }
+        }
+
+        function cleanString(str) {
+            return str.toLowerCase().replace(/[.,!?]/g, '').trim();
+        }
+
+        function checkAnswer(spokenText) {
+            const spokenClean = cleanString(spokenText);
+            const targetClean = cleanString(currentWordObj.en);
+            
+            if (spokenClean === targetClean || spokenClean.includes(targetClean)) {
+                processHit();
+                return true;
+            }
+            return false;
+        }
+
+        function showDamage(amount, type) {
+            const spriteContainer = document.getElementById("boss-sprite-container");
+            const dmgEl = document.createElement("div");
+            dmgEl.className = type === 'hit' ? "dmg-text text-yellow-300" : "dmg-text miss-text";
+            dmgEl.textContent = type === 'hit' ? `-${amount} DMG!` : "MISS!";
+            
+            // Random position a bit
+            const offsetX = (Math.random() - 0.5) * 40;
+            dmgEl.style.left = `calc(50% + ${offsetX}px)`;
+            dmgEl.style.top = "20%";
+            
+            spriteContainer.appendChild(dmgEl);
+            setTimeout(() => dmgEl.remove(), 1200);
+        }
+
+        function processHit() {
+            clearInterval(timerInterval);
+            document.getElementById("mic-btn").disabled = true;
+            document.getElementById("speech-result").innerHTML = `<span class="text-green-400 font-bold">" ${currentWordObj.en} " PERFECT!</span>`;
+            
+            // แอนิเมชันบอสโดนตี
+            const sprite = document.getElementById("boss-sprite");
+            sprite.classList.add("boss-hit");
+            setTimeout(() => sprite.classList.remove("boss-hit"), 500);
+            
+            showDamage(1, 'hit');
+            bossHp -= 1;
+            updateHpBars();
+            
+            setTimeout(nextTurn, 1500);
+        }
+
+        function processMiss() {
+            document.getElementById("speech-result").innerHTML += `<span class="text-red-400 ml-2 font-bold">❌ ผิด!</span>`;
+            processBossAttack();
+        }
+
+        function processBossAttack() {
+            clearInterval(timerInterval);
+            document.getElementById("mic-btn").disabled = true;
+            
+            // บอสพุ่งโจมตี
+            const sprite = document.getElementById("boss-sprite");
+            sprite.classList.add("boss-attack");
+            
+            setTimeout(() => {
+                sprite.classList.remove("boss-attack");
+                // จอแดงแวบๆ ตอนโดนตี
+                document.getElementById("screen-battle").style.boxShadow = "inset 0 0 50px rgba(244,63,94,0.8)";
+                setTimeout(() => document.getElementById("screen-battle").style.boxShadow = "", 300);
+                
+                showDamage(1, 'miss'); // ใส่ข้อความ MISS ฝั่งผู้เล่น
+                playerHp -= 1;
+                updateHpBars();
+                
+                setTimeout(nextTurn, 1500);
+            }, 400);
+        }
+
+        async function gameOver(isWin) {
+            document.getElementById("screen-battle").classList.add("hidden");
+            document.getElementById("screen-battle").classList.remove("flex");
+            const resultScreen = document.getElementById("screen-result");
+            resultScreen.classList.remove("hidden");
+            
+            const wordsCleared = bossMaxHp - bossHp;
+            document.getElementById("result-cleared").textContent = wordsCleared;
+            
+            if (isWin) {
+                document.getElementById("result-icon").textContent = "🏆";
+                document.getElementById("result-title").textContent = "BOSS DEFEATED!";
+                document.getElementById("result-title").className = "font-scifi text-2xl sm:text-3xl font-bold text-yellow-400 mb-2";
+                document.getElementById("result-subtitle").textContent = "คุณปราบ The Gilded Glitch สำเร็จแล้ว";
+                document.getElementById("result-xp").textContent = "+200 XP";
+                
+                const statusEl = document.getElementById("saving-status");
+                statusEl.textContent = "SAVING COMBAT DATA...";
+                
+                try {
+                    const response = await fetch(API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify({
+                            action: "recordActivity",
+                            studentId: currentSid,
+                            activityType: "VOICE_LAB_U4",
+                            itemId: "V_U4",
+                            xp: 200,
+                            details: `ปราบ The Gilded Glitch สำเร็จ (Unit 4)`
+                        })
+                    });
+                    const result = await response.json();
+                    if(result.status === "success") {
+                        statusEl.textContent = "✔️ บันทึกชัยชนะลงฐานข้อมูลสำเร็จ";
+                        statusEl.className = "text-[10px] text-emerald-400 mb-6 h-4 font-scifi";
+                        
+                        // สร้างรหัสผ่านลับให้ U4 = U4 * 29 + 1111 แปลงเป็น HEX (เหมือนใน Code.gs)
+                        const sidNum = parseInt(currentSid) || 0;
+                        const cipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
+                        
+                        document.getElementById("passcode-box").classList.remove("hidden");
+                        document.getElementById("passcode-display").textContent = `V04-${cipher}`;
+                    } else {
+                        throw new Error("Server Error");
+                    }
+                } catch (error) {
+                    statusEl.textContent = "⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ แต่คุณได้รับรหัสผ่านแล้วแคปจอไว้ได้เลย";
+                    statusEl.className = "text-[10px] text-rose-400 mb-6 h-4 font-scifi";
+                    
+                    const sidNum = parseInt(currentSid) || 0;
+                    const cipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
+                    document.getElementById("passcode-box").classList.remove("hidden");
+                    document.getElementById("passcode-display").textContent = `V04-${cipher}`;
+                }
+            } else {
+                document.getElementById("result-icon").textContent = "☠️";
+                document.getElementById("result-title").textContent = "DEFEATED...";
+                document.getElementById("result-title").className = "font-scifi text-2xl sm:text-3xl font-bold text-rose-500 mb-2";
+                document.getElementById("result-subtitle").textContent = "คุณถูก The Gilded Glitch จัดการแล้ว";
+                document.getElementById("result-xp").textContent = "+0 XP";
+                document.getElementById("result-actions").innerHTML = `
+                    <button onclick="startCombat()" class="btn-action w-full py-3.5 rounded-xl font-bold text-sm text-white shadow-lg transition mb-3">🔄 ลองสู้อีกครั้ง (RETRY)</button>
+                    <button onclick="window.close()" class="w-full py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white bg-cosmic-900 border border-slate-700 transition">กลับหน้า Lobby</button>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
