@@ -561,7 +561,8 @@
             "M05": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และแกรมม่าเรื่อง Money Talks (หน้า 46-47)", category: "Vocab & Grammar", difficulty: "Medium", xp: 100, demoPasscode: "U41-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_1.html" },
             "M06": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และแต่งประโยคเรื่อง Spending Habits (หน้า 48-49)", category: "Vocab & Grammar", difficulty: "Medium", xp: 100, demoPasscode: "U42-{CIPHER}", artType: "book", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_2.html" },
             "M07": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และอ่านบทความเรื่อง Market Trends (หน้า 50-51)", category: "Vocab & Reading", difficulty: "Hard", xp: 150, demoPasscode: "U43-{CIPHER}", artType: "mirror", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_3.html" },
-            "M08": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และการเขียนเรื่อง Financial Problem (หน้า 52-53)", category: "Vocab & Writing", difficulty: "Hard", xp: 150, demoPasscode: "U44-{CIPHER}", artType: "castle", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_4.html" }
+            "M08": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และการเขียนเรื่อง Financial Problem (หน้า 52-53)", category: "Vocab & Writing", difficulty: "Hard", xp: 150, demoPasscode: "U44-{CIPHER}", artType: "castle", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_4.html" },
+            "V_U4": { unit: "Unit 4", subtitle: "ภารกิจมินิเกมคำศัพท์: ปราบ [รอใส่ชื่อบอส]", category: "Vocab", difficulty: "Boss", xp: 200, demoPasscode: "V04-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/voice_lab_u4.html" }
         };
 
         let appState = {
@@ -666,7 +667,8 @@
 
         function openVoiceLab() {
             const sid = appState.user ? appState.user.studentId : "GUEST";
-            window.open('voice_lab.html?sid=' + sid, '_blank');
+            // เปลี่ยนให้วิ่งไปหน้า Lobby เลือกระหว่างบอส U3 กับ U4
+            window.open('voice_lobby.html?sid=' + sid, '_blank');
         }
 
         function openALevelArena() {
@@ -831,7 +833,8 @@
                 { id: "M05", name: "ภารกิจ M05" },
                 { id: "M06", name: "ภารกิจ M06" },
                 { id: "M07", name: "ภารกิจ M07" },
-                { id: "M08", name: "ภารกิจ M08" }
+                { id: "M08", name: "ภารกิจ M08" },
+                { id: "V_U4", name: "มินิเกมคำศัพท์ Voice Lab (U4)" }
             ];
             
             webList.innerHTML = webQuests.map(q => {
