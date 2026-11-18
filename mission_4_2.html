@@ -334,9 +334,9 @@
     // 4. ตรวจคำตอบหน้า 49 (Grammar Type 2)
     function checkPhase2() {
         const ans = { 
-            g49_1: ['if william was the president he would live in a mansion', 'if william were the president he would live in a mansion'], 
-            g49_2: ['if i could fly i would travel all over the world'], 
-            g49_3: ['if i was an animal i would be a wolf', 'if i were an animal i would be a wolf'] 
+            g49_1: ['If william was the president he would live in a mansion.', 'If william were the president he would live in a mansion.'], 
+            g49_2: ['If i could fly i would travel all over the world.'], 
+            g49_3: ['If i was an animal i would be a wolf.', 'If i were an animal i would be a wolf.'] 
         }; 
         
         let correct = true;
@@ -377,7 +377,7 @@
                 fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
             });
         } else {
-            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตช่องที่มีสีแดงนะ (เช็ค past tense หลัง If และไม่ต้องใส่จุดท้ายประโยค)`;
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตช่องที่มีสีแดงนะ (เช็ค past tense หลัง If และใส่จุดท้ายประโยค)`;
         }
     }
 </script>
