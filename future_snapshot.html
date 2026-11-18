@@ -83,7 +83,7 @@
         <!-- HEADER -->
         <header class="cosmic-card rounded-2xl p-5 mb-6 border-t-2 border-t-cyan-400 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-cyan-950 border border-cyan-400/50 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)] cursor-pointer" id="logo-trigger">
+                <div class="w-12 h-12 rounded-xl bg-cyan-950 border border-cyan-400/50 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)] cursor-pointer" id="logo-trigger" title="คลิก 3 ครั้งเพื่อเข้าโหมดครูผู้สอน">
                     <span class="text-xl">🌌</span>
                 </div>
                 <div>
@@ -370,7 +370,7 @@
                         <div class="text-xs text-cyan-300 font-mono">พร้อมสุ่ม: <span id="t-active-count" class="font-bold text-lg">0</span> คน</div>
                     </div>
                     <div id="t-student-pool" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 border border-slate-800 rounded bg-slate-900/30">
-                        <div class="text-slate-500 text-xs italic p-2">กรุณาพิมพ์ชื่อห้องแล้วกด 'ดึงชื่อ' ก่อนครับ</div>
+                        <div class="text-slate-500 text-xs italic p-2">กรุณาพิมพ์ชื่อห้องแล้วกด 'ดึงชื่อ' ครับ</div>
                     </div>
                 </div>
 
@@ -434,7 +434,7 @@
     <!-- ================= JAVASCRIPT ================= -->
     <script>
         // 🛑 นำ URL API (Google Apps Script) มาใส่ที่นี่ 🛑
-        const API_URL = "https://script.google.com/macros/s/AKfycbxxxxxxx_YOUR_URL_HERE_xxxxxxx/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
         const TEACHER_PIN = "9999";
 
         // ================= 1. DATA & SCENARIOS =================
@@ -558,18 +558,30 @@
             const sid = $('tag-input').value.trim();
             if (!sid || sid.length < 4) { showToast("กรุณากรอกรหัสนักเรียนให้ถูกต้อง", "error"); return; }
             if (taggedMembers.find(m => m.id === sid)) { showToast("เพิ่มสมาชิกคนนี้ไปแล้ว", "error"); return; }
-            if (API_URL.includes("YOUR_URL_HERE")) {
-                // Mock for testing without API
-                addMemberTag(sid, "นักเรียนทดสอบ " + sid); return;
+            
+            if (API_URL === "ใส่ลิงก์_API_ของคุณที่นี่") {
+                showToast("คุณยังไม่ได้ใส่ลิงก์ API ระบบจึงใช้ข้อมูลจำลอง", "info");
+                addMemberTag(sid, "นักเรียนทดสอบ " + sid); 
+                $('tag-input').value = "";
+                return;
             }
 
             const btn = $('btn-add-member'); btn.disabled = true; btn.innerText = "...";
             try {
-                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({action: "verifyStudent", studentId: sid}) });
+                const res = await fetch(API_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify({action: "verifyStudent", studentId: sid}) 
+                });
                 const data = await res.json();
-                if (data.status === "success") addMemberTag(sid, data.name);
-                else showToast(data.message, "error");
-            } catch(e) { showToast("ระบบขัดข้อง ทดลองเพิ่มชื่อจำลองแทน", "error"); addMemberTag(sid, "Guest " + sid); }
+                if (data.status === "success") {
+                    addMemberTag(sid, data.name);
+                } else {
+                    showToast(data.message, "error");
+                }
+            } catch(e) { 
+                showToast("ระบบขัดข้อง ทดลองเพิ่มชื่อจำลองแทน", "error"); 
+                addMemberTag(sid, "Guest " + sid); 
+            }
             finally { btn.disabled = false; btn.innerText = "เพิ่ม"; $('tag-input').value = ""; }
         }
 
@@ -621,7 +633,7 @@
             if(!activeScenario || !gName || taggedMembers.length === 0 || !fps || !fpc || !imgAi) {
                 showToast("กรุณากรอกชื่อกลุ่ม แท็กสมาชิก ประโยคให้ครบ และแนบภาพ AI ครับ", "error"); return;
             }
-            if (API_URL.includes("YOUR_URL_HERE")) { showToast("จำลองการส่งงานสำเร็จ (ยังไม่ได้ใส่ลิงก์ API จริง)", "success"); return; }
+            if (API_URL === "ใส่ลิงก์_API_ของคุณที่นี่") { showToast("จำลองการส่งงานสำเร็จ (คุณยังไม่ได้ใส่ลิงก์ API จริง)", "success"); return; }
 
             const btn = $('btn-submit-mission'); btn.disabled = true; btn.innerHTML = '<span class="loader"></span> กำลังส่งข้อมูลสู่อวกาศ...';
             
@@ -647,9 +659,12 @@
 
         // ================= 5. TAB 3: PRESENT & TAB 4: EVAL =================
         async function fetchBoardData() {
-            if (API_URL.includes("YOUR_URL_HERE")) return;
+            if (API_URL === "ใส่ลิงก์_API_ของคุณที่นี่") return;
             try {
-                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({action: "getGroupMissionsAndEvals"}) });
+                const res = await fetch(API_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify({action: "getGroupMissionsAndEvals"}) 
+                });
                 const data = await res.json();
                 if(data.status === "success") {
                     boardMissions = data.missions || [];
@@ -729,7 +744,7 @@
             if(!eid || !tgt || !evalScores.grammar || !evalScores.time || !evalScores.coherence) {
                 showToast("กรุณากรอกข้อมูลและให้คะแนนให้ครบทุกข้อครับ", "error"); return;
             }
-            if (API_URL.includes("YOUR_URL_HERE")) { showToast("จำลองโหวตสำเร็จ!", "success"); return; }
+            if (API_URL === "ใส่ลิงก์_API_ของคุณที่นี่") { showToast("จำลองโหวตสำเร็จ!", "success"); return; }
             
             const btn = $('btn-submit-eval'); btn.disabled = true; btn.innerText = "...";
             try {
@@ -801,24 +816,46 @@
         }
 
         let randomPool = [];
+        
+        // 📍 ฟังก์ชันนี้คือจุดสำคัญที่เปลี่ยนไปดึงข้อมูลจริงแบบสมบูรณ์
         async function fetchStudentsForRandom() {
             const cls = $('t-class-input').value.trim();
-            if(!cls) return;
+            if(!cls) { showToast("⚠️ กรุณาพิมพ์ชื่อห้องเรียนก่อนครับ (เช่น ม.6/1)", "error"); return; }
+            
             const btn = $('btn-fetch-std'); btn.disabled = true; btn.innerText = "...";
+            
             try {
-                if (API_URL.includes("YOUR_URL_HERE")) {
+                if (API_URL === "ใส่ลิงก์_API_ของคุณที่นี่") {
+                    alert("⚠️ คุณยังไม่ได้ใส่ลิงก์ API ระบบจึงแสดงข้อมูลจำลองเพื่อการทดสอบครับ");
                     // Mock data
-                    randomPool = Array.from({length: 20}, (_, i) => ({ id: "100"+i, name: "Student " + (i+1), active: true }));
+                    randomPool = Array.from({length: 20}, (_, i) => ({ id: "100"+(i+1).toString().padStart(2,'0'), name: "Student " + (i+1), active: true }));
                 } else {
-                    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({action: "getStudentsByClass", className: cls}) });
-                    const data = await res.json();
+                    // ของจริง: ยิง Fetch API ตรงๆ เพื่ออ่าน JSON Response ได้
+                    const fetchResponse = await fetch(API_URL, { 
+                        method: "POST", 
+                        body: JSON.stringify({action: "getStudentsByClass", className: cls}) 
+                    });
+                    
+                    const data = await fetchResponse.json();
+                    
                     if(data.status === "success") {
-                        randomPool = data.students.map(s => ({...s, active: true}));
+                        if (data.students && data.students.length > 0) {
+                            randomPool = data.students.map(s => ({...s, active: true}));
+                            showToast("ดึงรายชื่อสำเร็จ!", "success");
+                        } else {
+                            showToast("❌ ไม่พบรายชื่อนักเรียนห้อง " + cls + " ในระบบครับ", "error");
+                            randomPool = [];
+                        }
+                    } else {
+                        showToast(data.message, "error");
                     }
                 }
                 renderRandomPool();
-                $('btn-do-random').disabled = false;
-            } catch(e) { showToast("ดึงข้อมูลพลาด", "error"); }
+                $('btn-do-random').disabled = randomPool.length === 0;
+            } catch(e) { 
+                console.error("Fetch Error:", e);
+                showToast("⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบลิงก์ API", "error"); 
+            }
             finally { btn.disabled = false; btn.innerText = "ดึงชื่อ"; }
         }
 
