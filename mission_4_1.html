@@ -228,7 +228,7 @@
         <div class="card">
             <p style="color: var(--unit-money-light); margin-bottom: 15px; font-size: 0.95rem;"><b>6. Unscramble. (เรียงคำให้เป็นประโยคที่ถูกต้อง)</b></p>
             <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--neon-orange); padding: 10px; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;">
-                <b>💡 คำแนะนำ:</b> พิมพ์ประโยคที่เรียงแล้วให้สมบูรณ์ (ตัวพิมพ์เล็กหรือใหญ่ก็ได้) <span style="color:var(--neon-orange);">ไม่ต้องใส่จุดท้ายประโยค</span>
+                <b>💡 คำแนะนำ:</b> พิมพ์ประโยคที่เรียงแล้วให้สมบูรณ์ (ตัวพิมพ์เล็กหรือใหญ่ก็ได้) <span style="color:var(--neon-orange);">ต้องใส่จุดท้ายประโยค</span>
             </div>
 
             <div class="question">
@@ -403,7 +403,7 @@
 
     // 3. ตรวจคำตอบหน้า 46 (Vocab)
     function checkPhase1() {
-        const ansNum = { v46_1: '1', v46_2: '8', v46_3: '3', v46_4: '7', v46_5: '2', v46_6: '6', v46_7: '5', v46_8: '4' }; 
+        const ansNum = { v46_1: '4', v46_2: '7', v46_3: '3', v46_4: '5', v46_5: '8', v46_6: '2', v46_7: '6', v46_8: '1' }; 
         const ansMatch = { m46_a: 'substantial', m46_b: 'charge', m46_c: 'wise', m46_d: 'typical', m46_e: 'foolish', m46_f: 'percentage', m46_g: 'keep track', m46_h: 'mature' };
         
         let correct = true;
@@ -440,10 +440,10 @@
     // 4. ตรวจคำตอบหน้า 47 (Grammar Unscramble)
     function checkPhase2() {
         const ans = { 
-            g47_1: ['when i earn a lot of money i typically put a substantial amount into my college savings fund'], 
-            g47_2: ['if you set aside a percentage of your income now youll have money to spend later', 'if you set aside a percentage of your income now you will have money to spend later'], 
-            g47_3: ['if chelsea studies economics this year she can give me advice on my budget'], 
-            g47_4: ['you should keep track of your schoolwork if you want to get good grades', 'if you want to get good grades you should keep track of your schoolwork'] 
+            g47_1: ['When I earn a lot of money, I typically put a substantial amount into my college savings fund.'], 
+            g47_2: ['If you set aside a percentage of your income now youll have money to spend later.', 'If you set aside a percentage of your income now you will have money to spend later.'], 
+            g47_3: ['If chelsea studies economics this year she can give me advice on my budget.'], 
+            g47_4: ['You should keep track of your schoolwork if you want to get good grades.', 'If you want to get good grades you should keep track of your schoolwork.'] 
         }; 
         
         let correct = true;
@@ -471,7 +471,7 @@
 
     // 5. ตรวจคำตอบหน้า 47 (Listening)
     function checkPhase3() {
-        // Ex 7 = b, a, b, d, b
+        // Ex 7 = b, a, a, d, a
         // Ex 8 = X, ✔️, ✔️, X
         const ans = { 
             l47_1: 'b', l47_2: 'a', l47_3: 'b', l47_4: 'd', l47_5: 'b',
