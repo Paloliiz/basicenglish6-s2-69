@@ -203,7 +203,7 @@
                 <nav class="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0">
                     <button onclick="switchModule('missions')" id="nav-missions" class="module-nav-btn nav-btn-active flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap">
                         <span class="flex items-center gap-2.5"><span class="text-base">🏠</span><span>แบบฝึกหัด (Missions)</span></span>
-                        <span id="badge-nav-missions" class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-purple-950/90 border border-purple-400/40 text-[10px] font-scifi text-purple-200">6</span>
+                        <span id="badge-nav-missions" class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-purple-950/90 border border-purple-400/40 text-[10px] font-scifi text-purple-200">7</span>
                     </button>
 
                     <button onclick="switchModule('grammar')" id="nav-grammar" class="module-nav-btn flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap">
@@ -226,8 +226,17 @@
                         <span class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-pink-900/60 border border-pink-400/40 text-[10px] font-scifi text-pink-200">NEW</span>
                     </button>
 
+                    <!-- 📍 ปุ่มลัดเข้า Team Raid Lobby (รองรับภารกิจกลุ่ม) -->
+                    <button onclick="checkSoloWorksheetAndOpen()" class="module-nav-btn flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                        <span class="flex items-center gap-2.5">
+                            <span class="text-base">🚀</span>
+                            <span class="text-amber-300 font-bold">Team Raid</span>
+                        </span>
+                        <span class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-amber-900/80 border border-amber-400/50 text-[10px] font-scifi text-amber-100 animate-pulse">GROUP</span>
+                    </button>
+
                     <!-- Exam Button -->
-                    <button id="nav-exam-lobby" onclick="openExamLobby()" class="module-nav-btn flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap shadow-[0_0_15px_rgba(244,63,94,0.2)] border border-rose-500/30">
+                    <button id="nav-exam-lobby" onclick="openExamLobby()" class="module-nav-btn flex items-center justify-between gap-2.5 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition whitespace-nowrap shadow-[0_0_15px_rgba(244,63,94,0.2)] border border-rose-500/30 mt-2">
                         <span class="flex items-center gap-2.5"><span class="text-base">⚠️</span><span class="text-rose-400 font-bold" id="exam-btn-text">ห้องสอบ (Exams)</span></span>
                         <span id="exam-btn-badge" class="hidden lg:inline-block px-2 py-0.5 rounded-full bg-rose-900/80 border border-rose-400/50 text-[10px] font-scifi text-rose-100 animate-pulse">EXAM</span>
                     </button>
@@ -349,7 +358,7 @@
                         <div class="relative">
                             <select id="grammar-topic-select" onchange="changeGrammarTopic(this.value)" class="bg-cosmic-900 border border-cyan-500/40 text-cyan-300 font-bold text-sm sm:text-base rounded-xl px-4 py-2 focus:outline-none focus:border-cyan-400 shadow-md cursor-pointer appearance-none pr-10">
                                 <option value="future_forms">Unit 3: Future Forms</option>
-                                <option value="future_perfect">Unit 3: Future Perfect Simple & Continuous</option>
+                                <option value="future_perfect">Unit 4: Future Perfect Simple & Continuous</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-cyan-400">
                                 <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
@@ -463,13 +472,13 @@
         <button onclick="switchModule('grammar')" id="nav-grammar-mobile" class="module-nav-btn flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500 hover:text-purple-200 transition">
             <span class="text-base">📘</span><span>แกรมม่า</span>
         </button>
-        <button onclick="openVoiceLab()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-300 hover:text-red-300 transition">
-            <span class="text-base">🎙️</span><span>มินิเกม</span>
+        <!-- ปุ่ม Team Raid สำหรับมือถือ -->
+        <button onclick="checkSoloWorksheetAndOpen()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-amber-300 hover:text-amber-200 transition">
+            <span class="text-base">🚀</span><span>Raid</span>
         </button>
         <button onclick="openALevelArena()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-300 hover:text-cyan-300 transition">
             <span class="text-base">🎯</span><span>A-Level</span>
         </button>
-        <!-- Exam Button -->
         <button id="nav-exam-lobby-mobile" onclick="openExamLobby()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500 transition cursor-not-allowed grayscale">
             <span class="text-base">⚠️</span><span id="exam-btn-text-mobile">ห้องสอบ</span>
         </button>
@@ -592,6 +601,20 @@
             "M06": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และแต่งประโยคเรื่อง Spending Habits (หน้า 48-49)", category: "Vocab & Grammar", difficulty: "Medium", xp: 100, demoPasscode: "U42-{CIPHER}", artType: "book", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_2.html" },
             "M07": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และอ่านบทความเรื่อง Market Trends (หน้า 50-51)", category: "Vocab & Reading", difficulty: "Hard", xp: 150, demoPasscode: "U43-{CIPHER}", artType: "mirror", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_3.html" },
             "M08": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และการเขียนเรื่อง Financial Problem (หน้า 52-53)", category: "Vocab & Writing", difficulty: "Hard", xp: 150, demoPasscode: "U44-{CIPHER}", artType: "castle", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_4.html" },
+            
+            // 📍 ภารกิจกลุ่ม Team Raid (อัปเดตชื่อรหัสเป็น RAID_U4)
+            "RAID_U4": { 
+                unit: "Unit 4", 
+                subtitle: "ภารกิจจำลองอนาคต: Future Snapshot (Team Raid)", 
+                category: "Grammar & Speaking", 
+                difficulty: "Hard", 
+                xp: 200, 
+                demoPasscode: "FUT-2030",
+                artType: "mirror", 
+                isWebLink: true, 
+                linkUrl: "team_raid_lobby.html" 
+            },
+
             "V_U4": { unit: "Unit 4", subtitle: "ภารกิจมินิเกมคำศัพท์: ปราบ The Gilded Glitch", category: "Vocab", difficulty: "Boss", xp: 200, demoPasscode: "V04-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/voice_lab_u4.html" },
             "EXAM_U3": { unit: "Unit 3", subtitle: "สอบเก็บคะแนน Unit 3 (10 คะแนน)", category: "Exam", difficulty: "Boss", xp: 100, demoPasscode: "EX3-{CIPHER}", artType: "castle", isWebLink: false },
             "EXAM_U4": { unit: "Unit 4", subtitle: "สอบเก็บคะแนน Unit 4 (10 คะแนน)", category: "Exam", difficulty: "Boss", xp: 100, demoPasscode: "EX4-{CIPHER}", artType: "castle", isWebLink: false }
@@ -708,6 +731,18 @@
         function openExamLobby() {
             const sid = appState.user ? appState.user.studentId : "GUEST";
             window.open('exam_lobby.html?sid=' + sid, '_blank');
+        }
+
+        // 📍 ฟังก์ชันเข้า Team Raid (เช็คเงื่อนไขก่อน)
+        function checkSoloWorksheetAndOpen() {
+            const isDone = confirm("⚠️ ตรวจสอบสิทธิ์เข้ามิติภารกิจกลุ่ม:\n\nนักเรียนทำ 'แบบฝึกหัดเดี่ยว 10 ข้อ' ลงในใบงานเสร็จเรียบร้อยแล้วใช่หรือไม่?\n\n(หากทำเสร็จแล้ว กด OK เพื่อเข้าสู่หน้า Lobby กิจกรรมกลุ่ม)");
+            
+            if (isDone) {
+                const sid = appState.user ? appState.user.studentId : "GUEST";
+                window.open('team_raid_lobby.html?sid=' + sid, '_blank');
+            } else {
+                showToast('กรุณาทำแบบฝึกหัดเดี่ยว 10 ข้อให้เสร็จก่อนเข้าภารกิจกลุ่มนะครับ!', 'error');
+            }
         }
 
         window.addEventListener("DOMContentLoaded", () => {
@@ -859,6 +894,8 @@
                 { id: "M06", name: "ภารกิจ M06" },
                 { id: "M07", name: "ภารกิจ M07" },
                 { id: "M08", name: "ภารกิจ M08" },
+                // 📍 อัปเดตรหัสให้เป็น RAID_U4
+                { id: "RAID_U4", name: "ภารกิจกลุ่ม: Future Snapshot (Team Raid)" },
                 { id: "V_U4", name: "มินิเกมคำศัพท์ Voice Lab (U4)" }
             ];
             
@@ -875,7 +912,7 @@
                 `;
             }).join("");
 
-            // 2. Render Real-world Quests (งานออฟไลน์) แยกตามหน้าย่อย
+            // 2. Render Real-world Quests (งานออฟไลน์)
             const bookQuests = [
                 { id: "M01_Book", name: "ส่งแบบฝึกหัดหน้า 34-35" },
                 { id: "M02_Book", name: "ส่งแบบฝึกหัดหน้า 36-37" },
@@ -901,7 +938,6 @@
             }).join("");
         }
 
-        // ระบบนับถอยหลังสมมติ (ตั้งเดดไลน์ได้ที่นี่)
         setInterval(() => {
             const deadline = new Date("2026-11-30T23:59:59").getTime(); 
             const now = new Date().getTime();
@@ -922,7 +958,6 @@
         }, 1000);
 
         function checkUnit3Completion() {
-            // ปุ่มเข้าห้องสอบ (Lobby) เปิดให้กดได้เสมอ เพื่อให้เด็กเข้าไปดูเงื่อนไขการปลดล็อกในนั้น
             const btnDesktop = document.getElementById("nav-exam-lobby");
             const btnMobile = document.getElementById("nav-exam-lobby-mobile");
             const badgeDesktop = document.getElementById("exam-btn-badge");
@@ -968,8 +1003,6 @@
                 const preset = MISSION_META_PRESETS[m.missionId] || { unit: "Unit 3" };
                 const matchStatus = appState.currentFilter === "ALL" || m.state === appState.currentFilter;
                 const matchUnit = appState.currentUnitFilter === "ALL" || preset.unit === appState.currentUnitFilter;
-                
-                // === กฎใหม่: ซ่อนข้อสอบ EXAM ออกจากหน้า Mission ปกติ ===
                 const isNotExam = preset.category !== "Exam";
                 
                 return matchStatus && matchUnit && isNotExam;
@@ -1033,7 +1066,6 @@
                 `;
             }).join("");
             
-            // เพิ่มส่วนสำหรับโชว์ EXAM แยกต่างหากด้านล่างของหน้าภารกิจ
             const examMissions = missions.filter(m => {
                 const preset = MISSION_META_PRESETS[m.missionId];
                 return preset && preset.category === "Exam" && (appState.currentUnitFilter === "ALL" || preset.unit === appState.currentUnitFilter);
