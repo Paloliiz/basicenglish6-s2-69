@@ -89,6 +89,27 @@
             box-shadow: 0 0 15px #38bdf8, 0 0 30px #38bdf8, inset 0 0 15px #38bdf8;
         }
         
+        /* --- New Frames --- */
+        .frame-medic {
+            border: 3px solid #10b981;
+            box-shadow: 0 0 15px #10b981, inset 0 0 10px #10b981;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .frame-crimson {
+            border: 4px double #f43f5e;
+            box-shadow: 0 0 20px #f43f5e, inset 0 0 15px #f43f5e;
+            animation: spinSlow 8s linear reverse infinite;
+        }
+        .frame-wealth {
+            border: 3px dashed #facc15;
+            box-shadow: 0 0 15px #facc15, inset 0 0 10px #facc15;
+            animation: spinSlow 12s linear infinite;
+        }
+        .frame-emerald {
+            border: 4px solid #059669;
+            box-shadow: 0 0 25px #059669, 0 0 40px #10b981, inset 0 0 20px #059669;
+        }
+        
         @keyframes spinSlow { 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -547,7 +568,11 @@
 
         const FRAME_CATALOG = {
             "Frame00": { id: "Frame00", name: "No Frame", subtitle: "ซ่อนกรอบ", cssClass: "", reqLevel: 0 },
-            "FrameBio": { id: "FrameBio", name: "Biohazard Aura", subtitle: "กรอบพิษชีวภาพ (V_U3)", cssClass: "frame-biohazard", reqMission: "V_U3" },
+            "FrameBio": { id: "FrameBio", name: "Biohazard Aura", subtitle: "ปราบบอส U3 (V_U3)", cssClass: "frame-biohazard", reqMission: "V_U3" },
+            "FrameU3": { id: "FrameU3", name: "Medic Aura", subtitle: "จบภารกิจ Unit 3 (M04)", cssClass: "frame-medic", reqMission: "M04" },
+            "FrameEx3": { id: "FrameEx3", name: "Crimson Conqueror", subtitle: "สอบผ่าน Unit 3 (EXAM_U3)", cssClass: "frame-crimson", reqMission: "EXAM_U3" },
+            "FrameU4": { id: "FrameU4", name: "Wealth Whisperer", subtitle: "จบภารกิจ Unit 4 (M08)", cssClass: "frame-wealth", reqMission: "M08" },
+            "FrameEx4": { id: "FrameEx4", name: "Emerald Elite", subtitle: "สอบผ่าน Unit 4 (EXAM_U4)", cssClass: "frame-emerald", reqMission: "EXAM_U4" },
             "FrameLv5": { id: "FrameLv5", name: "Gold Standard", subtitle: "กรอบสำหรับเลเวล 5 ขึ้นไป", cssClass: "frame-level5", reqLevel: 5 },
             "FrameLv10": { id: "FrameLv10", name: "Diamond Master", subtitle: "กรอบสำหรับเลเวล 10 ขึ้นไป", cssClass: "frame-level10", reqLevel: 10 }
         };
