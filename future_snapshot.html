@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Snapshot - Parallel Dimension</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                        scifi: ['Orbitron', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        cosmic: { 950: '#070510', 900: '#0d091d', 800: '#150f2e', 700: '#211844' },
+                        neon: { cyan: '#06b6d4', purple: '#a855f7', pink: '#ec4899', green: '#10b981', orange: '#f59e0b' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #070510; color: #f8fafc; overflow-x: hidden; }
+        body::before { content: ""; position: fixed; inset: 0; background: radial-gradient(circle at 50% 10%, rgba(6, 182, 212, 0.1) 0%, transparent 60%); pointer-events: none; z-index: -1; }
+        
+        .cosmic-card { background: rgba(13, 9, 29, 0.85); border: 1px solid rgba(168, 85, 247, 0.3); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        .tab-btn { transition: all 0.3s ease; }
+        .tab-btn.active { background: linear-gradient(90deg, rgba(6,182,212,0.15), rgba(168,85,247,0.15)); border-color: #06b6d4; color: #22d3ee; box-shadow: inset 0 0 15px rgba(6,182,212,0.2); }
+        
+        .btn-neon-cyan { background: linear-gradient(135deg, #06b6d4, #0284c7); color: white; box-shadow: 0 0 15px rgba(6,182,212,0.4); transition: all 0.3s; }
+        .btn-neon-cyan:hover:not(:disabled) { box-shadow: 0 0 25px rgba(6,182,212,0.7); transform: translateY(-2px); }
+        .btn-neon-cyan:disabled { background: #334155; box-shadow: none; color: #94a3b8; cursor: not-allowed; transform: none; }
+        
+        .btn-neon-purple { background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; box-shadow: 0 0 15px rgba(168,85,247,0.4); transition: all 0.3s; }
+        .btn-neon-purple:hover { box-shadow: 0 0 25px rgba(168,85,247,0.7); transform: translateY(-2px); }
+
+        .input-scifi { background: #070510; border: 1px solid #334155; color: white; border-radius: 0.5rem; padding: 0.75rem 1rem; width: 100%; transition: all 0.3s; }
+        .input-scifi:focus { outline: none; border-color: #06b6d4; box-shadow: 0 0 10px rgba(6,182,212,0.2); background: rgba(6,182,212,0.05); }
+        
+        .blank-input { background: transparent; border: none; border-bottom: 2px solid #a855f7; color: #facc15; font-weight: 600; text-align: center; width: 200px; padding: 2px 5px; border-radius: 0; }
+        .blank-input:focus { outline: none; border-bottom-color: #10b981; background: rgba(16,185,129,0.1); }
+
+        .upload-box { border: 2px dashed #475569; border-radius: 0.75rem; text-align: center; cursor: pointer; position: relative; min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(15,23,42,0.5); transition: 0.3s; }
+        .upload-box:hover { border-color: #06b6d4; background: rgba(6,182,212,0.05); }
+        .upload-box img { max-height: 120px; border-radius: 0.5rem; z-index: 2; object-fit: contain; }
+        .upload-box input { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 3; }
+
+        .tag-pill { background: rgba(168,85,247,0.2); border: 1px solid #a855f7; color: #e879f9; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px; }
+        
+        /* Rate Scale Buttons */
+        .rate-btn { width: 40px; height: 40px; border-radius: 0.5rem; border: 1px solid #334155; background: #0f172a; color: #94a3b8; font-weight: bold; transition: all 0.2s; cursor: pointer; }
+        .rate-btn.selected { background: #06b6d4; color: #070510; border-color: #06b6d4; box-shadow: 0 0 10px rgba(6,182,212,0.5); }
+
+        /* Loader */
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #06b6d4; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Student Pill for Randomizer */
+        .student-pill { transition: all 0.2s; cursor: pointer; user-select: none; }
+        .student-pill.active { background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #34d399; }
+        .student-pill.inactive { background: rgba(71,85,105,0.2); border: 1px dashed #475569; color: #64748b; filter: grayscale(100%); }
+
+        /* Animation for grouping */
+        .group-reveal { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: scale(0.8); }
+        @keyframes popIn { to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="selection:bg-cyan-500 selection:text-white pb-10">
+
+    <!-- ================= TOAST NOTIFICATION ================= -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4"></div>
+
+    <div class="max-w-5xl mx-auto pt-6 px-4">
+        <!-- HEADER -->
+        <header class="cosmic-card rounded-2xl p-5 mb-6 border-t-2 border-t-cyan-400 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-cyan-950 border border-cyan-400/50 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)] cursor-pointer" id="logo-trigger">
+                    <span class="text-xl">🌌</span>
+                </div>
+                <div>
+                    <h1 class="font-scifi text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">FUTURE SNAPSHOT</h1>
+                    <p class="text-xs text-slate-400">PD: Parallel Dimension - Future Perfect System</p>
+                </div>
+            </div>
+            
+            <!-- TABS -->
+            <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-center">
+                <button onclick="switchTab('mission')" id="tab-mission" class="tab-btn active px-4 py-2 rounded-xl text-sm font-medium border border-slate-700 text-slate-400 flex items-center gap-2 bg-cosmic-950"><span class="text-lg">🎲</span> สุ่มภารกิจ</button>
+                <button onclick="switchTab('submit')" id="tab-submit" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium border border-slate-700 text-slate-400 flex items-center gap-2 bg-cosmic-950"><span class="text-lg">📌</span> ส่งงาน</button>
+                <button onclick="switchTab('present')" id="tab-present" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium border border-slate-700 text-slate-400 flex items-center gap-2 bg-cosmic-950"><span class="text-lg">🎬</span> นำเสนอ</button>
+                <button onclick="switchTab('eval')" id="tab-eval" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium border border-slate-700 text-slate-400 flex items-center gap-2 bg-cosmic-950"><span class="text-lg">⭐</span> ประเมิน</button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="space-y-6 relative">
+            
+            <!-- ================= TAB 1: MISSION GENERATOR ================= -->
+            <section id="panel-mission" class="cosmic-card rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700/50">
+                    <h2 class="text-xl font-bold text-cyan-400 flex items-center gap-2"><span>🔮</span> DESTINY SCANNER</h2>
+                    <button onclick="openDictionary()" class="text-sm text-purple-400 hover:text-purple-300 underline font-medium">📖 คัมภีร์กริยา 3 ช่อง</button>
+                </div>
+
+                <div id="mission-pre-state" class="text-center py-10 space-y-4">
+                    <div class="text-6xl mb-4 animate-pulse">⏳</div>
+                    <p class="text-slate-300">กดสุ่มเพื่อรับบทบาทในโลกอนาคต<br><span class="text-rose-400 text-xs">(⚠️ คำเตือน: โชคชะตาสุ่มได้เพียงครั้งเดียวเท่านั้น)</span></p>
+                    <button id="btn-generate" onclick="generateMission()" class="btn-neon-cyan px-8 py-3.5 rounded-xl font-bold text-lg mt-4 w-full max-w-sm mx-auto shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                        🎲 สุ่มบทบาทอนาคต (SCAN)
+                    </button>
+                </div>
+
+                <div id="mission-active-state" class="hidden space-y-6">
+                    <div class="bg-cyan-950/40 border border-cyan-500/30 rounded-xl p-5 text-center relative overflow-hidden">
+                        <div class="absolute top-2 left-2 px-2 py-1 bg-cyan-900 border border-cyan-400 text-[10px] font-mono text-cyan-200 rounded" id="s-id">S-00</div>
+                        <h3 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-green-300 mb-2 mt-4" id="s-name">Role Name</h3>
+                        <p class="text-slate-300" id="s-context">Context...</p>
+                        <p class="mt-3 inline-block px-4 py-1.5 rounded-full bg-purple-900/50 border border-purple-500/50 text-purple-200 text-sm font-bold shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                            🎯 เป้าหมายปี: <span id="s-year">2030</span>
+                        </p>
+                    </div>
+
+                    <div class="space-y-5 bg-cosmic-950/80 p-5 rounded-xl border border-slate-700">
+                        <h4 class="text-sm font-bold text-purple-300 mb-2 border-b border-slate-700 pb-2">📝 TASK: แต่งประโยคตามจุดเน้น (ใช้ข้อมูลจากคำใบ้)</h4>
+                        
+                        <!-- 1. Simple -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-emerald-900/50 border border-emerald-500/50 text-[10px] text-emerald-300 font-bold rounded">1. เน้นผลลัพธ์ (Simple)</span>
+                                <span class="text-[10px] text-slate-400">will have + V.3</span>
+                            </div>
+                            <div class="text-sm bg-slate-900/50 p-3 rounded-lg border border-slate-800 leading-relaxed">
+                                By <span class="text-cyan-400 font-bold dyn-year">2030</span>, I <span class="text-emerald-400 font-bold">will have</span> 
+                                <input type="text" id="in-fps" class="blank-input" placeholder="พิมพ์ V.3 + ส่วนขยาย">.
+                                <div class="mt-2 text-[11px] text-emerald-400 bg-emerald-950/50 p-1.5 rounded border-l-2 border-emerald-500">💡 Hint: <span id="hint-fps"></span></div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Continuous -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-orange-900/50 border border-orange-500/50 text-[10px] text-orange-300 font-bold rounded">2. เน้นระยะเวลา (Continuous)</span>
+                                <span class="text-[10px] text-slate-400">will have been + V-ing</span>
+                            </div>
+                            <div class="text-sm bg-slate-900/50 p-3 rounded-lg border border-slate-800 leading-relaxed">
+                                By <span class="text-cyan-400 font-bold dyn-year">2030</span>, I <span class="text-orange-400 font-bold">will have been</span> 
+                                <input type="text" id="in-fpc" class="blank-input" placeholder="พิมพ์ V-ing + ส่วนขยาย">.
+                                <div class="mt-2 text-[11px] text-orange-400 bg-orange-950/50 p-1.5 rounded border-l-2 border-orange-500">💡 Hint: <span id="hint-fpc"></span></div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Challenge -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-pink-900/50 border border-pink-500/50 text-[10px] text-pink-300 font-bold rounded">3. ประโยคท้าทาย</span>
+                                <span class="text-[10px] text-slate-400">By the time + Present Simple</span>
+                            </div>
+                            <div class="text-sm bg-slate-900/50 p-3 rounded-lg border border-slate-800 leading-relaxed">
+                                <span class="text-pink-400 font-bold">By the time</span> <input type="text" id="in-bytime" class="blank-input w-[120px]" placeholder="ประธาน + V.1">, 
+                                I will <input type="text" id="in-challenge" class="blank-input" placeholder="พิมพ์ต่อให้จบประโยค">.
+                                <div class="mt-2 text-[11px] text-slate-400">💡 Hint: แต่งประโยคเชื่อมโยงเหตุการณ์ในอนาคตได้อย่างอิสระ (ใช้ Simple หรือ Cont. ก็ได้)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-2">
+                        <button onclick="copyPrompt()" class="btn-neon-purple px-6 py-3 rounded-xl font-bold text-sm w-full sm:w-auto flex items-center justify-center gap-2 mx-auto">
+                            <span>✨ คัดลอก Prompt สร้างภาพ 3D</span>
+                        </button>
+                        <p class="text-[11px] text-slate-500 mt-2">(นำ Prompt ไปวางใน AI Image Generator เพื่อสร้างภาพประกอบ แล้วไปที่แท็บ 'ส่งงาน')</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB 2: SUBMIT BOARD ================= -->
+            <section id="panel-submit" class="cosmic-card rounded-2xl p-6 hidden">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700/50">
+                    <h2 class="text-xl font-bold text-purple-400 flex items-center gap-2"><span>📤</span> UPLOAD STATION</h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left: Form -->
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold text-purple-300 mb-1.5">1. ชื่อกลุ่ม (Squad Name)</label>
+                            <input type="text" id="submit-group" class="input-scifi" placeholder="เช่น ทีมพยัคฆ์อวกาศ">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-cyan-300 mb-1.5">2. แท็กเพื่อนร่วมทีม (Member Tagging)</label>
+                            <div class="flex gap-2 mb-2">
+                                <input type="text" id="tag-input" class="input-scifi py-2" placeholder="ใส่รหัสนักเรียน 5 หลัก">
+                                <button type="button" onclick="verifyAndAddMember()" class="btn-neon-cyan px-4 py-2 rounded-xl text-sm font-bold flex-shrink-0" id="btn-add-member">เพิ่ม</button>
+                            </div>
+                            <div id="member-tags-container" class="flex flex-wrap gap-2 min-h-[30px] p-2 bg-cosmic-950/50 rounded-lg border border-slate-800">
+                                <span class="text-xs text-slate-500 italic" id="no-member-text">ยังไม่มีสมาชิก (พิมพ์รหัสแล้วกดเพิ่ม)</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-emerald-300 mb-1.5">3. แนบหลักฐาน (Evidences)</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="upload-box" id="box-ai">
+                                    <div id="ai-ph">🖼️<br><span class="text-[10px] text-slate-400 mt-1 block">อัปโหลดรูป AI</span></div>
+                                    <input type="file" accept="image/*" id="in-ai">
+                                </div>
+                                <div class="upload-box" id="box-ss">
+                                    <div id="ss-ph">🖥️<br><span class="text-[10px] text-slate-400 mt-1 block">รูปแคปจอแต่งประโยค</span></div>
+                                    <input type="file" accept="image/*" id="in-ss">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Review Sentences -->
+                    <div class="space-y-4 bg-cosmic-950/60 p-5 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-xs font-bold text-orange-300">4. สรุปประโยค (Timeline Sentences)</label>
+                            <button onclick="pullSentences()" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-slate-300 transition border border-slate-600">ดึงข้อมูลจากแท็บสุ่ม</button>
+                        </div>
+                        
+                        <textarea id="submit-fps" class="input-scifi text-sm font-mono h-16 resize-none" placeholder="[Simple] By 2030, I will have..."></textarea>
+                        <textarea id="submit-fpc" class="input-scifi text-sm font-mono h-16 resize-none" placeholder="[Continuous] By 2030, I will have been..."></textarea>
+                        <textarea id="submit-bytime" class="input-scifi text-sm font-mono h-16 resize-none" placeholder="[Challenge] By the time..."></textarea>
+
+                        <button id="btn-submit-mission" onclick="submitGroupMission()" class="btn-neon-purple w-full py-3.5 rounded-xl font-bold text-sm mt-4">
+                            🚀 ส่งข้อมูลขึ้นบอร์ด (SUBMIT)
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB 3: PRESENT ================= -->
+            <section id="panel-present" class="cosmic-card rounded-2xl p-6 hidden min-h-[400px] flex flex-col">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700/50">
+                    <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2"><span>🎬</span> MISSION SHOWCASE</h2>
+                    <button onclick="fetchBoardData()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-600 hover:bg-slate-700 transition">🔄 รีเฟรช</button>
+                </div>
+
+                <div id="present-wrap" class="flex-grow flex items-center justify-center">
+                    <div class="text-center text-slate-500">
+                        <div class="loader mb-3"></div><br>รอโหลดข้อมูลผลงาน...
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB 4: PEER EVALUATION ================= -->
+            <section id="panel-eval" class="cosmic-card rounded-2xl p-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Voting Form -->
+                    <div>
+                        <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700/50">
+                            <h2 class="text-xl font-bold text-orange-400 flex items-center gap-2"><span>⭐</span> PEER EVALUATION</h2>
+                        </div>
+                        
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1.5">รหัสผู้ประเมิน (Your ID)</label>
+                                <input type="text" id="evaluator-id" class="input-scifi py-2" placeholder="รหัสนักเรียน 5 หลัก">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-cyan-300 mb-1.5">เลือกกลุ่มเพื่อนที่จะให้คะแนน</label>
+                                <select id="eval-target-group" class="input-scifi py-2 cursor-pointer appearance-none">
+                                    <option value="">-- รอโหลดข้อมูลกลุ่ม --</option>
+                                </select>
+                            </div>
+
+                            <div class="bg-cosmic-950/80 border border-slate-700 rounded-xl p-4 space-y-4">
+                                <!-- Crit 1 -->
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div class="text-sm text-slate-200 font-medium">1. ไวยากรณ์ (Tense Structure)<br><span class="text-[10px] text-slate-500">ใช้ will have + V3 / will have been + V-ing ถูกต้อง</span></div>
+                                    <div class="flex gap-1.5" id="rate-grammar">
+                                        <button class="rate-btn" data-v="1">1</button><button class="rate-btn" data-v="2">2</button><button class="rate-btn" data-v="3">3</button><button class="rate-btn" data-v="4">4</button>
+                                    </div>
+                                </div>
+                                <!-- Crit 2 -->
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-800 pt-3">
+                                    <div class="text-sm text-slate-200 font-medium">2. จุดเน้นและคำบอกเวลา (Time Markers)<br><span class="text-[10px] text-slate-500">สื่อความหมาย เน้นผลลัพธ์/ระยะเวลา สอดคล้องกับ Time Marker</span></div>
+                                    <div class="flex gap-1.5" id="rate-time">
+                                        <button class="rate-btn" data-v="1">1</button><button class="rate-btn" data-v="2">2</button><button class="rate-btn" data-v="3">3</button><button class="rate-btn" data-v="4">4</button>
+                                    </div>
+                                </div>
+                                <!-- Crit 3 -->
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-800 pt-3">
+                                    <div class="text-sm text-slate-200 font-medium">3. การนำเสนอและความสอดคล้อง (Presentation)<br><span class="text-[10px] text-slate-500">ภาพ AI และประโยคสื่อความหมายตรงกัน อธิบายชัดเจน</span></div>
+                                    <div class="flex gap-1.5" id="rate-coherence">
+                                        <button class="rate-btn" data-v="1">1</button><button class="rate-btn" data-v="2">2</button><button class="rate-btn" data-v="3">3</button><button class="rate-btn" data-v="4">4</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="btn-submit-eval" onclick="submitEval()" class="btn-neon-cyan w-full py-3.5 rounded-xl font-bold text-sm">
+                                ✅ ส่งผลการประเมิน
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Leaderboard -->
+                    <div class="bg-cosmic-950/50 border border-slate-800 rounded-2xl p-5 shadow-inner">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-emerald-400">🏆 LIVE LEADERBOARD</h3>
+                            <button onclick="fetchBoardData()" class="text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-300">↻</button>
+                        </div>
+                        <div id="leaderboard-wrap" class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="text-[11px] uppercase bg-slate-800/50 text-slate-400">
+                                    <tr><th class="p-2 rounded-tl-lg">Rank</th><th class="p-2">Group</th><th class="p-2 text-center">Avg</th><th class="p-2 text-center rounded-tr-lg">Votes</th></tr>
+                                </thead>
+                                <tbody id="leaderboard-body">
+                                    <tr><td colspan="4" class="text-center p-4 text-slate-500 text-xs">รอโหลดกระดานคะแนน...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ================= TEACHER MODAL (SQUAD RANDOMIZER) ================= -->
+    <div id="teacher-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+        <div class="cosmic-card rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col relative border-cyan-500/50">
+            <div class="sticky top-0 bg-cosmic-950/90 backdrop-blur border-b border-slate-700 p-5 flex justify-between items-center z-10">
+                <h3 class="text-xl font-bold text-cyan-400 flex items-center gap-2"><span>⚙️</span> SQUAD RANDOMIZER (โหมดครูผู้สอน)</h3>
+                <button onclick="closeTeacherModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-rose-900 hover:text-rose-300 transition">✕</button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <!-- Step 1 & 2 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-1 space-y-2">
+                        <label class="text-xs font-bold text-purple-300">1. เลือกห้องเรียน</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="t-class-input" class="input-scifi py-2 text-sm" placeholder="เช่น ม.6/1">
+                            <button onclick="fetchStudentsForRandom()" id="btn-fetch-std" class="btn-neon-purple px-4 py-2 rounded-lg text-xs font-bold">ดึงชื่อ</button>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-orange-300">2. การแบ่งกลุ่ม</label>
+                        <div class="flex items-center gap-4 bg-slate-900/50 p-2 rounded-lg border border-slate-700">
+                            <label class="text-sm flex items-center gap-2 text-slate-200 cursor-pointer">
+                                <input type="radio" name="grp-mode" value="size" checked class="accent-cyan-500"> กลุ่มละ (คน)
+                            </label>
+                            <label class="text-sm flex items-center gap-2 text-slate-200 cursor-pointer">
+                                <input type="radio" name="grp-mode" value="amount" class="accent-cyan-500"> จำนวนทั้งหมด (กลุ่ม)
+                            </label>
+                            <input type="number" id="t-group-num" class="input-scifi py-1 px-2 text-center w-16 h-8 text-sm" value="4" min="1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Attendance -->
+                <div class="bg-cosmic-950/50 border border-slate-700 rounded-xl p-4">
+                    <div class="flex justify-between items-end mb-3">
+                        <div>
+                            <label class="text-xs font-bold text-emerald-400 block">3. คัดคนขาดเรียน (คลิกที่ชื่อเพื่อสลับสถานะ)</label>
+                            <span class="text-[10px] text-slate-400">สีเขียว = มาเรียน | สีเทา = ขาดเรียน (จะไม่ถูกสุ่ม)</span>
+                        </div>
+                        <div class="text-xs text-cyan-300 font-mono">พร้อมสุ่ม: <span id="t-active-count" class="font-bold text-lg">0</span> คน</div>
+                    </div>
+                    <div id="t-student-pool" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 border border-slate-800 rounded bg-slate-900/30">
+                        <div class="text-slate-500 text-xs italic p-2">กรุณาพิมพ์ชื่อห้องแล้วกด 'ดึงชื่อ' ก่อนครับ</div>
+                    </div>
+                </div>
+
+                <div class="text-center pt-2">
+                    <button onclick="executeRandomizer()" id="btn-do-random" class="btn-neon-cyan px-10 py-3.5 rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(6,182,212,0.4)]" disabled>
+                        🎲 เริ่มต้นสุ่มจับกลุ่ม!
+                    </button>
+                    <button onclick="resetDestinyLock()" class="ml-4 text-xs text-slate-500 hover:text-rose-400 underline transition">⚠️ ปลดล็อกสุ่มให้ทุกเครื่อง (Reset Lock)</button>
+                </div>
+
+                <!-- Random Result -->
+                <div id="t-result-area" class="hidden mt-6 pt-6 border-t border-slate-700">
+                    <h3 class="text-center text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-6 font-scifi">MISSION SQUADS ASSIGNED</h3>
+                    <div id="t-result-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <!-- Render results here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= DICTIONARY MODAL ================= -->
+    <div id="dict-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="cosmic-card rounded-2xl w-full max-w-lg overflow-hidden flex flex-col border-purple-500/50">
+            <div class="bg-cosmic-950 p-4 flex justify-between items-center border-b border-purple-500/30">
+                <h3 class="text-lg font-bold text-purple-400 flex items-center gap-2"><span>📖</span> VERB DICTIONARY</h3>
+                <button onclick="closeDictionary()" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <div class="p-4 max-h-[60vh] overflow-y-auto bg-slate-900/50">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-purple-950/50 text-purple-200 text-xs">
+                        <tr><th class="p-2">V.1 (ความหมาย)</th><th class="p-2">V.2 (Past)</th><th class="p-2 border-l border-purple-500/30 text-emerald-300">V.3 (Participle)</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/50">
+                        <tr><td class="p-2">build (สร้าง)</td><td class="p-2">built</td><td class="p-2 text-emerald-400">built</td></tr>
+                        <tr><td class="p-2">collect (รวบรวม)</td><td class="p-2">collected</td><td class="p-2 text-emerald-400">collected</td></tr>
+                        <tr><td class="p-2">complete (ทำสำเร็จ)</td><td class="p-2">completed</td><td class="p-2 text-emerald-400">completed</td></tr>
+                        <tr><td class="p-2">cure (รักษา)</td><td class="p-2">cured</td><td class="p-2 text-emerald-400">cured</td></tr>
+                        <tr><td class="p-2">grow (ปลูก/เติบโต)</td><td class="p-2">grew</td><td class="p-2 text-emerald-400">grown</td></tr>
+                        <tr><td class="p-2">hide (ซ่อนตัว)</td><td class="p-2">hid</td><td class="p-2 text-emerald-400">hidden</td></tr>
+                        <tr><td class="p-2">invent (คิดค้น)</td><td class="p-2">invented</td><td class="p-2 text-emerald-400">invented</td></tr>
+                        <tr><td class="p-2">live (อาศัย)</td><td class="p-2">lived</td><td class="p-2 text-emerald-400">lived</td></tr>
+                        <tr><td class="p-2">perform (แสดง)</td><td class="p-2">performed</td><td class="p-2 text-emerald-400">performed</td></tr>
+                        <tr><td class="p-2">research (วิจัย)</td><td class="p-2">researched</td><td class="p-2 text-emerald-400">researched</td></tr>
+                        <tr><td class="p-2">run (ดำเนินกิจการ)</td><td class="p-2">ran</td><td class="p-2 text-emerald-400">run</td></tr>
+                        <tr><td class="p-2">save (ช่วยชีวิต)</td><td class="p-2">saved</td><td class="p-2 text-emerald-400">saved</td></tr>
+                        <tr><td class="p-2">serve (เสิร์ฟ)</td><td class="p-2">served</td><td class="p-2 text-emerald-400">served</td></tr>
+                        <tr><td class="p-2">sing (ร้องเพลง)</td><td class="p-2">sang</td><td class="p-2 text-emerald-400">sung</td></tr>
+                        <tr><td class="p-2">solve (ไขปริศนา)</td><td class="p-2">solved</td><td class="p-2 text-emerald-400">solved</td></tr>
+                        <tr><td class="p-2">study (ศึกษา)</td><td class="p-2">studied</td><td class="p-2 text-emerald-400">studied</td></tr>
+                        <tr><td class="p-2">train (ฝึกซ้อม)</td><td class="p-2">trained</td><td class="p-2 text-emerald-400">trained</td></tr>
+                        <tr><td class="p-2">travel (เดินทาง)</td><td class="p-2">traveled</td><td class="p-2 text-emerald-400">traveled</td></tr>
+                        <tr><td class="p-2">win (ชนะ)</td><td class="p-2">won</td><td class="p-2 text-emerald-400">won</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-3 bg-cosmic-950 text-center"><button onclick="closeDictionary()" class="text-xs text-slate-400 underline">ปิดหน้าต่าง</button></div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        // 🛑 นำ URL API (Google Apps Script) มาใส่ที่นี่ 🛑
+        const API_URL = "https://script.google.com/macros/s/AKfycbxxxxxxx_YOUR_URL_HERE_xxxxxxx/exec";
+        const TEACHER_PIN = "9999";
+
+        // ================= 1. DATA & SCENARIOS =================
+        const SCENARIOS = [
+            { id: "FUT-01", name: "The Master Detective (ยอดนักสืบ)", year: 2030, context: "คุณคือทีมนักสืบวัยรุ่นที่เดินทางไขคดีลึกลับทั่วโลกด้วยรถตู้คู่ใจ", hintFps: "ไขคดีครบ 100 คดี (กริยา: solve)", hintFpc: "เดินทางด้วยรถตู้มา 5 ปี (กริยา: travel)" },
+            { id: "FUT-02", name: "The E-Sports Champion (แชมป์อีสปอร์ต)", year: 2028, context: "ทีมนักกีฬาอีสปอร์ตตัวแทนประเทศที่กำลังจะลงแข่งนัดชิงแชมป์โลก", hintFps: "คว้าถ้วยรางวัล 5 ถ้วย (กริยา: win)", hintFpc: "ฝึกซ้อมเกมมา 30,000 ชั่วโมง (กริยา: train)" },
+            { id: "FUT-03", name: "The Space Explorer (นักสำรวจอวกาศ)", year: 2040, context: "นักบินอวกาศที่กำลังเดินทางไปตั้งถิ่นฐานบนดาวอังคาร", hintFps: "สร้างสถานีวิจัย 1 แห่ง (กริยา: build)", hintFpc: "เดินทางในอวกาศมา 8 เดือน (กริยา: travel)" },
+            { id: "FUT-04", name: "The Deep Sea Architect (สถาปนิกใต้ทะเล)", year: 2035, context: "นักออกแบบและสร้างเมืองกระจกใสอยู่ใต้ก้นมหาสมุทร", hintFps: "สร้างเมืองใต้น้ำ 3 เมือง (กริยา: build)", hintFpc: "อาศัยอยู่ใต้ทะเลมา 2 ปี (กริยา: live)" },
+            { id: "FUT-05", name: "The AI Whisperer (นักจิตวิทยา AI)", year: 2032, context: "ผู้เชี่ยวชาญด้านการบำบัดปัญญาประดิษฐ์ที่ติดไวรัสและสับสน", hintFps: "รักษา AI ที่ติดไวรัส 50 ตัว (กริยา: cure)", hintFpc: "ศึกษาโค้ดมา 3 ปี (กริยา: study)" },
+            { id: "FUT-06", name: "The Galactic Chef (เชฟอวกาศ)", year: 2033, context: "เปิดร้านอาหารสตรีทฟู้ดบนสถานีอวกาศนานาชาติ", hintFps: "เสิร์ฟอาหารให้เอเลี่ยน 1,000 จาน (กริยา: serve)", hintFpc: "คิดค้นเมนูใหม่มา 6 เดือน (กริยา: invent)" },
+            { id: "FUT-07", name: "The Robo-Vet (สัตวแพทย์ไซบอร์ก)", year: 2031, context: "สัตวแพทย์ที่เชี่ยวชาญการซ่อมแซมและรักษาสัตว์เลี้ยงหุ่นยนต์", hintFps: "ช่วยชีวิตสัตว์เลี้ยงหุ่นยนต์ 500 ตัว (กริยา: save)", hintFpc: "เปิดคลินิกมา 10 ปี (กริยา: run)" },
+            { id: "FUT-08", name: "The Time Historian (นักประวัติศาสตร์ข้ามเวลา)", year: 2045, context: "นักวิจัยที่ย้อนเวลาไปแอบดูเหตุการณ์สำคัญในอดีตเพื่อเขียนหนังสือ", hintFps: "รวบรวมของเก่า 20 ชิ้น (กริยา: collect)", hintFpc: "ซ่อนตัวในอดีตมา 4 ปี (กริยา: hide)" },
+            { id: "FUT-09", name: "The Hologram Idol (ไอดอลโฮโลแกรม)", year: 2030, context: "ศิลปินดิจิทัลที่จัดการแสดงคอนเสิร์ตพร้อมกันทั่วโลก", hintFps: "จัดการแสดงคอนเสิร์ต 50 รอบ (กริยา: perform)", hintFpc: "ร้องเพลงต่อเนื่องมา 12 ชั่วโมง (กริยา: sing)" },
+            { id: "FUT-10", name: "The Mars Botanist (นักพฤกษศาสตร์ดาวอังคาร)", year: 2038, context: "ผู้รับผิดชอบการปลูกป่าบนดาวอังคารเพื่อสร้างออกซิเจน", hintFps: "ปลูกต้นไม้รอด 100 ต้น (กริยา: grow)", hintFpc: "วิจัยดินมา 7 ปี (กริยา: research)" },
+            { id: "FUT-11", name: "The Dream Hacker (นักสืบความฝัน)", year: 2034, context: "เข้าไปในความฝันของผู้คนเพื่อไขปริศนาที่ซ่อนอยู่ในจิตใต้สำนึก", hintFps: "ไขปริศนาในฝัน 30 เรื่อง (กริยา: solve)", hintFpc: "เชื่อมต่อสมองมา 48 ชั่วโมง (กริยา: study หรือ research)" },
+            { id: "FUT-12", name: "The Cyber Ninja (นินจาไซเบอร์)", year: 2036, context: "สายลับยุคไฮเทคที่รับจ้างขโมยข้อมูลจากบริษัทคอร์ปอเรตยักษ์ใหญ่", hintFps: "ทำภารกิจสำเร็จ 10 ภารกิจ (กริยา: complete)", hintFpc: "ซ่อนตัวในเงามืดมา 3 วัน (กริยา: hide)" }
+        ];
+
+        let activeScenario = null;
+        let taggedMembers = [];
+        let boardMissions = [];
+        let peerEvals = [];
+        let presentIdx = 0;
+
+        // ================= 2. CORE UI & TABS =================
+        const $ = (id) => document.getElementById(id);
+        
+        function switchTab(tabId) {
+            ['mission', 'submit', 'present', 'eval'].forEach(t => {
+                $('tab-' + t).classList.remove('active');
+                $('panel-' + t).classList.add('hidden');
+            });
+            $('tab-' + tabId).classList.add('active');
+            $('panel-' + tabId).classList.remove('hidden');
+            
+            if (tabId === 'present') renderPresentSlide();
+            if (tabId === 'eval') updateEvalTargetDropdown();
+        }
+
+        function showToast(msg, type = "info") {
+            const container = $("toast-container");
+            const toast = document.createElement("div");
+            const colors = { success: "border-emerald-500 bg-emerald-950 text-emerald-200", error: "border-rose-500 bg-rose-950 text-rose-200", info: "border-cyan-500 bg-cyan-950 text-cyan-200" };
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border-l-4 shadow-lg backdrop-blur text-sm transform translate-x-full transition-all duration-300 ${colors[type]}`;
+            toast.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '⚠️' : '💡'}</span><span>${msg}</span>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove("translate-x-full"));
+            setTimeout(() => { toast.classList.add("translate-x-full"); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function openDictionary() { $('dict-modal').classList.remove('hidden'); $('dict-modal').classList.add('flex'); }
+        function closeDictionary() { $('dict-modal').classList.add('hidden'); $('dict-modal').classList.remove('flex'); }
+
+        // ================= 3. TAB 1: MISSION & DESTINY LOCK =================
+        window.addEventListener("DOMContentLoaded", () => {
+            checkDestinyLock();
+            fetchBoardData(); // Load board data in background
+        });
+
+        function checkDestinyLock() {
+            const lockedStr = localStorage.getItem("pd_future_scenario");
+            if (lockedStr) {
+                activeScenario = JSON.parse(lockedStr);
+                renderActiveScenario();
+            }
+        }
+
+        function generateMission() {
+            const btn = $('btn-generate');
+            btn.disabled = true; btn.innerHTML = '<span class="loader"></span> กำลังประมวลผล...';
+            
+            setTimeout(() => {
+                const randIdx = Math.floor(Math.random() * SCENARIOS.length);
+                activeScenario = SCENARIOS[randIdx];
+                localStorage.setItem("pd_future_scenario", JSON.stringify(activeScenario));
+                renderActiveScenario();
+                showToast("🔮 ล็อกเป้าหมายโชคชะตาเรียบร้อยแล้ว!", "success");
+            }, 1000);
+        }
+
+        function renderActiveScenario() {
+            $('mission-pre-state').classList.add('hidden');
+            $('mission-active-state').classList.remove('hidden');
+            
+            $('s-id').innerText = activeScenario.id;
+            $('s-name').innerText = activeScenario.name;
+            $('s-context').innerText = activeScenario.context;
+            $('s-year').innerText = activeScenario.year;
+            document.querySelectorAll('.dyn-year').forEach(el => el.innerText = activeScenario.year);
+            $('hint-fps').innerText = activeScenario.hintFps;
+            $('hint-fpc').innerText = activeScenario.hintFpc;
+        }
+
+        function copyPrompt() {
+            if(!activeScenario) return;
+            const fps = $('in-fps').value.trim();
+            const fpc = $('in-fpc').value.trim();
+            if(!fps || !fpc) { showToast("กรุณาแต่งประโยค Simple และ Continuous ให้เสร็จก่อนคัดลอกครับ", "error"); return; }
+            
+            const prompt = `Create a 3D animation style image of ${activeScenario.name}, doing ${activeScenario.context.split('ที่')[1] || activeScenario.context}, futuristic setting in the year ${activeScenario.year}, highly detailed, Pixar style.`;
+            navigator.clipboard.writeText(prompt).then(() => {
+                showToast("✅ คัดลอก Prompt สำหรับ AI สำเร็จ! นำไปวางได้เลย", "success");
+            });
+        }
+
+        function pullSentences() {
+            if(!activeScenario) { showToast("กรุณาสุ่มภารกิจในแท็บแรกก่อนครับ", "error"); return; }
+            const fps = $('in-fps').value.trim();
+            const fpc = $('in-fpc').value.trim();
+            const by1 = $('in-bytime').value.trim();
+            const by2 = $('in-challenge').value.trim();
+            
+            $('submit-fps').value = fps ? `By ${activeScenario.year}, I will have ${fps}.` : "";
+            $('submit-fpc').value = fpc ? `By ${activeScenario.year}, I will have been ${fpc}.` : "";
+            $('submit-bytime').value = (by1 && by2) ? `By the time ${by1}, I will ${by2}.` : "";
+            showToast("ดึงประโยคมาเรียบร้อย ตรวจสอบความถูกต้องอีกครั้งครับ", "info");
+        }
+
+        // ================= 4. TAB 2: TAGGING & SUBMIT =================
+        async function verifyAndAddMember() {
+            const sid = $('tag-input').value.trim();
+            if (!sid || sid.length < 4) { showToast("กรุณากรอกรหัสนักเรียนให้ถูกต้อง", "error"); return; }
+            if (taggedMembers.find(m => m.id === sid)) { showToast("เพิ่มสมาชิกคนนี้ไปแล้ว", "error"); return; }
+            if (API_URL.includes("YOUR_URL_HERE")) {
+                // Mock for testing without API
+                addMemberTag(sid, "นักเรียนทดสอบ " + sid); return;
+            }
+
+            const btn = $('btn-add-member'); btn.disabled = true; btn.innerText = "...";
+            try {
+                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({action: "verifyStudent", studentId: sid}) });
+                const data = await res.json();
+                if (data.status === "success") addMemberTag(sid, data.name);
+                else showToast(data.message, "error");
+            } catch(e) { showToast("ระบบขัดข้อง ทดลองเพิ่มชื่อจำลองแทน", "error"); addMemberTag(sid, "Guest " + sid); }
+            finally { btn.disabled = false; btn.innerText = "เพิ่ม"; $('tag-input').value = ""; }
+        }
+
+        function addMemberTag(id, name) {
+            taggedMembers.push({id, name});
+            renderTags();
+        }
+
+        function removeTag(id) {
+            taggedMembers = taggedMembers.filter(m => m.id !== id);
+            renderTags();
+        }
+
+        function renderTags() {
+            const wrap = $('member-tags-container');
+            if (taggedMembers.length === 0) { wrap.innerHTML = `<span class="text-xs text-slate-500 italic" id="no-member-text">ยังไม่มีสมาชิก (พิมพ์รหัสแล้วกดเพิ่ม)</span>`; return; }
+            wrap.innerHTML = taggedMembers.map(m => `
+                <span class="tag-pill">👤 ${m.name} <button onclick="removeTag('${m.id}')" class="ml-1 text-purple-300 hover:text-white">✕</button></span>
+            `).join('');
+        }
+
+        // Image compression
+        function compressImg(file) {
+            return new Promise((resolve) => {
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const cvs = document.createElement('canvas');
+                        const scale = Math.min(1, 600 / img.width);
+                        cvs.width = img.width * scale; cvs.height = img.height * scale;
+                        cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
+                        resolve(cvs.toDataURL('image/jpeg', 0.6));
+                    };
+                    img.src = e.target.result;
+                };
+                r.readAsDataURL(file);
+            });
+        }
+
+        let imgAi = "", imgSs = "";
+        $('in-ai').addEventListener('change', async (e) => { if(e.target.files[0]) { imgAi = await compressImg(e.target.files[0]); $('ai-ph').innerHTML = `<img src="${imgAi}">`; }});
+        $('in-ss').addEventListener('change', async (e) => { if(e.target.files[0]) { imgSs = await compressImg(e.target.files[0]); $('ss-ph').innerHTML = `<img src="${imgSs}">`; }});
+
+        async function submitGroupMission() {
+            const gName = $('submit-group').value.trim();
+            const fps = $('submit-fps').value.trim();
+            const fpc = $('submit-fpc').value.trim();
+            if(!activeScenario || !gName || taggedMembers.length === 0 || !fps || !fpc || !imgAi) {
+                showToast("กรุณากรอกชื่อกลุ่ม แท็กสมาชิก ประโยคให้ครบ และแนบภาพ AI ครับ", "error"); return;
+            }
+            if (API_URL.includes("YOUR_URL_HERE")) { showToast("จำลองการส่งงานสำเร็จ (ยังไม่ได้ใส่ลิงก์ API จริง)", "success"); return; }
+
+            const btn = $('btn-submit-mission'); btn.disabled = true; btn.innerHTML = '<span class="loader"></span> กำลังส่งข้อมูลสู่อวกาศ...';
+            
+            const payload = {
+                action: "saveGroupMission",
+                groupName: gName,
+                memberIds: taggedMembers.map(m => m.id),
+                scenarioId: activeScenario.id,
+                aiData: imgAi, ssData: imgSs,
+                ppSimple: fps, ppCont: fpc, challenge: $('submit-bytime').value.trim()
+            };
+
+            try {
+                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+                const data = await res.json();
+                if(data.status === "success") {
+                    showToast("🎉 ส่งผลงานขึ้นบอร์ดเรียบร้อย!", "success");
+                    setTimeout(() => fetchBoardData(), 1500);
+                } else showToast(data.message, "error");
+            } catch(e) { showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ", "error"); }
+            finally { btn.disabled = false; btn.innerHTML = "🚀 ส่งข้อมูลขึ้นบอร์ด (SUBMIT)"; }
+        }
+
+        // ================= 5. TAB 3: PRESENT & TAB 4: EVAL =================
+        async function fetchBoardData() {
+            if (API_URL.includes("YOUR_URL_HERE")) return;
+            try {
+                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({action: "getGroupMissionsAndEvals"}) });
+                const data = await res.json();
+                if(data.status === "success") {
+                    boardMissions = data.missions || [];
+                    peerEvals = data.evals || [];
+                    if($('panel-present').classList.contains('hidden') === false) renderPresentSlide();
+                    if($('panel-eval').classList.contains('hidden') === false) updateEvalTargetDropdown();
+                    renderLeaderboard();
+                }
+            } catch(e) { console.log("Fetch board err", e); }
+        }
+
+        function renderPresentSlide() {
+            const wrap = $('present-wrap');
+            if(boardMissions.length === 0) { wrap.innerHTML = `<div class="text-slate-500">ไม่มีผลงานในระบบ / กำลังโหลด...</div>`; return; }
+            if(presentIdx >= boardMissions.length) presentIdx = 0;
+            
+            const it = boardMissions[presentIdx];
+            wrap.innerHTML = `
+                <div class="w-full flex flex-col md:flex-row gap-6 items-center bg-cosmic-950 p-6 rounded-xl border border-slate-700 w-full animate-pulse-once">
+                    <div class="w-full md:w-5/12 flex-shrink-0 text-center">
+                        <img src="${it.aiData}" class="w-full max-h-[350px] object-contain rounded-xl border border-slate-600 shadow-[0_0_15px_rgba(6,182,212,0.2)] mb-3">
+                        ${it.ssData ? `<img src="${it.ssData}" class="w-full max-h-[100px] object-cover rounded border border-slate-700 opacity-60 hover:opacity-100 transition">` : ''}
+                    </div>
+                    <div class="w-full md:w-7/12 space-y-4">
+                        <div>
+                            <span class="px-2 py-0.5 bg-cyan-900 border border-cyan-400 text-[10px] text-cyan-200 rounded">${it.scenarioId}</span>
+                            <h3 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">${it.groupName}</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">MEMBERS ID: ${it.memberIds}</p>
+                        </div>
+                        <div class="space-y-3 pt-2">
+                            <div class="bg-slate-900/60 p-3 rounded-lg border-l-2 border-emerald-500">
+                                <span class="text-[10px] font-bold text-emerald-400 block mb-1">FPS (Result)</span>
+                                <p class="text-sm font-mono text-white">${it.ppSimple}</p>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border-l-2 border-orange-500">
+                                <span class="text-[10px] font-bold text-orange-400 block mb-1">FPC (Duration)</span>
+                                <p class="text-sm font-mono text-white">${it.ppCont}</p>
+                            </div>
+                            ${it.challenge ? `
+                            <div class="bg-slate-900/60 p-3 rounded-lg border-l-2 border-pink-500">
+                                <span class="text-[10px] font-bold text-pink-400 block mb-1">CHALLENGE</span>
+                                <p class="text-sm font-mono text-white">${it.challenge}</p>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
+                    <button onclick="changeSlide(-1)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition">⬅️ PREV</button>
+                    <span class="px-4 py-2 bg-cosmic-950 text-cyan-300 rounded-lg text-xs font-bold border border-cyan-900">[ ${presentIdx + 1} / ${boardMissions.length} ]</span>
+                    <button onclick="changeSlide(1)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition">NEXT ➡️</button>
+                </div>
+            `;
+        }
+        function changeSlide(dir) { presentIdx = (presentIdx + dir + boardMissions.length) % boardMissions.length; renderPresentSlide(); }
+
+        // Eval System
+        const evalScores = { grammar: null, time: null, coherence: null };
+        document.querySelectorAll('.rate-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const container = e.target.parentElement;
+                const type = container.id.split('-')[1];
+                const val = Number(e.target.dataset.v);
+                evalScores[type] = val;
+                container.querySelectorAll('.rate-btn').forEach(b => b.classList.toggle('selected', b === e.target));
+            });
+        });
+
+        function updateEvalTargetDropdown() {
+            const sel = $('eval-target-group');
+            sel.innerHTML = '<option value="">-- เลือกกลุ่มเพื่อนที่จะให้คะแนน --</option>' + 
+                            boardMissions.map(m => `<option value="${m.groupName}">${m.groupName}</option>`).join('');
+        }
+
+        async function submitEval() {
+            const eid = $('evaluator-id').value.trim();
+            const tgt = $('eval-target-group').value;
+            if(!eid || !tgt || !evalScores.grammar || !evalScores.time || !evalScores.coherence) {
+                showToast("กรุณากรอกข้อมูลและให้คะแนนให้ครบทุกข้อครับ", "error"); return;
+            }
+            if (API_URL.includes("YOUR_URL_HERE")) { showToast("จำลองโหวตสำเร็จ!", "success"); return; }
+            
+            const btn = $('btn-submit-eval'); btn.disabled = true; btn.innerText = "...";
+            try {
+                const payload = { action: "savePeerEval", evaluatorId: eid, targetGroup: tgt, scoreGrammar: evalScores.grammar, scoreTime: evalScores.time, scoreCoherence: evalScores.coherence };
+                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+                const data = await res.json();
+                if(data.status === "success") {
+                    showToast("✅ ส่งผลประเมินสำเร็จ ขอบคุณครับ!", "success");
+                    document.querySelectorAll('.rate-btn').forEach(b => b.classList.remove('selected'));
+                    evalScores.grammar = null; evalScores.time = null; evalScores.coherence = null;
+                    setTimeout(() => fetchBoardData(), 1000);
+                }
+            } catch(e) { showToast("เกิดข้อผิดพลาดในการส่งข้อมูล", "error"); }
+            finally { btn.disabled = false; btn.innerText = "✅ ส่งผลการประเมิน"; }
+        }
+
+        function renderLeaderboard() {
+            const body = $('leaderboard-body');
+            if(peerEvals.length === 0) { body.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500 text-xs">ยังไม่มีคะแนน</td></tr>`; return; }
+
+            const scores = {};
+            peerEvals.forEach(ev => {
+                if(!scores[ev.targetGroup]) scores[ev.targetGroup] = { g:[], t:[], c:[] };
+                scores[ev.targetGroup].g.push(Number(ev.scoreGrammar));
+                scores[ev.targetGroup].t.push(Number(ev.scoreTime));
+                scores[ev.targetGroup].c.push(Number(ev.scoreCoherence));
+            });
+
+            const avg = arr => arr.reduce((a,b)=>a+b,0)/arr.length || 0;
+            const ranks = Object.keys(scores).map(grp => {
+                const o_g = avg(scores[grp].g), o_t = avg(scores[grp].t), o_c = avg(scores[grp].c);
+                return { group: grp, overall: (o_g+o_t+o_c)/3, votes: scores[grp].g.length };
+            }).sort((a,b) => b.overall - a.overall);
+
+            body.innerHTML = ranks.map((r, i) => `
+                <tr class="border-b border-slate-800/50 hover:bg-slate-800/20 transition">
+                    <td class="p-2 font-mono text-cyan-400">#${i+1}</td>
+                    <td class="p-2 font-bold text-slate-200">${r.group}</td>
+                    <td class="p-2 text-center text-emerald-400 font-bold">${r.overall.toFixed(2)}</td>
+                    <td class="p-2 text-center text-slate-400 text-xs">${r.votes}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ================= 6. TEACHER MODE (SQUAD RANDOMIZER) =================
+        let logoClicks = 0;
+        let clickTimer = null;
+        $('logo-trigger').addEventListener('click', () => {
+            logoClicks++;
+            clearTimeout(clickTimer);
+            if(logoClicks >= 3) {
+                logoClicks = 0;
+                const pin = prompt("🔐 Teacher Override: กรุณากรอกรหัสผ่าน (PIN)");
+                if(pin === TEACHER_PIN) { $('teacher-modal').classList.remove('hidden'); $('teacher-modal').classList.add('flex'); }
+                else if(pin) showToast("รหัสผ่านไม่ถูกต้อง!", "error");
+            }
+            clickTimer = setTimeout(() => logoClicks = 0, 1000);
+        });
+        
+        function closeTeacherModal() { $('teacher-modal').classList.add('hidden'); $('teacher-modal').classList.remove('flex'); }
+        function resetDestinyLock() {
+            if(confirm("แน่ใจหรือไม่? การรีเซ็ตจะลบการสุ่มของเครื่องนี้ทิ้ง เพื่อสุ่มใหม่")) {
+                localStorage.removeItem("pd_future_scenario");
+                activeScenario = null;
+                $('mission-active-state').classList.add('hidden');
+                $('mission-pre-state').classList.remove('hidden');
+                closeTeacherModal(); showToast("ปลดล็อกโชคชะตาเรียบร้อย", "success");
+            }
+        }
+
+        let randomPool = [];
+        async function fetchStudentsForRandom() {
+            const cls = $('t-class-input').value.trim();
+            if(!cls) return;
+            const btn = $('btn-fetch-std'); btn.disabled = true; btn.innerText = "...";
+            try {
+                if (API_URL.includes("YOUR_URL_HERE")) {
+                    // Mock data
+                    randomPool = Array.from({length: 20}, (_, i) => ({ id: "100"+i, name: "Student " + (i+1), active: true }));
+                } else {
+                    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({action: "getStudentsByClass", className: cls}) });
+                    const data = await res.json();
+                    if(data.status === "success") {
+                        randomPool = data.students.map(s => ({...s, active: true}));
+                    }
+                }
+                renderRandomPool();
+                $('btn-do-random').disabled = false;
+            } catch(e) { showToast("ดึงข้อมูลพลาด", "error"); }
+            finally { btn.disabled = false; btn.innerText = "ดึงชื่อ"; }
+        }
+
+        function renderRandomPool() {
+            const wrap = $('t-student-pool');
+            const activeCount = randomPool.filter(s => s.active).length;
+            $('t-active-count').innerText = activeCount;
+            
+            if(randomPool.length === 0) { wrap.innerHTML = `<div class="text-slate-500 text-xs p-2">ไม่พบรายชื่อในห้องนี้</div>`; return; }
+            
+            wrap.innerHTML = randomPool.map((s, idx) => `
+                <div onclick="togglePoolStudent(${idx})" class="student-pill px-2 py-1 rounded text-[10px] font-bold ${s.active ? 'active' : 'inactive'}">
+                    ${s.id}: ${s.name}
+                </div>
+            `).join('');
+        }
+
+        function togglePoolStudent(idx) {
+            randomPool[idx].active = !randomPool[idx].active;
+            renderRandomPool();
+        }
+
+        function executeRandomizer() {
+            const activeStudents = randomPool.filter(s => s.active);
+            if(activeStudents.length === 0) { showToast("ไม่มีนักเรียนให้สุ่ม!", "error"); return; }
+            
+            // Shuffle (Fisher-Yates)
+            for (let i = activeStudents.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeStudents[i], activeStudents[j]] = [activeStudents[j], activeStudents[i]];
+            }
+
+            const mode = document.querySelector('input[name="grp-mode"]:checked').value;
+            const num = parseInt($('t-group-num').value) || 4;
+            
+            let numGroups = mode === 'amount' ? num : Math.ceil(activeStudents.length / num);
+            if(numGroups <= 0) numGroups = 1;
+            
+            const groups = Array.from({length: numGroups}, () => []);
+            activeStudents.forEach((std, idx) => { groups[idx % numGroups].push(std); });
+
+            const grid = $('t-result-grid');
+            grid.innerHTML = "";
+            $('t-result-area').classList.remove('hidden');
+
+            groups.forEach((grp, i) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 border border-cyan-500/40 rounded-xl p-3 shadow-[0_0_15px_rgba(6,182,212,0.15)] group-reveal";
+                card.style.animationDelay = `${i * 0.15}s`;
+                card.innerHTML = `
+                    <h4 class="font-bold text-cyan-300 border-b border-cyan-900 pb-1 mb-2">กลุ่มที่ ${i+1} <span class="text-[10px] text-slate-500 float-right">(${grp.length} คน)</span></h4>
+                    <ul class="text-xs text-slate-300 space-y-1">
+                        ${grp.map(m => `<li>• ${m.name.split(' ')[0]}</li>`).join('')}
+                    </ul>
+                `;
+                grid.appendChild(card);
+            });
+            
+            // Scroll to result
+            setTimeout(() => $('t-result-area').scrollIntoView({behavior: 'smooth'}), 100);
+        }
+    </script>
+</body>
+</html>
