@@ -52,6 +52,25 @@
         .btn-action:active:not(:disabled) { transform: translateY(1px); }
         .btn-action:disabled { background: #1e293b; color: #64748b; box-shadow: none; cursor: not-allowed; }
         
+        .spell-btn {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(250, 204, 21, 0.4);
+            color: #facc15;
+            padding: 12px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        @media (min-width: 640px) { .spell-btn { font-size: 1rem; padding: 16px; } }
+        .spell-btn:hover:not(:disabled) { background: rgba(250, 204, 21, 0.2); border-color: #facc15; transform: scale(1.02); }
+        .spell-btn:active:not(:disabled) { transform: scale(0.95); }
+        .spell-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+        .spell-btn.correct { background: rgba(16, 185, 129, 0.3) !important; border-color: #10b981 !important; color: #fff !important; box-shadow: 0 0 15px rgba(16,185,129,0.5); }
+        .spell-btn.wrong { background: rgba(244, 63, 94, 0.3) !important; border-color: #f43f5e !important; color: #fff !important; box-shadow: 0 0 15px rgba(244,63,94,0.5); }
+        
         .boss-img { filter: drop-shadow(0 0 25px rgba(250, 204, 21, 0.4)); animation: floatSlow 4s ease-in-out infinite; }
         .boss-hit { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; filter: drop-shadow(0 0 35px rgba(244, 63, 94, 0.8)) hue-rotate(300deg); }
         .boss-attack { animation: lunge 0.8s ease-in-out; filter: drop-shadow(0 0 35px rgba(250, 204, 21, 0.8)) brightness(1.2); }
@@ -66,9 +85,6 @@
 
         .dmg-text { position: absolute; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 2rem; color: #facc15; text-shadow: 0 0 10px #f59e0b, 2px 2px 0 #000; pointer-events: none; animation: popScore 1.2s forwards; z-index: 50; }
         .miss-text { color: #f43f5e; text-shadow: 0 0 10px #e11d48, 2px 2px 0 #000; }
-
-        .recording-pulse { animation: pulseBg 1.5s infinite; }
-        @keyframes pulseBg { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-10 flex flex-col items-center">
@@ -76,7 +92,7 @@
     <!-- SCREEN 1: PRE-COMBAT LOBBY -->
     <div id="screen-lobby" class="glass-panel rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative overflow-hidden">
         <div class="text-center mb-6">
-            <h1 class="font-scifi text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-500 mb-2">VOICE LAB: U4</h1>
+            <h1 class="font-scifi text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-500 mb-2">VOCAB STRIKE: U4</h1>
             <p class="text-slate-300 text-sm sm:text-base">Target: The Gilded Glitch (บอสแห่งความมัวเมาในทรัพย์)</p>
         </div>
         
@@ -84,11 +100,11 @@
             <img src="boss_thegildedglitch.png" alt="The Gilded Glitch" class="w-32 h-32 object-contain mx-auto mb-4 boss-img" onerror="this.src='https://via.placeholder.com/150/090514/facc15?text=BOSS'">
             <div class="text-xs text-slate-300 space-y-1.5 font-medium mb-4 text-left px-4">
                 <p class="text-yellow-400 font-bold mb-2">📜 COMBAT BRIEFING:</p>
-                <p>1. ระบบจะสุ่มคำศัพท์/ประโยคภาษาอังกฤษจาก Unit 4</p>
-                <p>2. กดปุ่ม <span class="text-red-400 font-bold">[MIC]</span> และออกเสียงคำศัพท์ให้ถูกต้อง (ภาษาอังกฤษเท่านั้น)</p>
-                <p>3. หากออกเสียงถูก จะสร้างความเสียหายให้บอส (ATK)</p>
-                <p>4. หากเวลาหมดหรือออกเสียงผิด บอสจะโจมตีคุณ (HP ลด)</p>
-                <p>5. ปราบบอสให้สำเร็จเพื่อรับรหัสลับ <strong class="text-yellow-400">V04-{CIPHER}</strong> และ <strong class="text-yellow-400">200 XP</strong></p>
+                <p>1. ระบบจะสุ่ม 3 โหมดโจมตี: <span class="text-cyan-300">แปลความหมาย, เรียงอักษร, เรียงประโยค</span></p>
+                <p>2. กดเรียงคำหรือตอบให้ถูกต้องก่อนหลอดเวลาจะหมด (สามารถกดเอาคำออกได้ถ้าเรียงผิด)</p>
+                <p>3. หากตอบถูก จะสร้างความเสียหายให้บอส (ATK)</p>
+                <p>4. หากตอบผิด หรือเวลาหมด บอสจะโจมตีคุณ (HP ผู้เล่น -1)</p>
+                <p>5. ปราบบอสให้ครบ <strong class="text-yellow-400">15 ข้อ</strong> เพื่อรับรหัส <strong class="text-yellow-400">V04-{CIPHER}</strong></p>
             </div>
             <div class="mb-4 text-left px-4">
                 <label class="block text-xs font-medium text-yellow-200 mb-2">กรุณายืนยันรหัสนักเรียน (Student ID)</label>
@@ -105,7 +121,7 @@
     </div>
 
     <!-- SCREEN 2: BATTLE ARENA -->
-    <div id="screen-battle" class="glass-panel rounded-3xl max-w-4xl w-full p-4 sm:p-6 lg:p-8 hidden relative flex flex-col h-[90vh] max-h-[800px]">
+    <div id="screen-battle" class="glass-panel rounded-3xl max-w-4xl w-full p-4 sm:p-6 lg:p-8 hidden relative flex flex-col h-[95vh] max-h-[850px]">
         
         <!-- Top Bar: Player vs Boss HP -->
         <div class="flex justify-between items-end mb-4 sm:mb-8 gap-4 flex-shrink-0">
@@ -125,8 +141,8 @@
             <!-- Boss Status -->
             <div class="flex-1 text-right">
                 <div class="flex items-center justify-end gap-2 mb-1.5">
-                    <span class="font-scifi font-bold text-xs sm:text-sm text-yellow-400">THE GILDED GLITCH</span>
-                    <div class="w-8 h-8 rounded-full bg-yellow-900 border border-yellow-500 flex items-center justify-center text-xs">💰</div>
+                    <span class="font-scifi font-bold text-xs sm:text-sm text-yellow-400 line-clamp-1">THE GILDED GLITCH</span>
+                    <div class="w-8 h-8 rounded-full bg-yellow-900 border border-yellow-500 flex items-center justify-center text-xs flex-shrink-0">💰</div>
                 </div>
                 <div class="h-3 hp-bar-bg flex justify-end">
                     <div id="boss-hp-fill" class="h-full hp-fill" style="width: 100%"></div>
@@ -143,28 +159,20 @@
             </div>
 
             <!-- Word Display Box -->
-            <div class="w-full max-w-md bg-black/60 border-2 border-yellow-500/40 rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(250,204,21,0.15)] relative overflow-hidden">
+            <div class="w-full max-w-lg bg-black/60 border-2 border-yellow-500/40 rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(250,204,21,0.15)] relative overflow-hidden flex-shrink-0 min-h-[220px]">
                 <div id="timer-bar" class="absolute top-0 left-0 h-1.5 bg-yellow-400 shadow-[0_0_10px_#facc15] transition-all duration-[50ms]" style="width: 100%"></div>
                 
-                <p class="text-xs text-yellow-500 font-bold mb-2 font-scifi tracking-widest">PRONOUNCE TO ATTACK</p>
-                <div id="target-word" class="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-wide font-sans">READY...</div>
-                <div id="word-translation" class="text-sm text-slate-400 mb-4 h-5"></div>
+                <p id="mode-prompt" class="text-[10px] sm:text-xs text-yellow-500 font-bold mb-3 font-scifi tracking-widest">PREPARE FOR ATTACK</p>
                 
-                <!-- Speech recognition feedback -->
-                <div class="h-10 flex items-center justify-center bg-cosmic-950 rounded-xl border border-slate-700/50 px-4">
-                    <span id="speech-result" class="text-sm text-slate-500 italic">" พูดผ่านไมโครโฟน... "</span>
+                <!-- ปรับฟอนต์ให้รองรับภาษาไทยสวยๆ -->
+                <div id="target-word" class="text-2xl sm:text-3xl font-bold text-white mb-5 tracking-wide font-sans leading-relaxed min-h-[40px]">READY...</div>
+                
+                <!-- Choices / Scramble Pieces Grid -->
+                <div id="choices-grid" class="grid grid-cols-2 gap-3 w-full">
+                    <!-- Buttons injected by JS -->
                 </div>
             </div>
         </div>
-
-        <!-- Bottom: Controls -->
-        <div class="mt-4 flex-shrink-0 flex justify-center pb-2">
-            <button id="mic-btn" onmousedown="startListening()" onmouseup="stopListening()" ontouchstart="startListening(event)" ontouchend="stopListening(event)" disabled
-                class="w-24 h-24 rounded-full bg-cosmic-900 border-4 border-yellow-500/30 flex items-center justify-center text-4xl shadow-lg transition-all active:scale-95 touch-none">
-                🎙️
-            </button>
-        </div>
-        <p class="text-center text-[10px] text-slate-500 mt-3 font-scifi uppercase">Hold Mic to speak • Release to attack</p>
     </div>
 
     <!-- SCREEN 3: RESULT -->
@@ -227,87 +235,54 @@
             { en: "debit card", th: "บัตรเดบิต" }
         ];
 
+        // --- SENTENCE DATABASE (UNIT 4) ---
+        const SENTENCE_DB = [
+            "I want to find a job first",
+            "I need to earn some money",
+            "I like this city",
+            "I will try to stay here",
+            "We should help each other",
+            "That sounds perfect",
+            "I am so stressed out today",
+            "I really need somebody to talk to",
+            "I forgot to bring my umbrella",
+            "He wants to break up with me",
+            "I am trying to figure out what to buy",
+            "Can you give me some guidance",
+            "You can transfer money from your savings",
+            "I need to withdraw money from the bank",
+            "Have you seen my debit card",
+            "I absolutely love shopping"
+        ];
+
         let currentSid = "";
-        let playerMaxHp = 3; let playerHp = 3;
-        let bossMaxHp = 10; let bossHp = 10; // ต้องตอบถูก 10 คำเพื่อปราบ
+        let playerMaxHp = 5; let playerHp = 5;
+        let bossMaxHp = 15; let bossHp = 15; // ต้องตอบถูก 15 คำเพื่อปราบ
         
-        let currentWordObj = null;
+        let currentMode = ""; // "TRANSLATE", "SCRAMBLE_WORD", "SCRAMBLE_SENTENCE"
+        let currentTarget = null;
+        let currentChoices = [];
+        let scrambledArray = [];
+        let userAnswerArray = [];
+        
         let timerInterval;
-        let timeLeft = 0; const MAX_TIME = 8000; // 8 วิ ต่อ 1 คำ
-        
-        let recognition = null;
-        let isRecording = false;
+        let timeLeft = 0; 
+        const TIME_LIMITS = {
+            "TRANSLATE": 8000,
+            "SCRAMBLE_WORD": 12000,
+            "SCRAMBLE_SENTENCE": 15000
+        };
 
         document.addEventListener("DOMContentLoaded", () => {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('sid')) {
                 document.getElementById('sid-input').value = urlParams.get('sid');
             }
-            initSpeechRecognition();
         });
-
-        function initSpeechRecognition() {
-            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (window.SpeechRecognition) {
-                recognition = new SpeechRecognition();
-                recognition.lang = 'en-US';
-                recognition.interimResults = true; // ให้แสดงผลระหว่างพูดได้
-                recognition.maxAlternatives = 1;
-                
-                recognition.onstart = function() {
-                    isRecording = true;
-                    document.getElementById("mic-btn").classList.add("recording-pulse", "border-red-500");
-                    document.getElementById("mic-btn").classList.remove("border-yellow-500/30");
-                    document.getElementById("speech-result").innerHTML = '<span class="text-blue-400">กำลังฟัง...</span>';
-                };
-                
-                recognition.onresult = function(event) {
-                    const transcript = event.results[0][0].transcript;
-                    document.getElementById("speech-result").innerHTML = `<span class="text-white">"${transcript}"</span>`;
-                    
-                    // ตรวจคำตอบแบบ Real-time ถ้าถูกให้หยุดฟังแล้วโจมตีเลย (เด็กจะได้ไม่ต้องรอกดปล่อยปุ่ม)
-                    if (checkAnswer(transcript)) {
-                        recognition.stop();
-                    }
-                };
-                
-                recognition.onend = function() {
-                    isRecording = false;
-                    document.getElementById("mic-btn").classList.remove("recording-pulse", "border-red-500");
-                    document.getElementById("mic-btn").classList.add("border-yellow-500/30");
-                    
-                    if (playerHp > 0 && bossHp > 0) {
-                        const finalTranscript = document.getElementById("speech-result").innerText.replace(/"/g, '').trim();
-                        if(finalTranscript && finalTranscript !== "กำลังฟัง..." && finalTranscript !== "พูดผ่านไมโครโฟน...") {
-                            if(!checkAnswer(finalTranscript)) {
-                                processMiss();
-                            }
-                        }
-                    }
-                };
-                
-                recognition.onerror = function(event) {
-                    console.error("Speech recognition error", event.error);
-                    isRecording = false;
-                    document.getElementById("mic-btn").classList.remove("recording-pulse", "border-red-500");
-                    document.getElementById("mic-btn").classList.add("border-yellow-500/30");
-                    if(event.error === 'not-allowed') {
-                        alert("กรุณาอนุญาตให้ใช้งานไมโครโฟนก่อนเล่นเกมครับ");
-                    }
-                };
-            } else {
-                alert("เบราว์เซอร์ของคุณไม่รองรับระบบสั่งงานด้วยเสียง แนะนำให้ใช้ Google Chrome หรือ Safari เวอร์ชันล่าสุดครับ");
-                document.getElementById("mic-btn").disabled = true;
-            }
-        }
 
         function startCombat() {
             const sidInput = document.getElementById("sid-input").value.trim();
             if (!sidInput) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ");
-            
-            if(!window.SpeechRecognition) {
-                return alert("ต้องใช้เบราว์เซอร์ที่รองรับไมค์ (Chrome/Safari) นะครับ");
-            }
             
             currentSid = sidInput;
             document.getElementById("screen-lobby").classList.add("hidden");
@@ -318,7 +293,6 @@
             bossHp = bossMaxHp;
             updateHpBars();
             
-            // สุ่มคำศัพท์แรกและเริ่มเกม
             setTimeout(nextTurn, 1000);
         }
 
@@ -328,7 +302,6 @@
             document.getElementById("player-hp-fill").style.width = `${playerPct}%`;
             document.getElementById("boss-hp-fill").style.width = `${bossPct}%`;
             
-            // เปลี่ยนสีหลอดเลือดตามปริมาณ
             const pFill = document.getElementById("player-hp-fill");
             if(playerPct <= 35) pFill.className = "h-full hp-fill bg-gradient-to-r from-red-600 to-red-400 shadow-[0_0_10px_#ef4444]";
             else pFill.className = "h-full hp-fill bg-gradient-to-r from-cyan-600 to-cyan-400 shadow-[0_0_10px_#22d3ee]";
@@ -338,18 +311,75 @@
             if (playerHp <= 0) return gameOver(false);
             if (bossHp <= 0) return gameOver(true);
             
-            // สุ่มคำศัพท์
-            const randomIndex = Math.floor(Math.random() * WORD_DB.length);
-            currentWordObj = WORD_DB[randomIndex];
+            // สุ่มโหมด (Translate 40%, Scramble Word 30%, Scramble Sentence 30%)
+            const rMode = Math.random();
+            if (rMode < 0.4) currentMode = "TRANSLATE";
+            else if (rMode < 0.7) currentMode = "SCRAMBLE_WORD";
+            else currentMode = "SCRAMBLE_SENTENCE";
+
+            setupModeUI();
+        }
+
+        function setupModeUI() {
+            const grid = document.getElementById("choices-grid");
+            const targetWordEl = document.getElementById("target-word");
+            const modePromptEl = document.getElementById("mode-prompt");
             
-            document.getElementById("target-word").textContent = currentWordObj.en;
-            document.getElementById("word-translation").textContent = currentWordObj.th;
-            document.getElementById("speech-result").innerHTML = '<span class="text-slate-500 italic">" พูดผ่านไมโครโฟน... "</span>';
-            
-            document.getElementById("mic-btn").disabled = false;
-            
-            // รีเซ็ตและเริ่มหลอดเวลา
-            timeLeft = MAX_TIME;
+            if (currentMode === "TRANSLATE") {
+                modePromptEl.textContent = "TRANSLATE TO ATTACK";
+                const r = Math.floor(Math.random() * WORD_DB.length);
+                currentTarget = WORD_DB[r];
+                targetWordEl.innerHTML = `<span class="text-3xl">${currentTarget.th}</span>`;
+                
+                let distractors = [];
+                while(distractors.length < 3) {
+                    let d = Math.floor(Math.random() * WORD_DB.length);
+                    if (d !== r && !distractors.includes(WORD_DB[d])) {
+                        distractors.push(WORD_DB[d]);
+                    }
+                }
+                currentChoices = [currentTarget, ...distractors].sort(() => Math.random() - 0.5);
+                
+                grid.innerHTML = currentChoices.map((choice, index) => 
+                    `<button id="choice-btn-${index}" onclick="checkTranslateAnswer(${index})" class="spell-btn truncate">${choice.en}</button>`
+                ).join("");
+                
+            } else if (currentMode === "SCRAMBLE_WORD") {
+                modePromptEl.textContent = "SPELL THE WORD";
+                const r = Math.floor(Math.random() * WORD_DB.length);
+                currentTarget = WORD_DB[r];
+                targetWordEl.innerHTML = `<span class="text-sm text-yellow-300 block mb-1">ความหมาย: ${currentTarget.th}</span><div id="scramble-answer" class="text-3xl h-10 border-b-2 border-dashed border-slate-500 min-w-[200px] inline-block"></div>`;
+                
+                scrambledArray = currentTarget.en.replace(/\s+/g, '').split('').sort(() => Math.random() - 0.5);
+                userAnswerArray = [];
+                
+                grid.innerHTML = `<div class="col-span-2 flex flex-wrap justify-center gap-2" id="scramble-pieces">
+                    ${scrambledArray.map((letter, index) => 
+                        `<button id="piece-${index}" onclick="selectScramblePiece(${index}, '${letter}')" class="spell-btn w-12 h-12 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(250,204,21,0.2)]">${letter.toUpperCase()}</button>`
+                    ).join("")}
+                </div>`;
+                
+            } else if (currentMode === "SCRAMBLE_SENTENCE") {
+                modePromptEl.textContent = "ARRANGE THE SENTENCE";
+                const r = Math.floor(Math.random() * SENTENCE_DB.length);
+                currentTarget = SENTENCE_DB[r];
+                targetWordEl.innerHTML = `<div id="scramble-answer" class="text-lg sm:text-xl h-20 sm:h-24 flex flex-wrap justify-center items-center gap-2 w-full p-2 bg-black/40 rounded-xl border border-slate-700/50"></div>`;
+                
+                scrambledArray = currentTarget.replace(/[.,!?]/g, '').split(' ').sort(() => Math.random() - 0.5);
+                userAnswerArray = [];
+                
+                grid.innerHTML = `<div class="col-span-2 flex flex-wrap justify-center gap-2" id="scramble-pieces">
+                    ${scrambledArray.map((word, index) => 
+                        `<button id="piece-${index}" onclick="selectScramblePiece(${index}, '${word}')" class="spell-btn px-4 py-2">${word}</button>`
+                    ).join("")}
+                </div>`;
+            }
+
+            startStageTimer(TIME_LIMITS[currentMode]);
+        }
+
+        function startStageTimer(maxTime) {
+            timeLeft = maxTime;
             clearInterval(timerInterval);
             
             const timerBar = document.getElementById("timer-bar");
@@ -361,57 +391,92 @@
                 timerBar.style.transition = "width 50ms linear";
                 timerInterval = setInterval(() => {
                     timeLeft -= 50;
-                    const timePct = (timeLeft / MAX_TIME) * 100;
+                    const timePct = (timeLeft / maxTime) * 100;
                     timerBar.style.width = `${timePct}%`;
                     
-                    if (timePct < 30) {
-                        timerBar.className = "absolute top-0 left-0 h-1.5 bg-red-500 shadow-[0_0_10px_#ef4444]";
-                    }
+                    if (timePct < 30) timerBar.className = "absolute top-0 left-0 h-1.5 bg-red-500 shadow-[0_0_10px_#ef4444]";
                     
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
-                        if(isRecording && recognition) recognition.stop();
-                        processBossAttack(); // เวลาหมด บอสโจมตี
+                        processMiss(); // เวลาหมด
                     }
                 }, 50);
             }, 50);
         }
 
-        function startListening(e) {
-            if(e) e.preventDefault(); // กันคลิกเบิ้ลในมือถือ
-            if (document.getElementById("mic-btn").disabled || isRecording) return;
-            try { recognition.start(); } catch(err) {}
-        }
-        
-        function stopListening(e) {
-            if(e) e.preventDefault();
-            if (isRecording) {
-                try { recognition.stop(); } catch(err) {}
-            }
-        }
-
-        function cleanString(str) {
-            return str.toLowerCase().replace(/[.,!?]/g, '').trim();
-        }
-
-        function checkAnswer(spokenText) {
-            const spokenClean = cleanString(spokenText);
-            const targetClean = cleanString(currentWordObj.en);
+        // --- Logic สำหรับ Translate ---
+        function checkTranslateAnswer(selectedIndex) {
+            clearInterval(timerInterval);
+            const btns = document.querySelectorAll('.spell-btn');
+            btns.forEach(b => b.disabled = true);
             
-            if (spokenClean === targetClean || spokenClean.includes(targetClean)) {
+            const selectedBtn = document.getElementById(`choice-btn-${selectedIndex}`);
+            if (currentChoices[selectedIndex].en === currentTarget.en) {
+                selectedBtn.classList.add('correct');
                 processHit();
-                return true;
+            } else {
+                selectedBtn.classList.add('wrong');
+                currentChoices.forEach((c, idx) => {
+                    if (c.en === currentTarget.en) document.getElementById(`choice-btn-${idx}`).classList.add('correct');
+                });
+                processMiss();
             }
-            return false;
         }
 
+        // --- Logic สำหรับ Scramble ---
+        function selectScramblePiece(index, value) {
+            const btn = document.getElementById(`piece-${index}`);
+            btn.classList.add('hidden');
+            
+            userAnswerArray.push({ index, value });
+            updateScrambleAnswerDisplay();
+            
+            if (userAnswerArray.length === scrambledArray.length) {
+                checkScrambleAnswer();
+            }
+        }
+
+        function removeScramblePiece(answerIndex) {
+            const item = userAnswerArray[answerIndex];
+            document.getElementById(`piece-${item.index}`).classList.remove('hidden');
+            userAnswerArray.splice(answerIndex, 1);
+            updateScrambleAnswerDisplay();
+        }
+
+        function updateScrambleAnswerDisplay() {
+            const ansContainer = document.getElementById("scramble-answer");
+            if (currentMode === "SCRAMBLE_WORD") {
+                ansContainer.innerHTML = userAnswerArray.map((item, idx) => 
+                    `<span onclick="removeScramblePiece(${idx})" class="cursor-pointer text-yellow-400 mx-0.5 hover:text-red-400 transition">${item.value.toUpperCase()}</span>`
+                ).join("");
+            } else {
+                ansContainer.innerHTML = userAnswerArray.map((item, idx) => 
+                    `<span onclick="removeScramblePiece(${idx})" class="cursor-pointer bg-cosmic-900 border border-yellow-500/50 px-2 py-1 rounded-md text-sm text-yellow-300 hover:bg-red-900 transition">${item.value}</span>`
+                ).join("");
+            }
+        }
+
+        function checkScrambleAnswer() {
+            clearInterval(timerInterval);
+            const userStr = userAnswerArray.map(i => i.value).join(currentMode === "SCRAMBLE_WORD" ? "" : " ").toLowerCase();
+            const targetStr = (currentMode === "SCRAMBLE_WORD" ? currentTarget.en.replace(/\s+/g, '') : currentTarget.replace(/[.,!?]/g, '')).toLowerCase();
+            
+            if (userStr === targetStr) {
+                document.getElementById("scramble-answer").classList.add("text-emerald-400", "font-bold");
+                processHit();
+            } else {
+                document.getElementById("scramble-answer").classList.add("text-red-500", "line-through");
+                processMiss();
+            }
+        }
+
+        // --- Battle Actions ---
         function showDamage(amount, type) {
             const spriteContainer = document.getElementById("boss-sprite-container");
             const dmgEl = document.createElement("div");
             dmgEl.className = type === 'hit' ? "dmg-text text-yellow-300" : "dmg-text miss-text";
             dmgEl.textContent = type === 'hit' ? `-${amount} DMG!` : "MISS!";
             
-            // Random position a bit
             const offsetX = (Math.random() - 0.5) * 40;
             dmgEl.style.left = `calc(50% + ${offsetX}px)`;
             dmgEl.style.top = "20%";
@@ -421,11 +486,6 @@
         }
 
         function processHit() {
-            clearInterval(timerInterval);
-            document.getElementById("mic-btn").disabled = true;
-            document.getElementById("speech-result").innerHTML = `<span class="text-green-400 font-bold">" ${currentWordObj.en} " PERFECT!</span>`;
-            
-            // แอนิเมชันบอสโดนตี
             const sprite = document.getElementById("boss-sprite");
             sprite.classList.add("boss-hit");
             setTimeout(() => sprite.classList.remove("boss-hit"), 500);
@@ -434,29 +494,22 @@
             bossHp -= 1;
             updateHpBars();
             
-            setTimeout(nextTurn, 1500);
+            setTimeout(nextTurn, 1200);
         }
 
         function processMiss() {
-            document.getElementById("speech-result").innerHTML += `<span class="text-red-400 ml-2 font-bold">❌ ผิด!</span>`;
-            processBossAttack();
-        }
-
-        function processBossAttack() {
-            clearInterval(timerInterval);
-            document.getElementById("mic-btn").disabled = true;
+            const btns = document.querySelectorAll('.spell-btn');
+            btns.forEach(b => b.disabled = true);
             
-            // บอสพุ่งโจมตี
             const sprite = document.getElementById("boss-sprite");
             sprite.classList.add("boss-attack");
             
             setTimeout(() => {
                 sprite.classList.remove("boss-attack");
-                // จอแดงแวบๆ ตอนโดนตี
                 document.getElementById("screen-battle").style.boxShadow = "inset 0 0 50px rgba(244,63,94,0.8)";
                 setTimeout(() => document.getElementById("screen-battle").style.boxShadow = "", 300);
                 
-                showDamage(1, 'miss'); // ใส่ข้อความ MISS ฝั่งผู้เล่น
+                showDamage(1, 'miss');
                 playerHp -= 1;
                 updateHpBars();
                 
@@ -493,7 +546,7 @@
                             activityType: "VOICE_LAB_U4",
                             itemId: "V_U4",
                             xp: 200,
-                            details: `ปราบ The Gilded Glitch สำเร็จ (Unit 4)`
+                            details: `ปราบ The Gilded Glitch สำเร็จ (Vocab Strike - 15 ด่าน)`
                         })
                     });
                     const result = await response.json();
@@ -501,7 +554,6 @@
                         statusEl.textContent = "✔️ บันทึกชัยชนะลงฐานข้อมูลสำเร็จ";
                         statusEl.className = "text-[10px] text-emerald-400 mb-6 h-4 font-scifi";
                         
-                        // สร้างรหัสผ่านลับให้ U4 = U4 * 29 + 1111 แปลงเป็น HEX (เหมือนใน Code.gs)
                         const sidNum = parseInt(currentSid) || 0;
                         const cipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
                         
