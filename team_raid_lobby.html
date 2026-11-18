@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Raid Lobby - Parallel Dimension</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                        scifi: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        cosmic: { 950: '#070510', 900: '#0d091d', 800: '#150f2e' },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #070510;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(234, 179, 8, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        .cosmic-card { 
+            background: linear-gradient(145deg, rgba(21, 15, 46, 0.9), rgba(13, 9, 29, 0.95)); 
+            border: 1px solid rgba(234, 179, 8, 0.3); 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(234, 179, 8, 0.05); 
+            backdrop-filter: blur(10px); 
+        }
+
+        .btn-portal { 
+            background: linear-gradient(90deg, #ca8a04 0%, #eab308 50%, #a16207 100%); 
+            background-size: 200% auto; 
+            color: #000; 
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.4); 
+            transition: all 0.3s ease; 
+        }
+        .btn-portal:hover { background-position: right center; box-shadow: 0 0 25px rgba(234, 179, 8, 0.6); transform: scale(1.02); }
+        
+        .choice-btn {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.5);
+            transition: all 0.2s;
+        }
+        .choice-btn:hover:not(.disabled) { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
+        .choice-btn.selected { background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #38bdf8; font-weight: bold; }
+        .choice-btn.correct { background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #10b981; }
+        .choice-btn.incorrect { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444; }
+        
+        /* Portal Animation */
+        @keyframes spinSlow { 100% { transform: rotate(360deg); } }
+        @keyframes pulseGlow { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+        
+        #portal-container { display: none; }
+        .portal-ring {
+            position: absolute; inset: 0; border-radius: 50%;
+            border: 4px dashed #eab308;
+            animation: spinSlow 10s linear infinite;
+        }
+        .portal-core {
+            position: absolute; inset: 10px; border-radius: 50%;
+            background: radial-gradient(circle, #fef08a 0%, #ca8a04 40%, transparent 70%);
+            animation: pulseGlow 2s ease-in-out infinite;
+            box-shadow: 0 0 40px #eab308;
+        }
+    </style>
+</head>
+<body class="pb-10">
+
+    <div class="max-w-4xl mx-auto pt-8 px-4 sm:px-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-amber-950/50 border border-amber-500/50 shadow-[0_0_20px_rgba(234,179,8,0.3)] mb-4">
+                <span class="text-4xl">🚀</span>
+            </div>
+            <h1 class="font-scifi text-3xl sm:text-4xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-orange-400">
+                TEAM RAID LOBBY
+            </h1>
+            <p class="text-sm text-slate-300 mt-2">ศูนย์รวมภารกิจกลุ่ม: เตรียมความพร้อมก่อนลงดันเจี้ยน</p>
+        </div>
+
+        <!-- Solo Mission Card -->
+        <div class="cosmic-card rounded-3xl p-6 sm:p-8 relative overflow-hidden mb-8" id="solo-mission-card">
+            <div class="flex items-center justify-between border-b border-amber-500/30 pb-4 mb-6">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="px-2 py-0.5 rounded bg-blue-900 border border-blue-400/40 text-[10px] font-scifi text-blue-200">SOLO PREPARATION</span>
+                        <h2 class="text-xl font-bold text-white">แบบฝึกหัดเตรียมความพร้อม (10 ข้อ)</h2>
+                    </div>
+                    <p class="text-xs text-slate-400">เงื่อนไข: ตอบให้ถูกต้องครบ 10 ข้อ เพื่อปลดล็อกประตูมิติสู่ภารกิจกลุ่ม (อย่าลืมคัดลอกคำตอบลงใบงานด้วยนะ!)</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-[10px] text-slate-400 font-scifi">SCORE</div>
+                    <div class="text-2xl font-black text-amber-400 font-scifi"><span id="score-display">0</span> / 10</div>
+                </div>
+            </div>
+
+            <!-- Quiz Container -->
+            <div id="quiz-container" class="space-y-6">
+                <!-- โค้ดคำถามจะถูกสร้างโดย JS -->
+            </div>
+
+            <div class="mt-8 text-center">
+                <button onclick="checkAnswers()" id="check-btn" class="btn-portal px-8 py-3 rounded-xl font-bold text-sm">
+                    🔍 ตรวจคำตอบ (Check Answers)
+                </button>
+            </div>
+        </div>
+
+        <!-- The Portal (Hidden initially) -->
+        <div id="portal-container" class="cosmic-card rounded-3xl p-8 text-center relative overflow-hidden mt-8">
+            <div class="relative w-40 h-40 mx-auto mb-6">
+                <div class="portal-ring"></div>
+                <div class="portal-ring" style="animation-direction: reverse; border-color: #a855f7; border-width: 2px; inset: 5px;"></div>
+                <div class="portal-core"></div>
+                <div class="absolute inset-0 flex items-center justify-center z-10 text-4xl">🌌</div>
+            </div>
+            
+            <h2 class="font-scifi text-2xl font-bold text-white mb-2">PORTAL OPENED!</h2>
+            <p class="text-sm text-emerald-300 mb-6">ยินดีด้วย! คุณผ่านการทดสอบเดี่ยวแล้ว ตอนนี้รวมกลุ่มกับเพื่อนแล้วกดปุ่มด้านล่างได้เลย!</p>
+            
+            <button onclick="enterFutureSnapshot()" class="btn-portal px-10 py-4 rounded-xl font-bold text-lg animate-bounce">
+                เข้าสู่โหมดกลุ่ม: Future Snapshot 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        // ข้อมูลคำถาม 10 ข้อ
+        const questions = [
+            {
+                id: 1,
+                text: "By 2030, our detective team ______ 100 mystery cases. (บอกจำนวนผลลัพธ์)",
+                choices: ["will have solved", "will have been solving"],
+                answer: 0,
+                hint: "บอกความสำเร็จ/จำนวนชิ้น (ผลลัพธ์) ต้องใช้ Future Perfect Simple (will have + V.3)"
+            },
+            {
+                id: 2,
+                text: "By the end of this year, we ______ in this retro van for five years. (เน้นระยะเวลาที่ทำมาอย่างต่อเนื่อง)",
+                choices: ["will have traveled", "will have been traveling"],
+                answer: 1,
+                hint: "มี for five years เน้นความต่อเนื่องยาวนาน ต้องใช้ Future Perfect Continuous (will have been + V-ing)"
+            },
+            {
+                id: 3,
+                text: "Before the police arrive, they ______ the thief. (ทำสำเร็จไปแล้ว)",
+                choices: ["will have caught", "will have been catching"],
+                answer: 0,
+                hint: "จับโจรได้สำเร็จไปแล้ว (จบเหตุการณ์) ต้องใช้ Future Perfect Simple"
+            },
+            {
+                id: 4,
+                text: "By next month, the e-sports champion ______ this game for 30,000 hours.",
+                choices: ["will have played", "will have been playing"],
+                answer: 1,
+                hint: "มี for 30,000 hours เน้นระยะเวลาที่ต่อเนื่อง ต้องใช้ Future Perfect Continuous"
+            },
+            {
+                id: 5,
+                text: "She ______ all the board games by the time we get to the party.",
+                choices: ["will have set up", "will have been setting up"],
+                answer: 0,
+                hint: "จัดเตรียมบอร์ดเกมเสร็จเรียบร้อยแล้ว (ผลสำเร็จ) ใช้ Future Perfect Simple"
+            },
+            {
+                id: 6,
+                text: "By 8 PM, I ______ my homework for three hours.",
+                choices: ["will have done", "will have been doing"],
+                answer: 1,
+                hint: "บอกระยะเวลาที่กำลังทำอยู่ต่อเนื่อง (for three hours) ใช้ Future Perfect Continuous"
+            },
+            {
+                id: 7,
+                text: "How many research stations ______ on Mars by 2040? (ถามจำนวน)",
+                choices: ["will they have built", "will they have been building"],
+                answer: 0,
+                hint: "คำถามที่เน้น How many (ถามจำนวนผลลัพธ์) ต้องใช้ Future Perfect Simple"
+            },
+            {
+                id: 8,
+                text: "⚠️ ระวัง! Stative Verb: They ______ each other for a decade by next year.",
+                choices: ["will have known", "will have been knowing"],
+                answer: 0,
+                hint: "Know เป็น Stative Verb (กริยาแสดงสภาวะ/ความรู้สึก) ห้ามเติม -ing! ต้องใช้ Future Perfect Simple เท่านั้น"
+            },
+            {
+                id: 9,
+                text: "By the time we arrive at the cinema, the movie ______.",
+                choices: ["will have started", "will have been starting"],
+                answer: 0,
+                hint: "หนังเริ่มฉายไปแล้ว (เกิดและจบไปแล้ว) ใช้ Future Perfect Simple"
+            },
+            {
+                id: 10,
+                text: "He ______ English for 14 years by 2030.",
+                choices: ["will have studied", "will have been studying"],
+                answer: 1,
+                hint: "เน้นระยะเวลาที่เรียนมาอย่างยาวนาน (for 14 years) ใช้ Future Perfect Continuous"
+            }
+        ];
+
+        let userAnswers = new Array(questions.length).fill(null);
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = questions.map((q, index) => `
+                <div class="p-4 rounded-xl bg-cosmic-950/80 border border-slate-700/50" id="q-card-${index}">
+                    <div class="flex gap-3 mb-3">
+                        <span class="w-6 h-6 rounded-full bg-amber-900/50 text-amber-400 flex items-center justify-center text-xs font-bold flex-shrink-0">${q.id}</span>
+                        <p class="text-sm text-slate-200 leading-relaxed">${q.text.replace('______', '<span class="text-amber-400 font-bold underline decoration-amber-400/50 underline-offset-4 px-2">______</span>')}</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2 pl-9">
+                        <button onclick="selectAnswer(${index}, 0)" id="btn-${index}-0" class="choice-btn px-4 py-2 rounded-lg text-sm text-slate-300 flex-1 text-left sm:text-center">${q.choices[0]}</button>
+                        <button onclick="selectAnswer(${index}, 1)" id="btn-${index}-1" class="choice-btn px-4 py-2 rounded-lg text-sm text-slate-300 flex-1 text-left sm:text-center">${q.choices[1]}</button>
+                    </div>
+                    <div id="hint-${index}" class="hidden mt-3 pl-9 text-xs text-rose-400 font-medium">
+                        💡 คำใบ้: ${q.hint}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectAnswer(qIndex, choiceIndex) {
+            userAnswers[qIndex] = choiceIndex;
+            
+            // Reset styles for this question
+            document.getElementById(`btn-${qIndex}-0`).classList.remove('selected', 'correct', 'incorrect');
+            document.getElementById(`btn-${qIndex}-1`).classList.remove('selected', 'correct', 'incorrect');
+            
+            // Add selected style
+            document.getElementById(`btn-${qIndex}-${choiceIndex}`).classList.add('selected');
+        }
+
+        function checkAnswers() {
+            if (userAnswers.includes(null)) {
+                alert("⚠️ กรุณาตอบให้ครบทั้ง 10 ข้อก่อนกดตรวจคำตอบครับ!");
+                return;
+            }
+
+            let score = 0;
+            
+            questions.forEach((q, index) => {
+                const selected = userAnswers[index];
+                const btn0 = document.getElementById(`btn-${index}-0`);
+                const btn1 = document.getElementById(`btn-${index}-1`);
+                const hintBox = document.getElementById(`hint-${index}`);
+                
+                // Reset states
+                btn0.classList.remove('correct', 'incorrect', 'selected');
+                btn1.classList.remove('correct', 'incorrect', 'selected');
+                
+                if (selected === q.answer) {
+                    score++;
+                    document.getElementById(`btn-${index}-${selected}`).classList.add('correct');
+                    hintBox.classList.add('hidden');
+                } else {
+                    document.getElementById(`btn-${index}-${selected}`).classList.add('incorrect');
+                    document.getElementById(`btn-${index}-${q.answer}`).classList.add('correct'); // โชว์ข้อถูกด้วย
+                    hintBox.classList.remove('hidden');
+                }
+                
+                // Disable buttons after checking
+                btn0.classList.add('disabled', 'cursor-not-allowed');
+                btn1.classList.add('disabled', 'cursor-not-allowed');
+                btn0.onclick = null;
+                btn1.onclick = null;
+            });
+
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('check-btn').classList.add('hidden');
+
+            if (score === 10) {
+                // Perfect score! Open Portal
+                document.getElementById('portal-container').style.display = 'block';
+                document.getElementById('solo-mission-card').classList.add('opacity-50', 'grayscale');
+                
+                // เลื่อนหน้าจอลงมาที่ประตูมิติ
+                setTimeout(() => {
+                    document.getElementById('portal-container').scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+            } else {
+                // Not perfect, need to retry
+                const retryBtn = document.createElement('button');
+                retryBtn.innerText = "🔄 ลองทำใหม่อีกครั้ง";
+                retryBtn.className = "btn-portal px-8 py-3 rounded-xl font-bold text-sm mt-4 bg-slate-700";
+                retryBtn.onclick = () => location.reload();
+                document.getElementById('solo-mission-card').appendChild(retryBtn);
+                retryBtn.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function enterFutureSnapshot() {
+            // ดึง SID จาก URL (ถ้าส่งมาจากหน้าหลัก) แล้วส่งต่อไป
+            const urlParams = new URLSearchParams(window.location.search);
+            const sid = urlParams.get('sid') || '';
+            window.location.href = 'future_snapshot.html' + (sid ? '?sid=' + sid : '');
+        }
+
+        // Initialize
+        renderQuiz();
+    </script>
+</body>
+</html>
