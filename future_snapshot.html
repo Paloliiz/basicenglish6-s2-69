@@ -640,7 +640,7 @@
             const payload = {
                 action: "saveGroupMission",
                 groupName: gName,
-                memberIds: taggedMembers.map(m => m.id),
+                memberIds: taggedMembers.map(m => m.id).join(", "),
                 scenarioId: activeScenario.id,
                 aiData: imgAi, ssData: imgSs,
                 ppSimple: fps, ppCont: fpc, challenge: $('submit-bytime').value.trim()
@@ -692,7 +692,7 @@
                         <div>
                             <span class="px-2 py-0.5 bg-cyan-900 border border-cyan-400 text-[10px] text-cyan-200 rounded">${it.scenarioId}</span>
                             <h3 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">${it.groupName}</h3>
-                            <p class="text-[10px] text-slate-400 mt-1">MEMBERS: ${it.memberIds}</p>
+                            <p class="text-[10px] text-slate-400 mt-1">MEMBERS: ${Array.isArray(it.memberIds) ? it.memberIds.join(', ') : it.memberIds}</p>
                         </div>
                         <div class="space-y-3 pt-2">
                             <div class="bg-slate-900/60 p-3 rounded-lg border-l-2 border-emerald-500">
