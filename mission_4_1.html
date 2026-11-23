@@ -222,6 +222,7 @@
             </div>
 
             <p style="color: #cbd5e1; font-size: 0.85rem; margin-top: 15px;"><b>Note:</b> สำหรับ Zero และ Type 1, หากสลับเอาประโยค If ไปไว้ด้านหลัง จะไม่ต้องใส่เครื่องหมายจุลภาค (comma)</p>
+
         </div>
 
         <div class="card">
@@ -426,7 +427,10 @@
     
     // ฟังก์ชันทำความสะอาดข้อความ (แบบใหม่) - ใช้ตรวจ Grammar โดยเก็บจุดและคอมม่าไว้ แต่ตัดช่องว่างส่วนเกิน
     function cleanSentence(s) {
-        return s.toLowerCase().replace(/\s+/g, ' ').trim();
+        return s.toLowerCase()
+                .replace(/[‘’]/g, "'") // แก้ปัญหา Apostrophe แบบโค้งในคีย์บอร์ดมือถือ/iPad
+                .replace(/\s+/g, ' ')  // จัดการช่องว่างที่เผลอกดเกินมา
+                .trim();
     }
 
     // 3. ตรวจคำตอบหน้า 46 (Vocab)
@@ -471,7 +475,12 @@
             g47_1: ['when i earn a lot of money, i typically put a substantial amount into my college savings fund.'], 
             g47_2: ['if you set aside a percentage of your income now, you\'ll have money to spend later.', 'if you set aside a percentage of your income now, you will have money to spend later.'], 
             g47_3: ['if chelsea studies economics this year, she can give me advice on my budget.'], 
-            g47_4: ['you should keep track of your school work if you want to get good grades.', 'if you want to get good grades, you should keep track of your school work.'] 
+            g47_4: [
+                'you should keep track of your school work if you want to get good grades.', 
+                'if you want to get good grades, you should keep track of your school work.',
+                'you should keep track of your schoolwork if you want to get good grades.',
+                'if you want to get good grades, you should keep track of your schoolwork.'
+            ] 
         }; 
         
         let correct = true;
