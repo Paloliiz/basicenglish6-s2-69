@@ -125,9 +125,21 @@
 
 <div id="view-mission" class="container hidden">
     
-    <!-- MISSION CONTENT (Hidden by default) -->
+    <!-- MISSION CONTENT -->
     <div id="mission-content">
     
+    <!-- STUDENT PROFILE BADGE (โชว์ชื่อหลังจากยืนยันตัวตนสำเร็จ) -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; background: rgba(6, 182, 212, 0.05); border: 1px solid var(--neon-cyan); padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 1.8rem; background: rgba(0,0,0,0.5); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid #334155;">🎓</div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">CURRENT USER</div>
+                <div id="display-student-name" style="font-weight: bold; color: var(--neon-cyan); font-size: 1.1rem; line-height: 1.2;">กำลังโหลด...</div>
+            </div>
+        </div>
+        <div id="display-student-id" style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--gold); background: rgba(250, 204, 21, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.3);">ID: -----</div>
+    </div>
+
     <!-- MISSION NAV -->
     <div id="missionNav" class="tab-container">
         <button id="tab1" class="tab-btn active" onclick="goToPhase(1)">Vocab (Page 46)</button>
@@ -383,6 +395,11 @@
             const data = await response.json();
             if (data.status === "success") {
                 verifiedStudentId = sid;
+                
+                // อัปเดตชื่อผู้เข้าทำภารกิจ
+                document.getElementById('display-student-name').innerText = data.name;
+                document.getElementById('display-student-id').innerText = "ID: " + sid;
+                
                 // ปิดหน้าล็อกอิน แล้วเปิดหน้าภารกิจแทน
                 document.getElementById('student-verification-panel').style.display = 'none';
                 document.getElementById('view-mission').classList.remove('hidden');
