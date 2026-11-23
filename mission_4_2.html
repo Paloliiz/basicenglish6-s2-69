@@ -132,6 +132,9 @@
         </div>
         <div id="display-student-id" style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--gold); background: rgba(250, 204, 21, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.3);">ID: -----</div>
     </div>
+
+    <!-- MISSION CONTENT -->
+    <div id="mission-content">
     
     <!-- MISSION NAV -->
     <div id="missionNav" class="tab-container">
@@ -240,6 +243,7 @@
     </div>
 
 </div>
+</div>
 
 <script>
     // ================= API CONFIG =================
@@ -274,7 +278,6 @@
                 document.getElementById('display-student-name').innerText = savedName;
                 document.getElementById('display-student-id').innerText = "ID: " + sid;
                 document.getElementById('student-verification-panel').style.display = 'none';
-                document.getElementById('mission-content').classList.remove('hidden');
                 document.getElementById('view-mission').classList.remove('hidden');
             } else {
                 // ถ้าไม่มี ค่อยไปให้ API ค้นหาชื่อมาให้
@@ -304,7 +307,6 @@
                 
                 // ปิดหน้าล็อกอิน แล้วเปิดหน้าภารกิจแทน
                 document.getElementById('student-verification-panel').style.display = 'none';
-                document.getElementById('mission-content').classList.remove('hidden');
                 document.getElementById('view-mission').classList.remove('hidden');
             } else {
                 resDiv.innerHTML = `<span style="color: var(--neon-red);">${data.message}</span>`;
