@@ -602,7 +602,7 @@
             "M07": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และอ่านบทความเรื่อง Market Trends (หน้า 50-51)", category: "Vocab & Reading", difficulty: "Hard", xp: 150, demoPasscode: "U43-{CIPHER}", artType: "mirror", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_3.html" },
             "M08": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และการเขียนเรื่อง Financial Problem (หน้า 52-53)", category: "Vocab & Writing", difficulty: "Hard", xp: 150, demoPasscode: "U44-{CIPHER}", artType: "castle", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_4.html" },
             
-            // 📍 ภารกิจกลุ่ม Team Raid (Optional - ถูกกรองไม่ให้โชว์ในหน้าหลักแล้ว)
+            // 📍 ภารกิจกลุ่ม Team Raid (ถูกซ่อนจากหน้าหลัก)
             "RAID_U4": { 
                 unit: "Unit 4", 
                 subtitle: "ภารกิจจำลองอนาคต: Future Snapshot (Team Raid)", 
@@ -884,7 +884,7 @@
             const missions = appState.missions || [];
             const offline = (appState.user && appState.user.offlineTasks) || {}; 
             
-            // 1. Render Web Quests (งานออนไลน์) - ซ่อน RAID_U4
+            // 1. Render Web Quests (งานออนไลน์) - ลบ RAID_U4 ออกแล้ว
             const webQuests = [
                 { id: "M01", name: "ภารกิจ M01" },
                 { id: "M02", name: "ภารกิจ M02" },
@@ -911,7 +911,7 @@
                 `;
             }).join("");
 
-            // 2. Render Real-world Quests (งานออฟไลน์)
+            // 2. Render Real-world Quests (งานออฟไลน์) แยกตามหน้าย่อย
             const bookQuests = [
                 { id: "M01_Book", name: "ส่งแบบฝึกหัดหน้า 34-35" },
                 { id: "M02_Book", name: "ส่งแบบฝึกหัดหน้า 36-37" },
@@ -957,6 +957,8 @@
         }, 1000);
 
         function checkUnit3Completion() {
+            // ย้ายการล็อกปุ่มสอบไปไว้ที่หน้า exam_lobby.html แทน
+            // ให้ปุ่มเข้าห้องสอบ (Lobby) กดได้เสมอ เพื่อให้เด็กเข้าไปดูเงื่อนไขการปลดล็อกได้
             const btnDesktop = document.getElementById("nav-exam-lobby");
             const btnMobile = document.getElementById("nav-exam-lobby-mobile");
             const badgeDesktop = document.getElementById("exam-btn-badge");
@@ -998,6 +1000,9 @@
             const grid = document.getElementById("missions-grid");
             const missions = appState.missions || [];
             
+            // ดึงรายชื่อด่านทั้งหมดที่ผ่านแล้ว เพื่อเอาไว้ประมวลผลข้อสอบ
+            const completedMissions = missions.filter(x => x.state === "COMPLETED").map(x => x.missionId);
+            
             const filtered = missions.filter(m => {
                 const preset = MISSION_META_PRESETS[m.missionId] || { unit: "Unit 3" };
                 const matchStatus = appState.currentFilter === "ALL" || m.state === appState.currentFilter;
@@ -1010,7 +1015,6 @@
 
             grid.innerHTML = filtered.map((m, idx) => {
                 const preset = MISSION_META_PRESETS[m.missionId] || { unit: "Unit 3", subtitle: "ภารกิจ", category: "Mission", difficulty: "Normal", xp: 100 };
-                // ⚠️ เพิ่มเช็คว่าถ้าหลังบ้านส่งมาว่า LOCKED ให้ขึ้นสถานะ LOCKED ทันที ไม่สนอย่างอื่น
                 const isLocked = m.state === "LOCKED";
                 const isUnlocked = m.state === "UNLOCKED";
                 const isCompleted = m.state === "COMPLETED";
@@ -1076,9 +1080,21 @@
             if(examMissions.length > 0) {
                 const examHtml = examMissions.map(m => {
                     const preset = MISSION_META_PRESETS[m.missionId];
-                    // ⚠️ หากระบบหลังบ้านส่งมาว่า LOCKED ให้ล็อกทันที
-                    const isLocked = m.state === "LOCKED";
                     const isCompleted = m.state === "COMPLETED";
+                    
+                    // 📍 ระบบเช็คเงื่อนไขปลดล็อกข้อสอบด้วยตัวเอง (ข้ามข้อจำกัดของระบบหลังบ้าน)
+                    let isLocked = true;
+                    if (isCompleted) {
+                        isLocked = false;
+                    } else if (m.missionId === "EXAM_U3") {
+                        const reqU3 = ["M01", "M02", "M03", "M04", "V_U3"];
+                        isLocked = !reqU3.every(req => completedMissions.includes(req));
+                    } else if (m.missionId === "EXAM_U4") {
+                        const reqU4 = ["M05", "M06", "M07", "M08", "V_U4"];
+                        isLocked = !reqU4.every(req => completedMissions.includes(req));
+                    } else {
+                        isLocked = m.state === "LOCKED"; 
+                    }
                     
                     let rewardBadge = "";
                     if (m.missionId === "EXAM_U3" || m.missionId === "EXAM_U4") {
