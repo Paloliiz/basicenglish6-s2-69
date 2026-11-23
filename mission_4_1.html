@@ -222,13 +222,12 @@
             </div>
 
             <p style="color: #cbd5e1; font-size: 0.85rem; margin-top: 15px;"><b>Note:</b> สำหรับ Zero และ Type 1, หากสลับเอาประโยค If ไปไว้ด้านหลัง จะไม่ต้องใส่เครื่องหมายจุลภาค (comma)</p>
-
         </div>
 
         <div class="card">
             <p style="color: var(--unit-money-light); margin-bottom: 15px; font-size: 0.95rem;"><b>6. Unscramble. (เรียงคำให้เป็นประโยคที่ถูกต้อง)</b></p>
             <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--neon-orange); padding: 10px; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;">
-                <b>💡 คำแนะนำ:</b> พิมพ์ประโยคที่เรียงแล้วให้สมบูรณ์ (ตัวพิมพ์เล็กหรือใหญ่ก็ได้) <span style="color:var(--neon-orange);">ต้องใส่จุดท้ายประโยค</span>
+                <b>💡 คำแนะนำ:</b> พิมพ์ประโยคที่เรียงแล้วให้สมบูรณ์ (ตัวพิมพ์เล็กหรือใหญ่ก็ได้) <span style="color:var(--neon-orange);">ต้องใส่จุดและลูกน้ำให้ถูกต้องตามหลักไวยากรณ์</span>
             </div>
 
             <div class="question">
@@ -338,12 +337,36 @@
         </div>
     </div>
 </div>
-</div>
 
 <script>
     // ================= API CONFIG =================
     const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
     let verifiedStudentId = "";
+
+    // เมื่อหน้าเว็บโหลดเสร็จ
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        let sid = urlParams.get('sid');
+        
+        // ถ้าเปิดมาจากเบราว์เซอร์แล้ว URL ไม่มีรหัส พยายามดึงจาก LocalStorage (ที่เด็กเคยล็อกอินเว็บหลักไว้)
+        if (!sid || sid === "GUEST") {
+            const savedSession = localStorage.getItem("pd_portal_session");
+            if (savedSession) {
+                try {
+                    const appState = JSON.parse(savedSession);
+                    if (appState.user && appState.user.studentId) {
+                        sid = appState.user.studentId;
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // ถ้ารู้ว่าเด็กคนนี้คือใคร ดึงมาใส่ช่องและกดยืนยันให้อัตโนมัติเลย
+        if (sid && sid !== "GUEST") {
+            document.getElementById('verify-sid').value = sid;
+            verifyStudent();
+        }
+    });
 
     async function verifyStudent() {
         const sid = document.getElementById('verify-sid').value.trim();
@@ -396,9 +419,14 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ฟังก์ชันทำความสะอาดข้อความ
+    // ฟังก์ชันทำความสะอาดข้อความ (แบบเก่า) - ใช้ตรวจ Vocab ที่ลบเครื่องหมายวรรคตอนทั้งหมด
     function cleanStr(s) {
         return s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    }
+    
+    // ฟังก์ชันทำความสะอาดข้อความ (แบบใหม่) - ใช้ตรวจ Grammar โดยเก็บจุดและคอมม่าไว้ แต่ตัดช่องว่างส่วนเกิน
+    function cleanSentence(s) {
+        return s.toLowerCase().replace(/\s+/g, ' ').trim();
     }
 
     // 3. ตรวจคำตอบหน้า 46 (Vocab)
@@ -440,16 +468,16 @@
     // 4. ตรวจคำตอบหน้า 47 (Grammar Unscramble)
     function checkPhase2() {
         const ans = { 
-            g47_1: ['When I earn a lot of money, I typically put a substantial amount into my college savings fund.'], 
-            g47_2: ['If you set aside a percentage of your income now youll have money to spend later.', 'If you set aside a percentage of your income now you will have money to spend later.'], 
-            g47_3: ['If chelsea studies economics this year she can give me advice on my budget.'], 
-            g47_4: ['You should keep track of your schoolwork if you want to get good grades.', 'If you want to get good grades you should keep track of your schoolwork.'] 
+            g47_1: ['when i earn a lot of money, i typically put a substantial amount into my college savings fund.'], 
+            g47_2: ['if you set aside a percentage of your income now, you\'ll have money to spend later.', 'if you set aside a percentage of your income now, you will have money to spend later.'], 
+            g47_3: ['if chelsea studies economics this year, she can give me advice on my budget.'], 
+            g47_4: ['you should keep track of your school work if you want to get good grades.', 'if you want to get good grades, you should keep track of your school work.'] 
         }; 
         
         let correct = true;
         for (let key in ans) {
             let el = document.getElementById(key);
-            let val = cleanStr(el.value).replace(/'/g, ''); // เอา ' ออกเพื่อตรวจ
+            let val = cleanSentence(el.value); 
             if (!ans[key].includes(val)) { 
                 correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
             } else { 
@@ -465,14 +493,12 @@
             document.getElementById('btn-next-2').classList.remove('hidden');
             document.getElementById('btn-check-2').classList.add('hidden');
         } else {
-            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตช่องที่มีสีแดงนะ (ไม่ต้องใส่จุดท้ายประโยค)`;
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด (ระวังเรื่องการเติมจุด Full Stop และเครื่องหมาย Comma ให้ถูกต้องตามไวยากรณ์ด้วยนะ!)`;
         }
     }
 
     // 5. ตรวจคำตอบหน้า 47 (Listening)
     function checkPhase3() {
-        // Ex 7 = b, a, a, d, a
-        // Ex 8 = X, ✔️, ✔️, X
         const ans = { 
             l47_1: 'b', l47_2: 'a', l47_3: 'b', l47_4: 'd', l47_5: 'b',
             l47_6: 'bad', l47_7: 'good', l47_8: 'good', l47_9: 'bad'
