@@ -110,20 +110,28 @@
 </head>
 <body>
 
-<div id="view-mission" class="container">
-    
-    <!-- STUDENT VERIFICATION PANEL -->
-    <div id="student-verification-panel" class="card" style="border-color: var(--neon-cyan); background: rgba(6, 182, 212, 0.05); margin-bottom: 25px;">
-        <h3 style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 1.1rem;">👤 ยืนยันตัวตนก่อนทำภารกิจ</h3>
-        <div style="display: flex; gap: 10px;">
-            <input type="text" id="verify-sid" placeholder="กรอกรหัสนักเรียน 5 หลัก" style="flex: 1;">
-            <button onclick="verifyStudent()" style="width: auto; margin-top: 0; background: var(--neon-cyan); color: #000; padding: 10px 20px;">ตรวจสอบ</button>
-        </div>
-        <div id="verify-result" style="margin-top: 10px; font-size: 0.9rem; font-weight: bold;"></div>
+    <!-- STUDENT VERIFICATION PANEL (แบบใหม่ที่กดแล้วหายไป) -->
+    <div id="student-verification-panel" class="container" style="max-width: 500px; text-align: center; background: rgba(15, 23, 42, 0.95); animation: fadeIn 0.4s ease;">
+        <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
+        <h3 style="color: var(--neon-cyan); margin-bottom: 20px; font-size: 1.2rem;">ยืนยันตัวตนก่อนทำภารกิจ</h3>
+        <input type="text" id="verify-sid" placeholder="กรอกรหัสนักเรียน 5 หลัก" style="text-align: center; margin-bottom: 15px; font-size: 1.2rem !important; padding: 15px;">
+        <button onclick="verifyStudent()" style="background: var(--neon-cyan); color: #000; padding: 15px;">ตรวจสอบข้อมูล</button>
+        <div id="verify-result" style="margin-top: 15px; font-size: 0.95rem; font-weight: bold;"></div>
     </div>
 
-    <!-- MISSION CONTENT (Hidden by default) -->
-    <div id="mission-content" class="hidden">
+<div id="view-mission" class="container hidden">
+    
+    <!-- STUDENT PROFILE BADGE (โชว์ชื่อหลังจากยืนยันตัวตนสำเร็จ) -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; background: rgba(6, 182, 212, 0.05); border: 1px solid var(--neon-cyan); padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 1.8rem; background: rgba(0,0,0,0.5); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid #334155;">🎓</div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">CURRENT EXPLORER</div>
+                <div id="display-student-name" style="font-weight: bold; color: var(--neon-cyan); font-size: 1.1rem; line-height: 1.2;">กำลังโหลดข้อมูล...</div>
+            </div>
+        </div>
+        <div id="display-student-id" style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--gold); background: rgba(250, 204, 21, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.3);">ID: -----</div>
+    </div>
     
     <!-- MISSION NAV -->
     <div id="missionNav" class="tab-container">
@@ -209,7 +217,7 @@
         <div class="card">
             <p style="color: var(--unit-money-light); margin-bottom: 15px; font-size: 0.95rem;"><b>5. Combine the sentences to create a type 2 conditional sentence.</b></p>
             <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--neon-orange); padding: 10px; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;">
-                <b>💡 คำแนะนำ:</b> พิมพ์รวมเป็นประโยคเงื่อนไขแบบที่ 2 (If clause) ให้สมบูรณ์ <span style="color:var(--neon-orange);">ไม่ต้องใส่จุดท้ายประโยค</span>
+                <b>💡 คำแนะนำ:</b> พิมพ์รวมเป็นประโยคเงื่อนไขแบบที่ 2 (If clause) ให้สมบูรณ์ <span style="color:var(--neon-orange);">ต้องใส่คอมม่าและจุดท้ายประโยคให้ถูกต้องด้วย</span>
             </div>
 
             <div class="question">
@@ -232,12 +240,48 @@
     </div>
 
 </div>
-</div>
 
 <script>
     // ================= API CONFIG =================
     const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
     let verifiedStudentId = "";
+
+    // เมื่อหน้าเว็บโหลดเสร็จ
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        let sid = urlParams.get('sid');
+        let savedName = "";
+        
+        // ถ้าเปิดมาจากเบราว์เซอร์แล้ว URL ไม่มีรหัส พยายามดึงจาก LocalStorage (ที่เด็กเคยล็อกอินเว็บหลักไว้)
+        const savedSession = localStorage.getItem("pd_portal_session");
+        if (savedSession) {
+            try {
+                const appState = JSON.parse(savedSession);
+                if (appState.user && appState.user.studentId) {
+                    if (!sid || sid === "GUEST") sid = appState.user.studentId;
+                    if (appState.user.studentId == sid) savedName = appState.user.name;
+                }
+            } catch(e) {}
+        }
+
+        // ถ้ารู้ว่าเด็กคนนี้คือใคร ดึงมาใส่ช่องและกดยืนยันให้อัตโนมัติเลย
+        if (sid && sid !== "GUEST") {
+            document.getElementById('verify-sid').value = sid;
+            verifiedStudentId = sid;
+            
+            // ถ้ามีชื่อในเครื่องอยู่แล้ว แสดงผลทันทีไม่ต้องรอ API
+            if (savedName) {
+                document.getElementById('display-student-name').innerText = savedName;
+                document.getElementById('display-student-id').innerText = "ID: " + sid;
+                document.getElementById('student-verification-panel').style.display = 'none';
+                document.getElementById('mission-content').classList.remove('hidden');
+                document.getElementById('view-mission').classList.remove('hidden');
+            } else {
+                // ถ้าไม่มี ค่อยไปให้ API ค้นหาชื่อมาให้
+                verifyStudent();
+            }
+        }
+    });
 
     async function verifyStudent() {
         const sid = document.getElementById('verify-sid').value.trim();
@@ -253,9 +297,15 @@
             const data = await response.json();
             if (data.status === "success") {
                 verifiedStudentId = sid;
-                resDiv.innerHTML = `<span style="color: var(--neon-green);">✔️ ยืนยันตัวตนสำเร็จ: สวัสดี ${data.name}</span>`;
+                
+                // อัปเดตชื่อผู้เข้าทำภารกิจ
+                document.getElementById('display-student-name').innerText = data.name;
+                document.getElementById('display-student-id').innerText = "ID: " + sid;
+                
+                // ปิดหน้าล็อกอิน แล้วเปิดหน้าภารกิจแทน
+                document.getElementById('student-verification-panel').style.display = 'none';
                 document.getElementById('mission-content').classList.remove('hidden');
-                document.getElementById('verify-sid').disabled = true;
+                document.getElementById('view-mission').classList.remove('hidden');
             } else {
                 resDiv.innerHTML = `<span style="color: var(--neon-red);">${data.message}</span>`;
             }
@@ -290,9 +340,17 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ฟังก์ชันทำความสะอาดข้อความ
+    // ฟังก์ชันทำความสะอาดข้อความ (แบบเก่า) - ใช้ตรวจ Vocab
     function cleanStr(s) {
         return s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    }
+    
+    // ฟังก์ชันทำความสะอาดข้อความ (แบบใหม่) - ใช้ตรวจ Grammar โดยเก็บจุดและคอมม่าไว้ แต่ตัดช่องว่างส่วนเกิน
+    function cleanSentence(s) {
+        return s.toLowerCase()
+                .replace(/[‘’]/g, "'") // แก้ปัญหา Apostrophe แบบโค้งในคีย์บอร์ดมือถือ/iPad
+                .replace(/\s+/g, ' ')  // จัดการช่องว่างที่เผลอกดเกินมา
+                .trim();
     }
 
     // 3. ตรวจคำตอบหน้า 48 (Vocab)
@@ -334,15 +392,15 @@
     // 4. ตรวจคำตอบหน้า 49 (Grammar Type 2)
     function checkPhase2() {
         const ans = { 
-            g49_1: ['If william was the president he would live in a mansion.', 'If william were the president he would live in a mansion.'], 
-            g49_2: ['If i could fly i would travel all over the world.'], 
-            g49_3: ['If i was an animal i would be a wolf.', 'If i were an animal i would be a wolf.'] 
+            g49_1: ['if william was the president, he would live in a mansion.', 'if william were the president, he would live in a mansion.'], 
+            g49_2: ['if i could fly, i would travel all over the world.', 'if i could fly i would travel all over the world.'], 
+            g49_3: ['if i was an animal, i would be a wolf.', 'if i were an animal, i would be a wolf.', 'if i was an animal i would be a wolf.', 'if i were an animal i would be a wolf.'] 
         }; 
         
         let correct = true;
         for (let key in ans) {
             let el = document.getElementById(key);
-            let val = cleanStr(el.value).replace(/'/g, ''); // เอา ' ออกเพื่อตรวจความยืดหยุ่น
+            let val = cleanSentence(el.value); 
             if (!ans[key].includes(val)) { 
                 correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
             } else { 
@@ -357,6 +415,10 @@
             fb.innerHTML = `✔️ ตรวจสอบถูกต้อง! กำลังบันทึกข้อมูล...`; 
             document.getElementById('btn-check-2').disabled = true;
             
+            // คำนวณรหัสลับ (Cipher) = (รหัสนักเรียน * 29) + 1111 แปลงเป็นเลขฐาน 16 (เหมือนใน Apps Script)
+            const sidNum = parseInt(verifiedStudentId) || 0;
+            const cipherCode = (sidNum * 29 + 1111).toString(16).toUpperCase();
+
             // บันทึก Log ไปยังระบบ
             fetch(API_URL, {
                 method: "POST",
@@ -369,15 +431,15 @@
                 })
             }).then(r => r.json()).then(data => {
                 if(data.status === "success") {
-                    fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์!<br><br><span style="font-size:1.2rem; color: var(--gold);">รหัสลับของคุณคือ: <b>U42-{CIPHER}</b></span><br><br><span style="font-size:0.85rem; color: #fff;">นำรหัสนี้ไปกรอกในหน้าต่าง Quest ของเว็บหลักเพื่อรับ XP นะคะ!</span>`;
+                    fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์!<br><br><span style="font-size:1.2rem; color: var(--gold);">รหัสลับของคุณคือ: <b>U42-${cipherCode}</b></span><br><br><span style="font-size:0.85rem; color: #fff;">นำรหัสนี้ไปกรอกในหน้าต่าง Quest ของเว็บหลักเพื่อรับ XP นะคะ!</span>`;
                 } else {
-                    fb.innerHTML = `❌ ระบบบันทึกข้อมูลขัดข้อง กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+                    fb.innerHTML = `❌ ระบบบันทึกข้อมูลขัดข้อง กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน แต่รหัสของคุณคือ: <b>U42-${cipherCode}</b>`;
                 }
             }).catch(e => {
-                fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+                fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน แต่รหัสของคุณคือ: <b>U42-${cipherCode}</b>`;
             });
         } else {
-            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตช่องที่มีสีแดงนะ (เช็ค past tense หลัง If และใส่จุดท้ายประโยค)`;
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีประโยคที่ผิด สังเกตช่องที่มีสีแดงนะ (เช็ค past tense หลัง If และใส่จุด/คอมม่าให้ถูกต้อง)`;
         }
     }
 </script>
