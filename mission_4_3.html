@@ -101,20 +101,31 @@
 </head>
 <body>
 
-<div id="view-mission" class="container">
-    
     <!-- STUDENT VERIFICATION PANEL -->
-    <div id="student-verification-panel" class="card" style="border-color: var(--neon-cyan); background: rgba(6, 182, 212, 0.05); margin-bottom: 25px;">
-        <h3 style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 1.1rem;">👤 ยืนยันตัวตนก่อนทำภารกิจ</h3>
-        <div style="display: flex; gap: 10px;">
-            <input type="text" id="verify-sid" placeholder="กรอกรหัสนักเรียน 5 หลัก" style="flex: 1;">
-            <button onclick="verifyStudent()" style="width: auto; margin-top: 0; background: var(--neon-cyan); color: #000; padding: 10px 20px;">ตรวจสอบ</button>
-        </div>
-        <div id="verify-result" style="margin-top: 10px; font-size: 0.9rem; font-weight: bold;"></div>
+    <div id="student-verification-panel" class="container" style="max-width: 500px; text-align: center; background: rgba(15, 23, 42, 0.95); animation: fadeIn 0.4s ease;">
+        <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
+        <h3 style="color: var(--neon-cyan); margin-bottom: 20px; font-size: 1.2rem;">ยืนยันตัวตนก่อนทำภารกิจ</h3>
+        <input type="text" id="verify-sid" placeholder="กรอกรหัสนักเรียน 5 หลัก" style="text-align: center; margin-bottom: 15px; font-size: 1.2rem !important; padding: 15px; width: 100%; box-sizing: border-box;">
+        <button onclick="verifyStudent()" style="background: var(--neon-cyan); color: #000; padding: 15px; width: 100%;">ตรวจสอบข้อมูล</button>
+        <div id="verify-result" style="margin-top: 15px; font-size: 0.95rem; font-weight: bold;"></div>
     </div>
 
-    <!-- MISSION CONTENT (Hidden by default) -->
-    <div id="mission-content" class="hidden">
+<div id="view-mission" class="container hidden">
+    
+    <!-- STUDENT PROFILE BADGE -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; background: rgba(6, 182, 212, 0.05); border: 1px solid var(--neon-cyan); padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 1.8rem; background: rgba(0,0,0,0.5); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid #334155;">🎓</div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">CURRENT EXPLORER</div>
+                <div id="display-student-name" style="font-weight: bold; color: var(--neon-cyan); font-size: 1.1rem; line-height: 1.2;">กำลังโหลดข้อมูล...</div>
+            </div>
+        </div>
+        <div id="display-student-id" style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--gold); background: rgba(250, 204, 21, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.3);">ID: -----</div>
+    </div>
+
+    <!-- MISSION CONTENT -->
+    <div id="mission-content">
     
     <!-- MISSION NAV -->
     <div id="missionNav" class="tab-container">
@@ -259,6 +270,39 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
     let verifiedStudentId = "";
 
+    // เมื่อหน้าเว็บโหลดเสร็จ
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        let sid = urlParams.get('sid');
+        let savedName = "";
+        
+        // ถ้าเปิดมาจากเบราว์เซอร์แล้ว URL ไม่มีรหัส พยายามดึงจาก LocalStorage
+        const savedSession = localStorage.getItem("pd_portal_session");
+        if (savedSession) {
+            try {
+                const appState = JSON.parse(savedSession);
+                if (appState.user && appState.user.studentId) {
+                    if (!sid || sid === "GUEST") sid = appState.user.studentId;
+                    if (appState.user.studentId == sid) savedName = appState.user.name;
+                }
+            } catch(e) {}
+        }
+
+        if (sid && sid !== "GUEST") {
+            document.getElementById('verify-sid').value = sid;
+            verifiedStudentId = sid;
+            
+            if (savedName) {
+                document.getElementById('display-student-name').innerText = savedName;
+                document.getElementById('display-student-id').innerText = "ID: " + sid;
+                document.getElementById('student-verification-panel').style.display = 'none';
+                document.getElementById('view-mission').classList.remove('hidden');
+            } else {
+                verifyStudent();
+            }
+        }
+    });
+
     async function verifyStudent() {
         const sid = document.getElementById('verify-sid').value.trim();
         const resDiv = document.getElementById('verify-result');
@@ -273,9 +317,12 @@
             const data = await response.json();
             if (data.status === "success") {
                 verifiedStudentId = sid;
-                resDiv.innerHTML = `<span style="color: var(--neon-green);">✔️ ยืนยันตัวตนสำเร็จ: สวัสดี ${data.name}</span>`;
-                document.getElementById('mission-content').classList.remove('hidden');
-                document.getElementById('verify-sid').disabled = true;
+                
+                document.getElementById('display-student-name').innerText = data.name;
+                document.getElementById('display-student-id').innerText = "ID: " + sid;
+                
+                document.getElementById('student-verification-panel').style.display = 'none';
+                document.getElementById('view-mission').classList.remove('hidden');
             } else {
                 resDiv.innerHTML = `<span style="color: var(--neon-red);">${data.message}</span>`;
             }
@@ -372,6 +419,10 @@
             fb.innerHTML = `✔️ ตรวจสอบถูกต้อง! กำลังบันทึกข้อมูล...`; 
             document.getElementById('btn-check-2').disabled = true;
             
+            // คำนวณรหัสลับ (Cipher) = (รหัสนักเรียน * 29) + 1111 แปลงเป็นเลขฐาน 16 (เหมือนใน Apps Script)
+            const sidNum = parseInt(verifiedStudentId) || 0;
+            const cipherCode = (sidNum * 29 + 1111).toString(16).toUpperCase();
+
             // บันทึก Log ไปยังระบบ
             fetch(API_URL, {
                 method: "POST",
@@ -384,12 +435,12 @@
                 })
             }).then(r => r.json()).then(data => {
                 if(data.status === "success") {
-                    fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์!<br><br><span style="font-size:1.2rem; color: var(--gold);">รหัสลับของคุณคือ: <b>U43-{CIPHER}</b></span><br><br><span style="font-size:0.85rem; color: #fff;">นำรหัสนี้ไปกรอกในหน้าต่าง Quest ของเว็บหลักเพื่อรับ XP นะคะ!</span>`;
+                    fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์!<br><br><span style="font-size:1.2rem; color: var(--gold);">รหัสลับของคุณคือ: <b>U43-${cipherCode}</b></span><br><br><span style="font-size:0.85rem; color: #fff;">นำรหัสนี้ไปกรอกในหน้าต่าง Quest ของเว็บหลักเพื่อรับ XP นะคะ!</span>`;
                 } else {
-                    fb.innerHTML = `❌ ระบบบันทึกข้อมูลขัดข้อง กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+                    fb.innerHTML = `❌ ระบบบันทึกข้อมูลขัดข้อง กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน แต่รหัสของคุณคือ: <b>U43-${cipherCode}</b>`;
                 }
             }).catch(e => {
-                fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน`;
+                fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน แต่รหัสของคุณคือ: <b>U43-${cipherCode}</b>`;
             });
         } else {
             fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ เลือกผิดบางข้อ ลองกลับไปอ่านวิเคราะห์หรือฟังบทความอีกรอบนะ`;
