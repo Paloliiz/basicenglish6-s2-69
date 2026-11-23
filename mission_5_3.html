@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mission 5.3: Differences Between Cultute | PARALLEL DIMENSION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Orbitron:wght@500;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ================= CSS VARIABLES & GLOBALS ================= */
+        :root {
+            --bg-space: #020617; --bg-panel: #0f172a; --bg-card: #1e293b;
+            --unit-blue: #0284c7; --unit-blue-light: #38bdf8; /* ธีมสีฟ้า Unit 5 */
+            --neon-cyan: #06b6d4; --neon-blue: #3b82f6; 
+            --neon-orange: #f59e0b; --neon-red: #ef4444; --gold: #facc15;
+            --neon-green: #22c55e; /* สีเขียวสำหรับข้อที่ถูก */
+            --text-main: #f8fafc; --text-muted: #94a3b8; --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Kanit', sans-serif; background-color: var(--bg-space); color: var(--text-main); 
+            display: flex; flex-direction: column; min-height: 100vh; padding: 15px;
+            background-image: radial-gradient(circle at 50% 10%, rgba(2, 132, 199, 0.1) 0%, transparent 60%);
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--bg-panel); border-top: 4px solid var(--unit-blue); border-radius: var(--radius);
+            padding: 20px; max-width: 800px; width: 100%; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease; position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Poppins', 'Kanit', sans-serif; }
+        .text-cyan { color: var(--neon-cyan); }
+        .section-title { background: var(--unit-blue); color: white; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;}
+        
+        .card { background: var(--bg-card); border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 20px; animation: fadeIn 0.4s ease-out; }
+
+        /* ================= FORM & INPUTS ================= */
+        select, input[type="text"], input[type="number"] {
+            font-size: 16px !important; width: 100%; padding: 10px; border-radius: 6px; 
+            border: 1px solid #475569; background: #020617; color: #fff; font-family: 'Kanit';
+        }
+        select:focus, input:focus { border-color: var(--unit-blue-light); outline: none; }
+        
+        /* Dropdown สำหรับเติมคำแบบเนียนๆ */
+        select.blank-input {
+            border: none; border-bottom: 2px solid var(--unit-blue);
+            background: rgba(2, 6, 23, 0.5) !important; color: var(--gold) !important;
+            text-align: left; padding: 2px 5px; border-radius: 4px 4px 0 0;
+            display: inline-block; font-weight: bold; width: auto; min-width: 150px; font-size: 0.95rem !important; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select.blank-input:focus { border-bottom-color: var(--unit-blue-light); outline: none; background: #020617 !important;}
+
+        .is-correct { color: var(--neon-green) !important; font-weight: bold; }
+
+        button {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; font-family: 'Kanit'; margin-top: 10px; transition: all 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        .btn-check { background: var(--unit-blue); color: white; }
+        .btn-check:hover { background: var(--unit-blue-light); }
+        .btn-next { background: var(--neon-cyan); color: #000; animation: pulse 1.5s infinite;}
+        .btn-back { background: transparent; border: 1px solid #475569; color: #cbd5e1; margin-top: 15px; }
+
+        /* ================= MISSION UI ================= */
+        .header-mission { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #334155; padding-bottom: 15px; margin-bottom: 20px; }
+        .header-mission h2 { font-family: 'Poppins', sans-serif; color: var(--unit-blue-light); margin: 0; font-size: 1.5rem;}
+        
+        .question { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+        .question:last-child { border-bottom: none; padding-bottom: 0;}
+        .q-text { font-size: 1rem; margin-bottom: 10px; color: #f8fafc;}
+
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        @media (min-width: 600px) { .vocab-grid { grid-template-columns: repeat(4, 1fr); } }
+        .vocab-item { background: rgba(2, 6, 23, 0.5); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #475569; font-weight: bold; font-size: 1rem; color: var(--unit-blue-light); text-align: center;}
+        .vocab-item input { width: 100%; margin-top: 10px; text-align: center; color: var(--gold);}
+
+        .word-bank { background: rgba(2, 6, 23, 0.5); border: 1px dashed var(--unit-blue); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .word-chip { background: #1e293b; color: var(--unit-blue-light); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; border: 1px solid #334155; }
+
+        .audio-container { background: #020617; border: 1px solid #475569; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        audio { width: 100%; height: 40px; outline: none; }
+
+        /* Article Box */
+        .article-box { background: rgba(2, 6, 23, 0.6); padding: 25px; border-radius: 10px; border: 1px solid #334155; line-height: 2.2; font-size: 1rem; color: #cbd5e1; margin-bottom: 20px;}
+        .article-box p { margin-bottom: 20px; text-indent: 30px; }
+
+        /* ================= TABS ================= */
+        .tab-container { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;}
+        .tab-btn { background: #1e293b; color: var(--text-muted); border: 1px solid #475569; font-size: 0.85rem; margin: 0; padding: 8px 15px; flex: 1; border-radius: 6px; cursor: pointer; font-family: 'Kanit'; transition: 0.3s;}
+        .tab-btn.active { background: var(--unit-blue); color: #fff; border-color: var(--unit-blue); font-weight: bold;}
+        .tab-btn.locked-tab { opacity: 0.6; cursor: not-allowed; }
+        .tab-btn:hover { transform: none; background: #334155;}
+
+        .master-feedback { display: none; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; text-align: center; font-weight: bold; line-height: 1.6;}
+        .correct { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); }
+        .wrong { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); }
+
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- STUDENT VERIFICATION PANEL -->
+    <div id="student-verification-panel" class="container" style="max-width: 500px; text-align: center; background: rgba(15, 23, 42, 0.95); animation: fadeIn 0.4s ease;">
+        <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
+        <h3 style="color: var(--neon-cyan); margin-bottom: 20px; font-size: 1.2rem;">ยืนยันตัวตนก่อนทำภารกิจ</h3>
+        <input type="text" id="verify-sid" placeholder="กรอกรหัสนักเรียน 5 หลัก" style="text-align: center; margin-bottom: 15px; font-size: 1.2rem !important; padding: 15px; width: 100%; box-sizing: border-box;">
+        <button onclick="verifyStudent()" style="background: var(--neon-cyan); color: #000; padding: 15px; width: 100%;">ตรวจสอบข้อมูล</button>
+        <div id="verify-result" style="margin-top: 15px; font-size: 0.95rem; font-weight: bold;"></div>
+    </div>
+
+    <div id="view-mission" class="container hidden">
+        
+        <!-- STUDENT PROFILE BADGE -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; background: rgba(2, 132, 199, 0.05); border: 1px solid var(--neon-cyan); padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="font-size: 1.8rem; background: rgba(0,0,0,0.5); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid #334155;">🎓</div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">CURRENT EXPLORER</div>
+                    <div id="display-student-name" style="font-weight: bold; color: var(--neon-cyan); font-size: 1.1rem; line-height: 1.2;">กำลังโหลดข้อมูล...</div>
+                </div>
+            </div>
+            <div id="display-student-id" style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--gold); background: rgba(250, 204, 21, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.3);">ID: -----</div>
+        </div>
+
+        <!-- MISSION CONTENT -->
+        <div id="mission-content">
+        
+            <!-- MISSION NAV -->
+            <div id="missionNav" class="tab-container">
+                <button id="tab1" class="tab-btn active" onclick="goToPhase(1)">Vocab (Page 64)</button>
+                <button id="tab2" class="tab-btn locked-tab" onclick="goToPhase(2)">🔒 Reading (Page 65)</button>
+            </div>
+
+            <div class="header-mission" id="mainHeader">
+                <h2>Mission 5.3: Cultures Around the World</h2>
+                <span id="pageBadge" style="background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;">Page 64-65</span>
+            </div>
+
+            <!-- PHASE 1: VOCABULARY (Page 64) -->
+            <div id="phase1">
+                <div class="section-title">C. Speaking: Vocabulary</div>
+                <div class="card">
+                    <p style="color: var(--unit-blue-light); margin-bottom: 10px; font-size: 0.95rem;"><b>1. Read the words in the box. Then listen and write the vocabulary word you hear.</b></p>
+                    
+                    <div class="audio-container">
+                        <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 5-05</span>
+                        <audio controls><source src="Track 5-05.mp3" type="audio/mpeg"></audio>
+                    </div>
+
+                    <div class="word-bank">
+                        <span class="word-chip">criticize</span>
+                        <span class="word-chip">major / minor</span>
+                        <span class="word-chip">frustrating</span>
+                        <span class="word-chip">native</span>
+                        <span class="word-chip">accent</span>
+                        <span class="word-chip">insult</span>
+                        <span class="word-chip">straightforward</span>
+                        <span class="word-chip">harsh</span>
+                    </div>
+
+                    <div class="vocab-grid" style="margin-bottom: 30px;">
+                        <div class="vocab-item">Picture 1 <input type="text" id="v64_1" placeholder="คำศัพท์"></div>
+                        <div class="vocab-item">Picture 2 <input type="text" id="v64_2" placeholder="คำศัพท์"></div>
+                        <div class="vocab-item">Picture 3 <input type="text" id="v64_3" placeholder="คำศัพท์"></div>
+                        <div class="vocab-item">Picture 4 <input type="text" id="v64_4" placeholder="คำศัพท์"></div>
+                        <div class="vocab-item">Picture 5 <input type="text" id="v64_5" placeholder="คำศัพท์"></div>
+                        <div class="vocab-item">Picture 6 <input type="text" id="v64_6" placeholder="คำศัพท์"></div>
+                        <div class="vocab-item">Picture 7 <input type="text" id="v64_7" placeholder="คำศัพท์"></div>
+                        <div class="vocab-item">Picture 8 <input type="text" id="v64_8" placeholder="คำศัพท์"></div>
+                    </div>
+
+                    <p style="color: var(--unit-blue-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>2. Fill in the blanks with the best vocabulary words.</b></p>
+                    
+                    <div class="question"><div class="q-text">1. Don't <select class="word-dropdown blank-input" id="f64_1"><option value="">-- เลือกคำ --</option></select> someone just because you don't understand their culture. It's rude.</div></div>
+                    <div class="question"><div class="q-text">2. Don't worry! People will still understand you if you make <select class="word-dropdown blank-input" id="f64_2"><option value="">-- เลือกคำ --</option></select> pronunciation errors.</div></div>
+                    <div class="question"><div class="q-text">3. Did you hear her <select class="word-dropdown blank-input" id="f64_3"><option value="">-- เลือกคำ --</option></select>? I wonder where she's from.</div></div>
+                    <div class="question"><div class="q-text">4. If you have to <select class="word-dropdown blank-input" id="f64_4"><option value="">-- เลือกคำ --</option></select> someone's writing, try to do it politely.</div></div>
+                    <div class="question"><div class="q-text">5. That teacher often makes <select class="word-dropdown blank-input" id="f64_5"><option value="">-- เลือกคำ --</option></select> comments. Don't worry about it. She is just trying to help.</div></div>
+                    <div class="question"><div class="q-text">6. He might sound like he's from here, but he's not a(n) <select class="word-dropdown blank-input" id="f64_6"><option value="">-- เลือกคำ --</option></select> speaker.</div></div>
+                    <div class="question"><div class="q-text">7. I can't understand this assignment! It's very <select class="word-dropdown blank-input" id="f64_7"><option value="">-- เลือกคำ --</option></select>.</div></div>
+                    <div class="question" style="border-bottom: none;"><div class="q-text">8. I got lost twice. I thought the directions would be more <select class="word-dropdown blank-input" id="f64_8"><option value="">-- เลือกคำ --</option></select>.</div></div>
+
+                    <div id="fb-p1" class="master-feedback"></div>
+                    <button class="btn-check" id="btn-check-1" onclick="checkPhase1()">ตรวจคำตอบ</button>
+                    <button class="btn-next hidden" id="btn-next-1" onclick="goToPhase(2)">➔ ไปด่าน Reading</button>
+                </div>
+            </div>
+
+            <!-- PHASE 2: READING (Page 65) -->
+            <div id="phase2" class="hidden">
+                <div class="section-title">C. Speaking: Complete the text</div>
+                <div class="card">
+                    <p style="color: var(--unit-blue-light); margin-bottom: 10px; font-size: 0.95rem;"><b>5. Read the article. Fill in the blanks with the words in the box.</b></p>
+                    
+                    <div class="article-box">
+                        <p>
+                            Singapore is an island nation located at the southern tip of the Malaysian peninsula. Luckily for tourists, the majority of their rules are quite 
+                            <span style="color: var(--unit-blue-light); font-weight: bold;">1.</span><select class="word-dropdown blank-input" id="r65_1"><option value="">-- เลือกคำศัพท์ --</option></select>. 
+                            However, there are a couple of things you should learn before visiting.
+                        </p>
+                        <p>
+                            First of all, you cannot sell gum there or bring more than two packs of it into the country. This law was written because people were using gum to block the public transit's electronic equipment, which caused trains to be delayed. This became very 
+                            <span style="color: var(--unit-blue-light); font-weight: bold;">2.</span><select class="word-dropdown blank-input" id="r65_2"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                            to the people who were always late for work. In fact, it was such a(n) 
+                            <span style="color: var(--unit-blue-light); font-weight: bold;">3.</span><select class="word-dropdown blank-input" id="r65_3"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                            problem that Singapore's government implemented a $1,000 fine for anyone caught discarding their gum. This might seem like a(n) 
+                            <span style="color: var(--unit-blue-light); font-weight: bold;">4.</span><select class="word-dropdown blank-input" id="r65_4"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                            punishment, but it helps keep the city looking its best. Once you understand this issue, it's hard to 
+                            <span style="color: var(--unit-blue-light); font-weight: bold;">5.</span><select class="word-dropdown blank-input" id="r65_5"><option value="">-- เลือกคำศัพท์ --</option></select> 
+                            Singapore for deciding on this large fine.
+                        </p>
+                        <p>
+                            Another taboo is patting people on the head. Head patting is considered to be a(n) 
+                            <span style="color: var(--unit-blue-light); font-weight: bold;">6.</span><select class="word-dropdown blank-input" id="r65_6"><option value="">-- เลือกคำศัพท์ --</option></select>. 
+                            While this action won't result in a monetary fine, it definitely won't make you popular with the locals.
+                        </p>
+                    </div>
+
+                    <div id="fb-p2" class="master-feedback"></div>
+                    <button class="btn-check" id="btn-check-2" onclick="checkPhase2()">ตรวจคำตอบ & จบภารกิจ</button>
+                    <button class="btn-back" onclick="goToPhase(1)">⬅️ ย้อนกลับ</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ================= API CONFIG =================
+        const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+        let verifiedStudentId = "";
+        let isPhase1Passed = false;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            let sid = urlParams.get('sid');
+            let savedName = "";
+            
+            const savedSession = localStorage.getItem("pd_portal_session");
+            if (savedSession) {
+                try {
+                    const appState = JSON.parse(savedSession);
+                    if (appState.user && appState.user.studentId) {
+                        if (!sid || sid === "GUEST") sid = appState.user.studentId;
+                        if (appState.user.studentId == sid) savedName = appState.user.name;
+                    }
+                } catch(e) {}
+            }
+
+            if (sid && sid !== "GUEST") {
+                document.getElementById('verify-sid').value = sid;
+                verifiedStudentId = sid;
+                
+                if (savedName) {
+                    document.getElementById('display-student-name').innerText = savedName;
+                    document.getElementById('display-student-id').innerText = "ID: " + sid;
+                    document.getElementById('student-verification-panel').style.display = 'none';
+                    document.getElementById('view-mission').classList.remove('hidden');
+                } else {
+                    verifyStudent();
+                }
+            }
+
+            // รีเซ็ตสถานะหากมีการแก้ไขคำตอบใน Phase 1 หลังตรวจผ่านแล้ว
+            document.querySelectorAll('#phase1 input, #phase1 select').forEach(el => {
+                el.addEventListener('change', () => {
+                    if (isPhase1Passed) {
+                        isPhase1Passed = false;
+                        document.getElementById('tab1').innerHTML = "Vocab (Page 64)";
+                        const tab2 = document.getElementById('tab2');
+                        tab2.innerHTML = "🔒 Reading (Page 65)";
+                        tab2.classList.add('locked-tab');
+                        document.getElementById('btn-next-1').classList.add('hidden');
+                        document.getElementById('btn-check-1').classList.remove('hidden');
+                    }
+                });
+            });
+        });
+
+        async function verifyStudent() {
+            const sid = document.getElementById('verify-sid').value.trim();
+            const resDiv = document.getElementById('verify-result');
+            if(!sid) { resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ กรุณากรอกรหัสนักเรียน</span>'; return; }
+            
+            resDiv.innerHTML = '<span style="color: var(--text-muted);">กำลังตรวจสอบข้อมูล...</span>';
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "verifyStudent", studentId: sid })
+                });
+                const data = await response.json();
+                if (data.status === "success") {
+                    verifiedStudentId = sid;
+                    
+                    document.getElementById('display-student-name').innerText = data.name;
+                    document.getElementById('display-student-id').innerText = "ID: " + sid;
+                    
+                    document.getElementById('student-verification-panel').style.display = 'none';
+                    document.getElementById('view-mission').classList.remove('hidden');
+                } else {
+                    resDiv.innerHTML = `<span style="color: var(--neon-red);">${data.message}</span>`;
+                }
+            } catch (e) {
+                resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ การเชื่อมต่อล้มเหลว</span>';
+            }
+        }
+
+        // 1. ดึงคำศัพท์ไปใส่ใน Dropdown อัตโนมัติ
+        const vocabList = ["accent", "criticize", "frustrating", "harsh", "insult", "major", "minor", "native", "straightforward"];
+        const dropdowns = document.querySelectorAll('.word-dropdown');
+        
+        dropdowns.forEach(dropdown => {
+            vocabList.forEach(word => {
+                let option = document.createElement('option');
+                option.value = word; option.textContent = word;
+                dropdown.appendChild(option);
+            });
+        });
+
+        // 2. ระบบสลับหน้า (ล็อกข้ามด่าน)
+        function goToPhase(phaseNum) {
+            if (phaseNum === 2 && !isPhase1Passed) {
+                const fb1 = document.getElementById('fb-p1');
+                fb1.style.display = 'block';
+                fb1.className = 'master-feedback wrong';
+                fb1.innerHTML = `⚠️ กรุณาทำด่าน Vocab (Page 64) และกด "ตรวจคำตอบ" ให้ผ่านทุกข้อก่อนไปด่าน Reading นะคะ!`;
+                fb1.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            document.querySelectorAll('#phase1, #phase2').forEach(el => el.classList.add('hidden'));
+            document.getElementById('phase' + phaseNum).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab' + phaseNum).classList.add('active');
+
+            const badge = document.getElementById('pageBadge');
+            if(phaseNum === 1) badge.innerText = "Page 64"; 
+            else badge.innerText = "Page 65";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ฟังก์ชันทำความสะอาดข้อความ
+        function cleanStr(s) {
+            return s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        // 3. ตรวจคำตอบหน้า 64 (Vocab) - อัปเดตเฉลยตามรูปภาพต้นฉบับ
+        function checkPhase1() {
+            const ansNum = { 
+                v64_1: ['insult'], 
+                v64_2: ['frustrating'], 
+                v64_3: ['harsh'], 
+                v64_4: ['native'], 
+                v64_5: ['straightforward'], 
+                v64_6: ['major', 'major minor'], 
+                v64_7: ['accent'], 
+                v64_8: ['criticize'] 
+            }; 
+            const ansFill = { f64_1: 'insult', f64_2: 'minor', f64_3: 'accent', f64_4: 'criticize', f64_5: 'harsh', f64_6: 'native', f64_7: 'frustrating', f64_8: 'straightforward' };
+            
+            let correct = true;
+            
+            for (let key in ansNum) {
+                let el = document.getElementById(key);
+                if (!ansNum[key].includes(cleanStr(el.value))) { 
+                    correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+                } else { 
+                    el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+                }
+            }
+            for (let key in ansFill) {
+                let el = document.getElementById(key);
+                if (el.value !== ansFill[key]) { 
+                    correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+                } else { 
+                    el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+                }
+            }
+            
+            const fb = document.getElementById('fb-p1'); fb.style.display = 'block';
+            if (correct) {
+                isPhase1Passed = true;
+                document.getElementById('tab1').innerHTML = "Vocab (Page 64) ✔️";
+                const tab2 = document.getElementById('tab2');
+                tab2.innerHTML = "Reading (Page 65)";
+                tab2.classList.remove('locked-tab');
+
+                fb.className = 'master-feedback correct'; 
+                fb.innerHTML = `✔️ ยอดเยี่ยม! ไปด่าน Reading กันต่อเลย`; 
+                document.getElementById('btn-next-1').classList.remove('hidden');
+                document.getElementById('btn-check-1').classList.add('hidden');
+            } else {
+                isPhase1Passed = false;
+                fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีข้อที่ผิด สังเกตสีของกรอบนะคะ`;
+            }
+        }
+
+        // 4. ตรวจคำตอบหน้า 65 (Reading) - อัปเดตเฉลยตามรูปภาพต้นฉบับ
+        function checkPhase2() {
+            const fb = document.getElementById('fb-p2');
+            if (!isPhase1Passed) {
+                fb.style.display = 'block';
+                fb.className = 'master-feedback wrong';
+                fb.innerHTML = `❌ กรุณาย้อนกลับไปทำด่าน Vocab (Page 64) ให้ผ่านก่อนนะคะ`;
+                return;
+            }
+
+            const ans = { r65_1: 'straightforward', r65_2: 'frustrating', r65_3: 'major', r65_4: 'harsh', r65_5: 'criticize', r65_6: 'insult' }; 
+            
+            let correct = true;
+            for (let key in ans) {
+                let el = document.getElementById(key);
+                if (el.value !== ans[key]) { 
+                    correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+                } else { 
+                    el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+                }
+            }
+            
+            fb.style.display = 'block';
+            if (correct) {
+                document.getElementById('tab2').innerHTML = "Reading (Page 65) ✔️";
+                fb.className = 'master-feedback correct'; 
+                fb.innerHTML = `✔️ ตรวจสอบถูกต้อง! กำลังบันทึกข้อมูล...`; 
+                document.getElementById('btn-check-2').disabled = true;
+                
+                // คำนวณรหัสลับ (Cipher) = (รหัสนักเรียน * 29) + 1111 แปลงเป็นเลขฐาน 16
+                const sidNum = parseInt(verifiedStudentId) || 0;
+                const cipherCode = (sidNum * 29 + 1111).toString(16).toUpperCase();
+
+                // บันทึก Log ไปยังระบบ
+                fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "recordActivity",
+                        studentId: verifiedStudentId,
+                        activityType: "WORKSHEET_M11",
+                        itemId: "M11",
+                        details: "Completed Cultures Around the World (Pages 64-65)"
+                    })
+                }).then(r => r.json()).then(data => {
+                    if(data.status === "success") {
+                        fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์!<br><br><span style="font-size:1.2rem; color: var(--gold);">รหัสลับของคุณคือ: <b>U53-${cipherCode}</b></span><br><br><span style="font-size:0.85rem; color: #fff;">นำรหัสนี้ไปกรอกในหน้าต่าง Quest ของเว็บหลักเพื่อรับ XP นะคะ!</span>`;
+                    } else {
+                        fb.innerHTML = `❌ ระบบบันทึกข้อมูลขัดข้อง กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน แต่รหัสคือ <b>U53-${cipherCode}</b>`;
+                    }
+                }).catch(e => {
+                    fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน แต่รหัสคือ <b>U53-${cipherCode}</b>`;
+                });
+            } else {
+                fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ เลือกผิดบางข้อ ลองกลับไปอ่านบริบทประโยคทบทวนอีกรอบนะ`;
+            }
+        }
+    </script>
+</body>
+</html>
