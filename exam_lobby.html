@@ -129,7 +129,7 @@
         </div>
         
         <div class="text-center mt-10 border-t border-rose-500/20 pt-6">
-            <button onclick="window.close()" class="text-sm text-slate-400 hover:text-white underline transition">
+            <button onclick="window.location.href='index.html'" class="text-sm text-slate-400 hover:text-white underline transition">
                 กลับสู่หน้า Dashboard
             </button>
         </div>
@@ -196,7 +196,16 @@
             // เงื่อนไข Unit 3
             const reqU3 = ["M01", "M02", "M03", "M04", "V_U3"];
             const isU3Ready = reqU3.every(m => completedMissions.includes(m));
-            if (isU3Ready) {
+            const isU3Completed = completedMissions.includes("EXAM_U3");
+            
+            if (isU3Completed) {
+                document.getElementById("card-u3").classList.add("locked");
+                document.getElementById("btn-u3").disabled = true;
+                document.getElementById("btn-u3").innerText = "สอบผ่านแล้ว ✓";
+                document.getElementById("lock-icon-u3").textContent = "🏆";
+                document.getElementById("req-u3").className = "text-xs text-emerald-400 bg-emerald-950/50 p-2 rounded-lg border border-emerald-900 mb-6";
+                document.getElementById("req-u3").innerHTML = "<b>สถานะ:</b> สอบผ่านเรียบร้อยแล้ว";
+            } else if (isU3Ready) {
                 document.getElementById("card-u3").classList.remove("locked");
                 document.getElementById("btn-u3").disabled = false;
                 document.getElementById("lock-icon-u3").textContent = "🔓";
@@ -207,7 +216,16 @@
             // เงื่อนไข Unit 4
             const reqU4 = ["M05", "M06", "M07", "M08", "V_U4"];
             const isU4Ready = reqU4.every(m => completedMissions.includes(m));
-            if (isU4Ready) {
+            const isU4Completed = completedMissions.includes("EXAM_U4");
+            
+            if (isU4Completed) {
+                document.getElementById("card-u4").classList.add("locked");
+                document.getElementById("btn-u4").disabled = true;
+                document.getElementById("btn-u4").innerText = "สอบผ่านแล้ว ✓";
+                document.getElementById("lock-icon-u4").textContent = "🏆";
+                document.getElementById("req-u4").className = "text-xs text-emerald-400 bg-emerald-950/50 p-2 rounded-lg border border-emerald-900 mb-6";
+                document.getElementById("req-u4").innerHTML = "<b>สถานะ:</b> สอบผ่านเรียบร้อยแล้ว";
+            } else if (isU4Ready) {
                 document.getElementById("card-u4").classList.remove("locked");
                 document.getElementById("btn-u4").disabled = false;
                 document.getElementById("lock-icon-u4").textContent = "🔓";
