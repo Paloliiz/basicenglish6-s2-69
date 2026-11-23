@@ -9,7 +9,7 @@
         /* ================= CSS VARIABLES & GLOBALS ================= */
         :root {
             --bg-space: #020617; --bg-panel: #0f172a; --bg-card: #1e293b;
-            --unit-money: #059669; --unit-money-light: #10b981; /* ธีมสีเขียวมรกต (การเงิน) */
+            --unit-money: #059669; --unit-money-light: #10b981; 
             --neon-cyan: #06b6d4; --neon-blue: #3b82f6; 
             --neon-orange: #f59e0b; --neon-red: #ef4444; --gold: #facc15;
             --neon-green: #22c55e;
@@ -44,7 +44,6 @@
         }
         select:focus, input:focus { border-color: var(--unit-money-light); outline: none; }
         
-        /* Dropdown สำหรับโจทย์ที่มีช่องเว้นว่าง */
         select.blank-input {
             border: none; border-bottom: 2px solid var(--unit-money);
             background: rgba(2, 6, 23, 0.5) !important; color: var(--gold) !important;
@@ -54,7 +53,6 @@
         }
         select.blank-input:focus { border-bottom-color: var(--unit-money-light); outline: none; background: #020617 !important;}
         
-        /* ช่องพิมพ์ประโยคยาว */
         input[type="text"].sentence-input {
             width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #475569; border-radius: 6px;
             background: #020617; color: var(--gold); font-size: 0.95rem !important;
@@ -114,7 +112,7 @@
 </head>
 <body>
 
-    <!-- STUDENT VERIFICATION PANEL (แบบใหม่ที่กดแล้วหายไป) -->
+    <!-- STUDENT VERIFICATION PANEL -->
     <div id="student-verification-panel" class="container" style="max-width: 500px; text-align: center; background: rgba(15, 23, 42, 0.95);">
         <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
         <h3 style="color: var(--neon-cyan); margin-bottom: 20px; font-size: 1.2rem;">ยืนยันตัวตนก่อนทำภารกิจ</h3>
@@ -125,21 +123,21 @@
 
 <div id="view-mission" class="container hidden">
     
+    <!-- STUDENT PROFILE BADGE (โชว์ชื่อหลังจากยืนยันตัวตนสำเร็จ) -->
+    <div style="background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(16,185,129,0.1)); border: 1px solid var(--neon-cyan); border-radius: 10px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 0 15px rgba(6,182,212,0.2);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="font-size: 2rem; background: rgba(0,0,0,0.4); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #334155;">🎓</div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">CURRENT EXPLORER</div>
+                <div id="display-student-name" style="font-weight: bold; color: var(--neon-cyan); font-size: 1.2rem;">กำลังโหลดข้อมูล...</div>
+            </div>
+        </div>
+        <div id="display-student-id" style="font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--gold); background: rgba(250, 204, 21, 0.15); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.4);">ID: -----</div>
+    </div>
+
     <!-- MISSION CONTENT -->
     <div id="mission-content">
     
-    <!-- STUDENT PROFILE BADGE (โชว์ชื่อหลังจากยืนยันตัวตนสำเร็จ) -->
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; background: rgba(6, 182, 212, 0.05); border: 1px solid var(--neon-cyan); padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="font-size: 1.8rem; background: rgba(0,0,0,0.5); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid #334155;">🎓</div>
-            <div>
-                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">CURRENT USER</div>
-                <div id="display-student-name" style="font-weight: bold; color: var(--neon-cyan); font-size: 1.1rem; line-height: 1.2;">กำลังโหลด...</div>
-            </div>
-        </div>
-        <div id="display-student-id" style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--gold); background: rgba(250, 204, 21, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.3);">ID: -----</div>
-    </div>
-
     <!-- MISSION NAV -->
     <div id="missionNav" class="tab-container">
         <button id="tab1" class="tab-btn active" onclick="goToPhase(1)">Vocab (Page 46)</button>
@@ -360,24 +358,35 @@
     document.addEventListener("DOMContentLoaded", () => {
         const urlParams = new URLSearchParams(window.location.search);
         let sid = urlParams.get('sid');
+        let savedName = "";
         
         // ถ้าเปิดมาจากเบราว์เซอร์แล้ว URL ไม่มีรหัส พยายามดึงจาก LocalStorage (ที่เด็กเคยล็อกอินเว็บหลักไว้)
-        if (!sid || sid === "GUEST") {
-            const savedSession = localStorage.getItem("pd_portal_session");
-            if (savedSession) {
-                try {
-                    const appState = JSON.parse(savedSession);
-                    if (appState.user && appState.user.studentId) {
-                        sid = appState.user.studentId;
-                    }
-                } catch(e) {}
-            }
+        const savedSession = localStorage.getItem("pd_portal_session");
+        if (savedSession) {
+            try {
+                const appState = JSON.parse(savedSession);
+                if (appState.user && appState.user.studentId) {
+                    if (!sid || sid === "GUEST") sid = appState.user.studentId;
+                    if (appState.user.studentId == sid) savedName = appState.user.name;
+                }
+            } catch(e) {}
         }
 
         // ถ้ารู้ว่าเด็กคนนี้คือใคร ดึงมาใส่ช่องและกดยืนยันให้อัตโนมัติเลย
         if (sid && sid !== "GUEST") {
             document.getElementById('verify-sid').value = sid;
-            verifyStudent();
+            verifiedStudentId = sid;
+            
+            // ถ้ามีชื่อในเครื่องอยู่แล้ว แสดงผลทันทีไม่ต้องรอ API
+            if (savedName) {
+                document.getElementById('display-student-name').innerText = savedName;
+                document.getElementById('display-student-id').innerText = "ID: " + sid;
+                document.getElementById('student-verification-panel').style.display = 'none';
+                document.getElementById('view-mission').classList.remove('hidden');
+            } else {
+                // ถ้าไม่มี ค่อยไปให้ API ค้นหาชื่อมาให้
+                verifyStudent();
+            }
         }
     });
 
