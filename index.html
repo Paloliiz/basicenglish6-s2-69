@@ -89,7 +89,7 @@
             box-shadow: 0 0 15px #38bdf8, 0 0 30px #38bdf8, inset 0 0 15px #38bdf8;
         }
         
-        /* --- New Frames --- */
+        /* --- Unit 3 & Unit 4 Frames --- */
         .frame-medic {
             border: 3px solid #10b981;
             box-shadow: 0 0 15px #10b981, inset 0 0 10px #10b981;
@@ -108,6 +108,29 @@
         .frame-emerald {
             border: 4px solid #059669;
             box-shadow: 0 0 25px #059669, 0 0 40px #10b981, inset 0 0 20px #059669;
+        }
+
+        /* --- Unit 5 Epic Frames --- */
+        .frame-astral {
+            border: 4px dashed #38bdf8;
+            outline: 2px solid rgba(56, 189, 248, 0.5);
+            outline-offset: 2px;
+            box-shadow: 0 0 20px #0284c7, 0 0 38px #38bdf8, inset 0 0 16px #38bdf8;
+            animation: spinSlow 9s linear infinite;
+        }
+        .frame-celestial {
+            border: 4px double #facc15;
+            outline: 2px dashed #38bdf8;
+            outline-offset: 2px;
+            box-shadow: 0 0 22px #38bdf8, 0 0 40px rgba(250, 204, 21, 0.8), inset 0 0 18px #38bdf8;
+            animation: spinSlow 14s linear reverse infinite;
+        }
+        .frame-sovereign {
+            border: 4px double #e879f9;
+            outline: 3px dashed #facc15;
+            outline-offset: 3px;
+            box-shadow: 0 0 25px #38bdf8, 0 0 45px #c026d3, 0 0 60px rgba(250, 204, 21, 0.6), inset 0 0 22px #38bdf8;
+            animation: spinSlow 7s linear infinite;
         }
         
         @keyframes spinSlow { 100% { transform: rotate(360deg); } }
@@ -576,6 +599,11 @@
             "Skin10": { id: "Skin10", name: "Skin 10: Cyber Knight", subtitle: "อัศวินโลกอนาคต", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M07", svg: `<img src="skin10.png" alt="Cyber Knight" class="w-full h-full object-cover">` },
             "Skin11": { id: "Skin11", name: "Skin 11: Oracle of Wealth", subtitle: "นักพยากรณ์ความมั่งคั่ง", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M08", svg: `<img src="skin11.png" alt="Oracle of Wealth" class="w-full h-full object-cover">` },
             "Skin12": { id: "Skin12", name: "Skin 12: The Mascot", subtitle: "ตุ๊กตามาสคอตนำโชค", unlockHint: "ปลดล็อกเมื่อปราบบอส V_U4", svg: `<img src="skin12.png" alt="The Mascot" class="w-full h-full object-cover">` },
+            "Skin13": { id: "Skin13", name: "Skin 13: Dimension Traveler", subtitle: "นักเดินทางข้ามวัฒนธรรม", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M09", svg: `<img src="skin13.png" alt="Dimension Traveler" class="w-full h-full object-cover">` },
+            "Skin14": { id: "Skin14", name: "Skin 14: Neo-Samurai", subtitle: "นักรบไซเบอร์แห่งตะวันออก", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M10", svg: `<img src="skin14.png" alt="Neo-Samurai" class="w-full h-full object-cover">` },
+            "Skin15": { id: "Skin15", name: "Skin 15: Astral Pharaoh", subtitle: "ผู้พิทักษ์อารยธรรมโบราณ", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M11", svg: `<img src="skin15.png" alt="Astral Pharaoh" class="w-full h-full object-cover">` },
+            "Skin16": { id: "Skin16", name: "Skin 16: Galactic Diplomat", subtitle: "ทูตสันถวไมตรีแห่งจักรวาล", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M12", svg: `<img src="skin16.png" alt="Galactic Diplomat" class="w-full h-full object-cover">` },
+            "Skin17": { id: "Skin17", name: "Skin 17: Mythic Guardian", subtitle: "เทพผู้พิทักษ์พหุวัฒนธรรม", unlockHint: "ปลดล็อกเมื่อปราบบอส V_U5", svg: `<img src="skin17.png" alt="Mythic Guardian" class="w-full h-full object-cover">` },
             "Skin99": { id: "Skin99", name: "Custom Avatar", subtitle: "ตัวละครที่คุณสร้างเอง", unlockHint: "ปลดล็อกเมื่อใส่ลิงก์รูปภาพ", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#070510"/><rect x="40" y="40" width="120" height="120" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="8 8"/><circle cx="100" cy="100" r="20" fill="#38bdf8" opacity="0.5" class="animate-ping"/></svg>` }
         };
 
@@ -586,6 +614,9 @@
             "FrameEx3": { id: "FrameEx3", name: "Crimson Conqueror", subtitle: "สอบผ่าน Unit 3 (EXAM_U3)", cssClass: "frame-crimson", reqMission: "EXAM_U3" },
             "FrameU4": { id: "FrameU4", name: "Wealth Whisperer", subtitle: "จบภารกิจ Unit 4 (M08)", cssClass: "frame-wealth", reqMission: "M08" },
             "FrameEx4": { id: "FrameEx4", name: "Emerald Elite", subtitle: "สอบผ่าน Unit 4 (EXAM_U4)", cssClass: "frame-emerald", reqMission: "EXAM_U4" },
+            "FrameV5": { id: "FrameV5", name: "Astral Rift", subtitle: "ปราบบอส U5 (V_U5)", cssClass: "frame-astral", reqMission: "V_U5" },
+            "FrameU5": { id: "FrameU5", name: "Celestial Compass", subtitle: "จบภารกิจ Unit 5 (M12)", cssClass: "frame-celestial", reqMission: "M12" },
+            "FrameEx5": { id: "FrameEx5", name: "Sovereign Horizon", subtitle: "สอบผ่าน Unit 5 (EXAM_U5)", cssClass: "frame-sovereign", reqMission: "EXAM_U5" },
             "FrameLv5": { id: "FrameLv5", name: "Gold Standard", subtitle: "กรอบสำหรับเลเวล 5 ขึ้นไป", cssClass: "frame-level5", reqLevel: 5 },
             "FrameLv10": { id: "FrameLv10", name: "Diamond Master", subtitle: "กรอบสำหรับเลเวล 10 ขึ้นไป", cssClass: "frame-level10", reqLevel: 10 }
         };
@@ -614,14 +645,17 @@
                 linkUrl: "team_raid_lobby.html" 
             },
 
-            // Unit 5 Missions (M09, M10, M11)
+            // Unit 5 Missions (M09, M10, M11, M12, V_U5)
             "M09": { unit: "Unit 5", subtitle: "เรียนรู้คำศัพท์และอ่านบทความ Cultures Around the World (หน้า 60-61)", category: "Vocab & Reading", difficulty: "Medium", xp: 100, demoPasscode: "U51-{CIPHER}", artType: "book", isWebLink: true, linkUrl: "mission_5_1.html" },
             "M10": { unit: "Unit 5", subtitle: "เรียนรู้คำศัพท์ แกรมม่า และการฟัง Different Cultural Values (หน้า 62-63)", category: "Vocab & Grammar", difficulty: "Medium", xp: 100, demoPasscode: "U52-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "mission_5_2.html" },
             "M11": { unit: "Unit 5", subtitle: "เรียนรู้คำศัพท์และการอ่านบทความเรื่อง Differences Between Culture (หน้า 64-65)", category: "Vocab & Reading", difficulty: "Hard", xp: 150, demoPasscode: "U53-{CIPHER}", artType: "mirror", isWebLink: true, linkUrl: "mission_5_3.html" },
+            "M12": { unit: "Unit 5", subtitle: "เรียนรู้คำศัพท์ แกรมม่า และการเขียน Guide on the Dos and Don'ts (หน้า 66-67)", category: "Vocab & Writing", difficulty: "Hard", xp: 150, demoPasscode: "U54-{CIPHER}", artType: "castle", isWebLink: true, linkUrl: "mission_5_4.html" },
+            "V_U5": { unit: "Unit 5", subtitle: "ภารกิจมินิเกมคำศัพท์: ปราบ The Babel Glitch", category: "Vocab", difficulty: "Boss", xp: 200, demoPasscode: "V05-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "voice_lab_u5.html" },
 
             "V_U4": { unit: "Unit 4", subtitle: "ภารกิจมินิเกมคำศัพท์: ปราบ The Gilded Glitch", category: "Vocab", difficulty: "Boss", xp: 200, demoPasscode: "V04-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/voice_lab_u4.html" },
             "EXAM_U3": { unit: "Unit 3", subtitle: "สอบเก็บคะแนน Unit 3 (10 คะแนน)", category: "Exam", difficulty: "Boss", xp: 100, demoPasscode: "EX3-{CIPHER}", artType: "castle", isWebLink: false },
-            "EXAM_U4": { unit: "Unit 4", subtitle: "สอบเก็บคะแนน Unit 4 (10 คะแนน)", category: "Exam", difficulty: "Boss", xp: 100, demoPasscode: "EX4-{CIPHER}", artType: "castle", isWebLink: false }
+            "EXAM_U4": { unit: "Unit 4", subtitle: "สอบเก็บคะแนน Unit 4 (10 คะแนน)", category: "Exam", difficulty: "Boss", xp: 100, demoPasscode: "EX4-{CIPHER}", artType: "castle", isWebLink: false },
+            "EXAM_U5": { unit: "Unit 5", subtitle: "สอบเก็บคะแนน Unit 5 (10 คะแนน)", category: "Exam", difficulty: "Boss", xp: 100, demoPasscode: "EX5-{CIPHER}", artType: "castle", isWebLink: false }
         };
 
         let appState = {
@@ -900,7 +934,9 @@
                 { id: "V_U4", name: "มินิเกมคำศัพท์ Voice Lab (U4)" },
                 { id: "M09", name: "ภารกิจ M09: Cultures Around the World" },
                 { id: "M10", name: "ภารกิจ M10: Different Cultural Values" },
-                { id: "M11", name: "ภารกิจ M11: Differences Between Culture" }
+                { id: "M11", name: "ภารกิจ M11: Differences Between Culture" },
+                { id: "M12", name: "ภารกิจ M12: Guide on the Dos and Don'ts" },
+                { id: "V_U5", name: "มินิเกมคำศัพท์ Voice Lab (U5)" }
             ];
             
             webList.innerHTML = webQuests.map(q => {
@@ -929,6 +965,7 @@
                 { id: "M09_Book", name: "ส่งแบบฝึกหัดหน้า 60-61" },
                 { id: "M10_Book", name: "ส่งแบบฝึกหัดหน้า 62-63" },
                 { id: "M11_Book", name: "ส่งแบบฝึกหัดหน้า 64-65" },
+                { id: "M12_Book", name: "ส่งแบบฝึกหัดหน้า 66-67" },
                 { id: "XmasCard", name: "ทำการ์ดคริสต์มาส 🎄" }
             ];
 
@@ -1066,7 +1103,7 @@
                 }
 
                 let rewardBadge = "";
-                if (m.missionId === "V_U3" || m.missionId === "V_U4") {
+                if (m.missionId === "V_U3" || m.missionId === "V_U4" || m.missionId === "V_U5") {
                      rewardBadge = `<span class="px-2 py-0.5 rounded bg-green-900/80 border border-green-400/50 text-[9px] text-green-200">🖼️ กรอบบอส!</span>`;
                 } else if (m.rewardSkin && !m.missionId.includes("EXAM")) {
                      rewardBadge = `<span class="px-2 py-0.5 rounded bg-pink-900/80 border border-pink-400/50 text-[9px] text-pink-200">🎁 สกิน: ${m.rewardSkin}</span>`;
@@ -1111,12 +1148,15 @@
                     } else if (m.missionId === "EXAM_U4") {
                         const reqU4 = ["M05", "M06", "M07", "M08", "V_U4"];
                         isLocked = !reqU4.every(req => completedMissions.includes(req));
+                    } else if (m.missionId === "EXAM_U5") {
+                        const reqU5 = ["M09", "M10", "M11", "M12", "V_U5"];
+                        isLocked = !reqU5.every(req => completedMissions.includes(req));
                     } else {
                         isLocked = m.state === "LOCKED"; 
                     }
                     
                     let rewardBadge = "";
-                    if (m.missionId === "EXAM_U3" || m.missionId === "EXAM_U4") {
+                    if (m.missionId === "EXAM_U3" || m.missionId === "EXAM_U4" || m.missionId === "EXAM_U5") {
                          rewardBadge = `<span class="px-2 py-0.5 rounded bg-blue-900/80 border border-blue-400/50 text-[10px] text-blue-200 ml-2">🖼️ กรอบพิเศษ!</span>`;
                     }
                     
@@ -1382,7 +1422,7 @@
                     appState.missions = res.missions;
                     saveSession(); renderAllModules(); closeMissionModal();
                     
-                    if (mId === "V_U3" || mId === "V_U4" || mId.includes("EXAM")) {
+                    if (mId === "V_U3" || mId === "V_U4" || mId === "V_U5" || mId.includes("EXAM")) {
                          showToast("🎉 ยินดีด้วย! คุณได้รับกรอบโปรไฟล์ใหม่ ไปดูที่ตู้เสื้อผ้าได้เลย!", "success");
                     } else {
                          showToast(res.message, "success");
