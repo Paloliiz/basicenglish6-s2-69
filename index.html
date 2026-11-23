@@ -602,7 +602,7 @@
             "M07": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และอ่านบทความเรื่อง Market Trends (หน้า 50-51)", category: "Vocab & Reading", difficulty: "Hard", xp: 150, demoPasscode: "U43-{CIPHER}", artType: "mirror", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_3.html" },
             "M08": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และการเขียนเรื่อง Financial Problem (หน้า 52-53)", category: "Vocab & Writing", difficulty: "Hard", xp: 150, demoPasscode: "U44-{CIPHER}", artType: "castle", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_4.html" },
             
-            // 📍 ภารกิจกลุ่ม Team Raid (อัปเดตชื่อรหัสเป็น RAID_U4)
+            // 📍 ภารกิจกลุ่ม Team Raid
             "RAID_U4": { 
                 unit: "Unit 4", 
                 subtitle: "ภารกิจจำลองอนาคต: Future Snapshot (Team Raid)", 
@@ -894,7 +894,6 @@
                 { id: "M06", name: "ภารกิจ M06" },
                 { id: "M07", name: "ภารกิจ M07" },
                 { id: "M08", name: "ภารกิจ M08" },
-                // 📍 อัปเดตรหัสให้เป็น RAID_U4
                 { id: "RAID_U4", name: "ภารกิจกลุ่ม: Future Snapshot (Team Raid)" },
                 { id: "V_U4", name: "มินิเกมคำศัพท์ Voice Lab (U4)" }
             ];
@@ -1066,6 +1065,7 @@
                 `;
             }).join("");
             
+            // เพิ่มส่วนสำหรับโชว์ EXAM แยกต่างหากด้านล่างของหน้าภารกิจ
             const examMissions = missions.filter(m => {
                 const preset = MISSION_META_PRESETS[m.missionId];
                 return preset && preset.category === "Exam" && (appState.currentUnitFilter === "ALL" || preset.unit === appState.currentUnitFilter);
@@ -1296,13 +1296,38 @@
 
         async function submitMissionPasscode(e) {
             e.preventDefault();
-            const code = document.getElementById("modal-passcode-input").value.trim();
+            const codeInput = document.getElementById("modal-passcode-input").value.trim().toUpperCase();
             const btn = document.getElementById("modal-submit-btn");
             const err = document.getElementById("modal-error-msg");
             err.classList.add("hidden"); btn.disabled = true; btn.innerHTML = "กำลังตรวจ...";
             
+            // --- FRONTEND SECURITY CHECK สำหรับรหัสลับแบบ CIPHER ---
+            const mId = appState.activeModalMissionId;
+            const preset = MISSION_META_PRESETS[mId];
+            let finalCodeToSend = codeInput; // Default ส่งที่เด็กพิมพ์ไป
+
+            if (preset && preset.demoPasscode && preset.demoPasscode.includes("{CIPHER}")) {
+                // คำนวณรหัสลับที่ถูกต้องของเด็กคนนี้
+                const sidNum = parseInt(appState.user.studentId) || 0;
+                const correctCipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
+                const expectedPasscode = preset.demoPasscode.replace("{CIPHER}", correctCipher);
+                
+                // ตรวจสอบว่าเด็กพิมพ์ตรงกับที่คำนวณไว้ไหม
+                if (codeInput !== expectedPasscode) {
+                    err.textContent = "❌ รหัสปลดล็อกไม่ถูกต้อง! (รหัสลับเฉพาะบุคคล กรุณาทำภารกิจ)"; 
+                    err.classList.remove("hidden");
+                    btn.disabled = false; btn.innerHTML = "⚡ ยืนยันรหัสปลดล็อกมิติ";
+                    return; // หยุดการทำงาน ไม่ส่งไปหลังบ้าน
+                }
+                
+                // ถ้าพิมพ์ถูก! เราจะแอบแปลงรหัสกลับเป็นตัวอักษร {CIPHER} เพื่อส่งให้ Google Sheets ตรวจผ่าน
+                // เพราะใน Google Sheets (ฐานข้อมูล) ครูพลอยพิมพ์ไว้ว่า U41-{CIPHER}
+                finalCodeToSend = preset.demoPasscode; 
+            }
+            // ----------------------------------------------------
+            
             try {
-                const res = await callPortalApi({ action: "submitMission", studentId: appState.user.studentId, missionId: appState.activeModalMissionId, passcode: code });
+                const res = await callPortalApi({ action: "submitMission", studentId: appState.user.studentId, missionId: mId, passcode: finalCodeToSend });
                 if(res.status==="success") {
                     appState.user.totalXp = res.totalXp;
                     if(res.currentSkin) appState.user.currentSkin = res.currentSkin;
@@ -1310,7 +1335,7 @@
                     appState.missions = res.missions;
                     saveSession(); renderAllModules(); closeMissionModal();
                     
-                    if (appState.activeModalMissionId === "V_U3" || appState.activeModalMissionId === "V_U4" || appState.activeModalMissionId.includes("EXAM")) {
+                    if (mId === "V_U3" || mId === "V_U4" || mId.includes("EXAM")) {
                          showToast("🎉 ยินดีด้วย! คุณได้รับกรอบโปรไฟล์ใหม่ ไปดูที่ตู้เสื้อผ้าได้เลย!", "success");
                     } else {
                          showToast(res.message, "success");
