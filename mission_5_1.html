@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mission 5.1: Cultures Around the World | CHRONOS HQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ================= CSS VARIABLES & GLOBALS ================= */
+        :root {
+            --bg-space: #020617; --bg-panel: #0f172a; --bg-card: #1e293b;
+            --unit-blue: #0284c7; --unit-blue-light: #38bdf8; /* ธีมสีฟ้า Unit 5 */
+            --neon-cyan: #06b6d4; 
+            --neon-orange: #f59e0b; --neon-red: #ef4444; --gold: #facc15;
+            --neon-green: #22c55e;
+            --text-main: #f8fafc; --text-muted: #94a3b8; --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Kanit', sans-serif; background-color: var(--bg-space); color: var(--text-main); 
+            display: flex; flex-direction: column; min-height: 100vh; padding: 15px;
+            background-image: radial-gradient(circle at 50% 10%, rgba(2, 132, 199, 0.1) 0%, transparent 60%);
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--bg-panel); border-top: 4px solid var(--unit-blue); border-radius: var(--radius);
+            padding: 20px; max-width: 800px; width: 100%; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease; position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Poppins', 'Kanit', sans-serif; }
+        .section-title { background: var(--unit-blue); color: white; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;}
+        
+        .card { background: var(--bg-card); border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 20px; animation: fadeIn 0.4s ease-out; }
+
+        /* ================= FORM & INPUTS ================= */
+        select, input[type="text"], input[type="number"] {
+            font-size: 16px !important; width: 100%; padding: 10px; border-radius: 6px; 
+            border: 1px solid #475569; background: #020617; color: #fff; font-family: 'Kanit';
+        }
+        select:focus, input:focus { border-color: var(--unit-blue-light); outline: none; }
+        
+        /* Dropdown สำหรับเติมคำแบบเนียนๆ */
+        select.blank-input {
+            border: none; border-bottom: 2px solid var(--unit-blue);
+            background: rgba(2, 6, 23, 0.5) !important; color: var(--gold) !important;
+            text-align: left; padding: 2px 5px; border-radius: 4px 4px 0 0;
+            display: inline-block; font-weight: bold; width: auto; min-width: 150px; font-size: 0.95rem !important; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select.blank-input:focus { border-bottom-color: var(--unit-blue-light); outline: none; background: #020617 !important;}
+
+        .is-correct { color: var(--neon-green) !important; font-weight: bold; }
+
+        button {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; font-family: 'Kanit'; margin-top: 10px; transition: all 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        .btn-check { background: var(--unit-blue); color: white; }
+        .btn-check:hover { background: var(--unit-blue-light); }
+        .btn-next { background: var(--neon-cyan); color: #000; animation: pulse 1.5s infinite;}
+        .btn-back { background: transparent; border: 1px solid #475569; color: #cbd5e1; margin-top: 15px; }
+
+        /* ================= MISSION UI ================= */
+        .header-mission { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #334155; padding-bottom: 15px; margin-bottom: 20px; }
+        .header-mission h2 { font-family: 'Poppins', sans-serif; color: var(--unit-blue-light); margin: 0; font-size: 1.5rem;}
+        
+        .question { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+        .question:last-child { border-bottom: none; padding-bottom: 0;}
+        .q-text { font-size: 1rem; margin-bottom: 10px; color: #f8fafc;}
+
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        @media (min-width: 600px) { .vocab-grid { grid-template-columns: repeat(4, 1fr); } }
+        .vocab-item { background: rgba(2, 6, 23, 0.5); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #475569; font-weight: bold; font-size: 1rem; color: var(--unit-blue-light);}
+        .vocab-item input { width: 100%; margin-top: 10px; text-align: center; color: var(--gold);}
+
+        .word-bank { background: rgba(2, 6, 23, 0.5); border: 1px dashed var(--unit-blue); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .word-chip { background: #1e293b; color: var(--unit-blue-light); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; border: 1px solid #334155; }
+
+        .audio-container { background: #020617; border: 1px solid #475569; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        audio { width: 100%; height: 40px; outline: none; }
+
+        /* Article Box */
+        .article-box { background: rgba(2, 6, 23, 0.6); padding: 25px; border-radius: 10px; border: 1px solid #334155; line-height: 2.2; font-size: 1rem; color: #cbd5e1; margin-bottom: 20px;}
+        .article-box p { margin-bottom: 20px; text-indent: 30px; }
+        
+        .insert-point { font-weight: bold; color: var(--neon-orange); background: rgba(245, 158, 11, 0.2); padding: 0 5px; border-radius: 4px; font-size: 0.9rem;}
+
+        /* ================= TABS ================= */
+        .tab-container { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;}
+        .tab-btn { background: #1e293b; color: var(--text-muted); border: 1px solid #475569; font-size: 0.85rem; margin: 0; padding: 8px 15px; flex: 1; border-radius: 6px; cursor: pointer; font-family: 'Kanit'; transition: 0.3s;}
+        .tab-btn.active { background: var(--unit-blue); color: #fff; border-color: var(--unit-blue); font-weight: bold;}
+        .tab-btn:hover { transform: none; background: #334155;}
+
+        .master-feedback { display: none; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; text-align: center; font-weight: bold; line-height: 1.6;}
+        .correct { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); }
+        .wrong { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); }
+
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- STUDENT VERIFICATION PANEL (แบบใหม่ที่กดแล้วหายไป) -->
+    <div id="student-verification-panel" class="container" style="max-width: 500px; text-align: center; background: rgba(15, 23, 42, 0.95); animation: fadeIn 0.4s ease;">
+        <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
+        <h3 style="color: var(--neon-cyan); margin-bottom: 20px; font-size: 1.2rem;">ยืนยันตัวตนก่อนทำภารกิจ</h3>
+        <input type="text" id="verify-sid" placeholder="กรอกรหัสนักเรียน 5 หลัก" style="text-align: center; margin-bottom: 15px; font-size: 1.2rem !important; padding: 15px; width: 100%; box-sizing: border-box;">
+        <button onclick="verifyStudent()" style="background: var(--neon-cyan); color: #000; padding: 15px; width: 100%;">ตรวจสอบข้อมูล</button>
+        <div id="verify-result" style="margin-top: 15px; font-size: 0.95rem; font-weight: bold;"></div>
+    </div>
+
+<div id="view-mission" class="container hidden">
+    
+    <!-- STUDENT PROFILE BADGE -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; background: rgba(2, 132, 199, 0.05); border: 1px solid var(--neon-cyan); padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 1.8rem; background: rgba(0,0,0,0.5); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid #334155;">🎓</div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">CURRENT EXPLORER</div>
+                <div id="display-student-name" style="font-weight: bold; color: var(--neon-cyan); font-size: 1.1rem; line-height: 1.2;">กำลังโหลดข้อมูล...</div>
+            </div>
+        </div>
+        <div id="display-student-id" style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--gold); background: rgba(250, 204, 21, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.3);">ID: -----</div>
+    </div>
+
+    <!-- MISSION CONTENT -->
+    <div id="mission-content">
+    
+    <!-- MISSION NAV -->
+    <div id="missionNav" class="tab-container">
+        <button id="tab1" class="tab-btn active" onclick="goToPhase(1)">Vocab (Page 60)</button>
+        <button id="tab2" class="tab-btn" onclick="goToPhase(2)">Reading (Page 61)</button>
+    </div>
+
+    <div class="header-mission" id="mainHeader">
+        <h2>Mission 5.1: Cultures Around the World</h2>
+        <span id="pageBadge" style="background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;">Page 60-61</span>
+    </div>
+
+    <!-- PHASE 1: VOCABULARY (Page 60) -->
+    <div id="phase1">
+        <div class="section-title">A. Reading: Vocabulary</div>
+        <div class="card">
+            <p style="color: var(--unit-blue-light); margin-bottom: 10px; font-size: 0.95rem;"><b>1. Listen and number. (ฟังเสียงและใส่ตัวเลข 1-8 ลงในช่อง)</b></p>
+            
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 5-01</span>
+                <audio controls><source src="5-01.mp3" type="audio/mpeg"></audio>
+            </div>
+
+            <div class="vocab-grid" style="margin-bottom: 30px;">
+                <div class="vocab-item">pause <input type="number" id="v60_1" placeholder="No."></div>
+                <div class="vocab-item">diverse <input type="number" id="v60_2" placeholder="No."></div>
+                <div class="vocab-item">identity <input type="number" id="v60_3" placeholder="No."></div>
+                <div class="vocab-item">aspect <input type="number" id="v60_4" placeholder="No."></div>
+                <div class="vocab-item">overwhelm <input type="number" id="v60_5" placeholder="No."></div>
+                <div class="vocab-item">campus <input type="number" id="v60_6" placeholder="No."></div>
+                <div class="vocab-item">reserved <input type="number" id="v60_7" placeholder="No."></div>
+                <div class="vocab-item">outgoing <input type="number" id="v60_8" placeholder="No."></div>
+            </div>
+
+            <p style="color: var(--unit-blue-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>2. Fill in the blanks with the best vocabulary words. <br><span style="color:var(--neon-orange); font-size:0.85rem;">(Two words will not be used)</span></b></p>
+            
+            <div class="question"><div class="q-text">1. Terry is quiet and <select class="word-dropdown blank-input" id="f60_1"><option value="">-- เลือกคำ --</option></select>, but he tells great jokes.</div></div>
+            <div class="question"><div class="q-text">2. I really like Jen. She's energetic, friendly, and fun to hang out with. She's really <select class="word-dropdown blank-input" id="f60_2"><option value="">-- เลือกคำ --</option></select>!</div></div>
+            <div class="question"><div class="q-text">3. One <select class="word-dropdown blank-input" id="f60_3"><option value="">-- เลือกคำ --</option></select> of Mexican culture I really enjoy is the music.</div></div>
+            <div class="question"><div class="q-text">4. Loud noises often <select class="word-dropdown blank-input" id="f60_4"><option value="">-- เลือกคำ --</option></select> me. I sometimes have to leave parties and concerts.</div></div>
+            <div class="question"><div class="q-text">5. There was an awkward <select class="word-dropdown blank-input" id="f60_5"><option value="">-- เลือกคำ --</option></select> in the conversation.</div></div>
+            <div class="question"><div class="q-text">6. I'm so glad I chose to study abroad. I've made such a(n) <select class="word-dropdown blank-input" id="f60_6"><option value="">-- เลือกคำ --</option></select> group of friends.</div></div>
+
+            <p style="color: var(--unit-blue-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>3. Pre-reading: Guess the correct countries. (เดาประเทศจากคำใบ้)</b></p>
+            
+            <div class="vocab-grid" style="margin-bottom: 30px;">
+                <!-- ใช้ Emoji หรือคำใบ้แทนรูปภาพ -->
+                <div class="vocab-item" style="font-size: 2rem;">🍣🇯🇵<select class="country-dropdown blank-input" id="c60_1" style="font-size: 0.9rem !important; width: 100%; margin-top:10px;"><option value="">-- เลือกประเทศ --</option></select></div>
+                <div class="vocab-item" style="font-size: 2rem;">💀🇲🇽<select class="country-dropdown blank-input" id="c60_2" style="font-size: 0.9rem !important; width: 100%; margin-top:10px;"><option value="">-- เลือกประเทศ --</option></select></div>
+                <div class="vocab-item" style="font-size: 2rem;">🛶🇮🇹<select class="country-dropdown blank-input" id="c60_3" style="font-size: 0.9rem !important; width: 100%; margin-top:10px;"><option value="">-- เลือกประเทศ --</option></select></div>
+                <div class="vocab-item" style="font-size: 2rem;">🤠🇺🇸<select class="country-dropdown blank-input" id="c60_4" style="font-size: 0.9rem !important; width: 100%; margin-top:10px;"><option value="">-- เลือกประเทศ --</option></select></div>
+                <div class="vocab-item" style="font-size: 2rem;">🐪🇪🇬<select class="country-dropdown blank-input" id="c60_5" style="font-size: 0.9rem !important; width: 100%; margin-top:10px;"><option value="">-- เลือกประเทศ --</option></select></div>
+                <div class="vocab-item" style="font-size: 2rem;">🐘🇹🇭<select class="country-dropdown blank-input" id="c60_6" style="font-size: 0.9rem !important; width: 100%; margin-top:10px;"><option value="">-- เลือกประเทศ --</option></select></div>
+            </div>
+
+            <div id="fb-p1" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-1" onclick="checkPhase1()">ตรวจคำตอบ</button>
+            <button class="btn-next hidden" id="btn-next-1" onclick="goToPhase(2)">➔ ไปด่าน Reading</button>
+        </div>
+    </div>
+
+    <!-- PHASE 2: READING COMPREHENSION (Page 61) -->
+    <div id="phase2" class="hidden">
+        <div class="section-title">A. Reading: Comprehension</div>
+        <div class="card">
+            
+            <p style="color: var(--unit-blue-light); margin-bottom: 10px; font-size: 0.95rem;"><b>4. Read the article. (อ่านหรือฟังบทความ และสังเกตจุด [a], [b], [c], [d], [e])</b></p>
+            
+            <div class="audio-container">
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 5-02</span>
+                <audio controls><source src="5-02.mp3" type="audio/mpeg"></audio>
+            </div>
+
+            <div class="article-box">
+                <h3 style="text-align: center; color: var(--gold); margin-bottom: 15px; font-family: 'Poppins';">From My Culture To Yours</h3>
+                <p>When I first arrived in America, I was pretty reserved. I couldn't help but wonder if I'd fit in. One thing I noticed as soon as I stepped off the plane was the sea of diverse faces! <span class="insert-point">[a]</span> Such diversity makes America a fascinating place because I get to see and experience different lifestyles.</p>
+                <p>Aside from being far more outgoing, Americans are also into a lot of different activities. <span class="insert-point">[b]</span> It seems like there's a club for everything here! One day, our school hosted a huge club fair. I could hardly believe how many booths there were, and the campus was packed. By far, the coolest club I saw was the robotics club. I wondered if club members got to build actual robots that walked and talked and stuff.</p>
+                <p>I was about to register, but then I paused for a second. I felt dizzy. I started considering everything I didn't know about robots. I felt so overwhelmed. I didn't know whether I should join or not. Plus, there were so many clubs to choose from. What if one of them was even more fun? That was when a girl did something really cool: she shook my hand, and then she said, "konnichiwa!"—hello! <span class="insert-point">[c]</span> It reminded me of home; I couldn't help but smile.</p>
+                <p>It turns out my newfound friend Lila, who is the current president of the robotics club, had spent some time living in Japan! She told me she knew all about the overwhelming feelings that can come with culture shock. <span class="insert-point">[d]</span></p>
+                <p>We went to a restaurant for lunch, which was the first time I'd gone to a sit-down restaurant in America. Instead of just getting takeout or grabbing a coffee to go, Lila and I talked for hours. It turns out that she has some Japanese heritage, though she's spent most of her life in America. <span class="insert-point">[e]</span> Lila spoke about how complicated it can be when you don't know all the local customs, and she told me some funny stories from her time in Japan. We also talked about how diversity enriches us as individuals and adds immeasurably to our identities.</p>
+            </div>
+
+            <p style="color: var(--unit-blue-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>5. Circle the answers. (เลือกคำตอบที่ถูกต้อง)</b></p>
+            
+            <div class="question">
+                <div class="q-text">1. What is the writer's purpose in writing this?</div>
+                <select id="r61_1">
+                    <option value="">-- เลือกคำตอบ --</option>
+                    <option value="a">a. to talk about her travels</option>
+                    <option value="b">b. to talk about her best friend</option>
+                    <option value="c">c. to describe her experience in America</option>
+                    <option value="d">d. to describe her new friendship</option>
+                </select>
+            </div>
+            <div class="question">
+                <div class="q-text">2. What did the speaker do at the robotics booth?</div>
+                <select id="r61_2">
+                    <option value="">-- เลือกคำตอบ --</option>
+                    <option value="a">a. She registered for the club.</option>
+                    <option value="b">b. She made a friend.</option>
+                    <option value="c">c. She became president.</option>
+                    <option value="d">d. She built a robot.</option>
+                </select>
+            </div>
+            <div class="question">
+                <div class="q-text">3. What is meant by the term "culture shock"?</div>
+                <select id="r61_3">
+                    <option value="">-- เลือกคำตอบ --</option>
+                    <option value="a">a. Cultural differences can be surprising.</option>
+                    <option value="b">b. It can be difficult to adjust to a new culture.</option>
+                    <option value="c">c. Differences in culture can be confusing.</option>
+                    <option value="d">d. All answers are correct.</option>
+                </select>
+            </div>
+            <div class="question">
+                <div class="q-text">4. Based on the reading, what is NOT true about Americans and their culture?</div>
+                <select id="r61_4">
+                    <option value="">-- เลือกคำตอบ --</option>
+                    <option value="a">a. They mostly eat "to-go" meals.</option>
+                    <option value="b">b. They like to do lots of activities.</option>
+                    <option value="c">c. They are friendly and outgoing.</option>
+                    <option value="d">d. They are a diverse group of people.</option>
+                </select>
+            </div>
+            <div class="question">
+                <div class="q-text">5. What's the most likely reason Lila was in Japan?</div>
+                <select id="r61_5">
+                    <option value="">-- เลือกคำตอบ --</option>
+                    <option value="a">a. She has Japanese relatives.</option>
+                    <option value="b">b. She went to school in Japan.</option>
+                    <option value="c">c. She was building robots.</option>
+                    <option value="d">d. She was learning Japanese.</option>
+                </select>
+            </div>
+
+            <p style="color: var(--unit-blue-light); margin-bottom: 15px; font-size: 0.95rem; border-top: 1px dashed #334155; padding-top: 20px;"><b>6. Circle the best place for each sentence to be included in the text.</b></p>
+            <div class="question"><div class="q-text">1. We discussed different aspects of the two cultures.</div>
+                <select id="r61_6"><option value="">-- เลือกจุดแทรก --</option><option value="a">[a]</option><option value="b">[b]</option><option value="c">[c]</option><option value="d">[d]</option><option value="e">[e]</option></select>
+            </div>
+            <div class="question"><div class="q-text">2. Apparently, lots of people have a hard time moving from country to country.</div>
+                <select id="r61_7"><option value="">-- เลือกจุดแทรก --</option><option value="a">[a]</option><option value="b">[b]</option><option value="c">[c]</option><option value="d">[d]</option><option value="e">[e]</option></select>
+            </div>
+            <div class="question"><div class="q-text">3. I was impressed and surprised by her outgoing nature.</div>
+                <select id="r61_8"><option value="">-- เลือกจุดแทรก --</option><option value="a">[a]</option><option value="b">[b]</option><option value="c">[c]</option><option value="d">[d]</option><option value="e">[e]</option></select>
+            </div>
+            <div class="question"><div class="q-text">4. There are many different types of people living in this country.</div>
+                <select id="r61_9"><option value="">-- เลือกจุดแทรก --</option><option value="a">[a]</option><option value="b">[b]</option><option value="c">[c]</option><option value="d">[d]</option><option value="e">[e]</option></select>
+            </div>
+            <div class="question" style="border-bottom: none;"><div class="q-text">5. Popular pastimes range from collecting bugs to flying kites.</div>
+                <select id="r61_10"><option value="">-- เลือกจุดแทรก --</option><option value="a">[a]</option><option value="b">[b]</option><option value="c">[c]</option><option value="d">[d]</option><option value="e">[e]</option></select>
+            </div>
+
+            <div id="fb-p2" class="master-feedback"></div>
+            <button class="btn-check" id="btn-check-2" onclick="checkPhase2()">ตรวจคำตอบ & จบภารกิจ</button>
+            <button class="btn-back" onclick="goToPhase(1)">⬅️ ย้อนกลับ</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    // ================= API CONFIG =================
+    const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+    let verifiedStudentId = "";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        let sid = urlParams.get('sid');
+        let savedName = "";
+        
+        const savedSession = localStorage.getItem("pd_portal_session");
+        if (savedSession) {
+            try {
+                const appState = JSON.parse(savedSession);
+                if (appState.user && appState.user.studentId) {
+                    if (!sid || sid === "GUEST") sid = appState.user.studentId;
+                    if (appState.user.studentId == sid) savedName = appState.user.name;
+                }
+            } catch(e) {}
+        }
+
+        if (sid && sid !== "GUEST") {
+            document.getElementById('verify-sid').value = sid;
+            verifiedStudentId = sid;
+            
+            if (savedName) {
+                document.getElementById('display-student-name').innerText = savedName;
+                document.getElementById('display-student-id').innerText = "ID: " + sid;
+                document.getElementById('student-verification-panel').style.display = 'none';
+                document.getElementById('view-mission').classList.remove('hidden');
+            } else {
+                verifyStudent();
+            }
+        }
+    });
+
+    async function verifyStudent() {
+        const sid = document.getElementById('verify-sid').value.trim();
+        const resDiv = document.getElementById('verify-result');
+        if(!sid) { resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ กรุณากรอกรหัสนักเรียน</span>'; return; }
+        
+        resDiv.innerHTML = '<span style="color: var(--text-muted);">กำลังตรวจสอบข้อมูล...</span>';
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "verifyStudent", studentId: sid })
+            });
+            const data = await response.json();
+            if (data.status === "success") {
+                verifiedStudentId = sid;
+                
+                document.getElementById('display-student-name').innerText = data.name;
+                document.getElementById('display-student-id').innerText = "ID: " + sid;
+                
+                document.getElementById('student-verification-panel').style.display = 'none';
+                document.getElementById('view-mission').classList.remove('hidden');
+            } else {
+                resDiv.innerHTML = `<span style="color: var(--neon-red);">${data.message}</span>`;
+            }
+        } catch (e) {
+            resDiv.innerHTML = '<span style="color: var(--neon-red);">❌ การเชื่อมต่อล้มเหลว</span>';
+        }
+    }
+    // 1. ดึงคำศัพท์ไปใส่ใน Dropdown อัตโนมัติ
+    const vocabList = ["aspect", "campus", "diverse", "identity", "outgoing", "overwhelm", "pause", "reserved"];
+    const dropdowns = document.querySelectorAll('.word-dropdown');
+    
+    dropdowns.forEach(dropdown => {
+        vocabList.forEach(word => {
+            let option = document.createElement('option');
+            option.value = word; option.textContent = word;
+            dropdown.appendChild(option);
+        });
+    });
+
+    const countryList = ["Egypt", "Italy", "Japan", "Mexico", "Thailand", "the United States"];
+    const countryDropdowns = document.querySelectorAll('.country-dropdown');
+    countryDropdowns.forEach(dropdown => {
+        countryList.forEach(word => {
+            let option = document.createElement('option');
+            option.value = word.toLowerCase(); option.textContent = word;
+            dropdown.appendChild(option);
+        });
+    });
+
+    // 2. ระบบสลับหน้า
+    function goToPhase(phaseNum) {
+        document.querySelectorAll('#phase1, #phase2').forEach(el => el.classList.add('hidden'));
+        document.getElementById('phase' + phaseNum).classList.remove('hidden');
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('tab' + phaseNum).classList.add('active');
+
+        const badge = document.getElementById('pageBadge');
+        if(phaseNum === 1) badge.innerText = "Page 60"; 
+        else badge.innerText = "Page 61";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ฟังก์ชันทำความสะอาดข้อความ
+    function cleanStr(s) {
+        return s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    }
+
+    // 3. ตรวจคำตอบหน้า 60 (Vocab & Pre-reading)
+    function checkPhase1() {
+        const ansNum = { v60_1: '2', v60_2: '3', v60_3: '5', v60_4: '7', v60_5: '8', v60_6: '6', v60_7: '1', v60_8: '4' }; 
+        const ansFill = { f60_1: 'reserved', f60_2: 'outgoing', f60_3: 'aspect', f60_4: 'overwhelm', f60_5: 'pause', f60_6: 'diverse' };
+        const ansCountry = { c60_1: 'japan', c60_2: 'mexico', c60_3: 'italy', c60_4: 'the united states', c60_5: 'egypt', c60_6: 'thailand' };
+        
+        let correct = true;
+        
+        for (let key in ansNum) {
+            let el = document.getElementById(key);
+            if (cleanStr(el.value) !== ansNum[key]) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        for (let key in ansFill) {
+            let el = document.getElementById(key);
+            if (el.value !== ansFill[key]) { 
+                correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        for (let key in ansCountry) {
+            let el = document.getElementById(key);
+            if (el.value !== ansCountry[key]) { 
+                correct = false; el.style.setProperty('border-bottom-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-bottom-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p1'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab1').innerHTML = "Vocab (Page 60) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ยอดเยี่ยม! ไปด่าน Reading กันต่อเลย`; 
+            document.getElementById('btn-next-1').classList.remove('hidden');
+            document.getElementById('btn-check-1').classList.add('hidden');
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ ยังมีข้อที่ผิด สังเกตสีของกรอบนะคะ`;
+        }
+    }
+
+    // 4. ตรวจคำตอบหน้า 61 (Reading)
+    function checkPhase2() {
+        const ans = { 
+            r61_1: 'c', r61_2: 'b', r61_3: 'd', r61_4: 'a', r61_5: 'a', // Ex 5
+            r61_6: 'e', r61_7: 'd', r61_8: 'c', r61_9: 'a', r61_10: 'b' // Ex 6
+        }; 
+        
+        let correct = true;
+        for (let key in ans) {
+            let el = document.getElementById(key);
+            if (el.value !== ans[key]) { 
+                correct = false; el.style.setProperty('border-color', 'var(--neon-red)', 'important'); el.classList.remove('is-correct');
+            } else { 
+                el.style.setProperty('border-color', 'var(--neon-green)', 'important'); el.classList.add('is-correct');
+            }
+        }
+        
+        const fb = document.getElementById('fb-p2'); fb.style.display = 'block';
+        if (correct) {
+            document.getElementById('tab2').innerHTML = "Reading (Page 61) ✔️";
+            fb.className = 'master-feedback correct'; 
+            fb.innerHTML = `✔️ ตรวจสอบถูกต้อง! กำลังบันทึกข้อมูล...`; 
+            document.getElementById('btn-check-2').disabled = true;
+            
+            // คำนวณรหัสลับ (Cipher) = (รหัสนักเรียน * 29) + 1111 แปลงเป็นเลขฐาน 16
+            const sidNum = parseInt(verifiedStudentId) || 0;
+            const cipherCode = (sidNum * 29 + 1111).toString(16).toUpperCase();
+
+            // บันทึก Log ไปยังระบบ
+            fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "recordActivity",
+                    studentId: verifiedStudentId,
+                    activityType: "WORKSHEET_M09",
+                    itemId: "M09",
+                    details: "Completed Cultures Around the World (Pages 60-61)"
+                })
+            }).then(r => r.json()).then(data => {
+                if(data.status === "success") {
+                    fb.innerHTML = `✔️ ภารกิจเสร็จสมบูรณ์!<br><br><span style="font-size:1.2rem; color: var(--gold);">รหัสลับของคุณคือ: <b>U51-${cipherCode}</b></span><br><br><span style="font-size:0.85rem; color: #fff;">นำรหัสนี้ไปกรอกในหน้าต่าง Quest ของเว็บหลักเพื่อรับ XP นะคะ!</span>`;
+                } else {
+                    fb.innerHTML = `❌ ระบบบันทึกข้อมูลขัดข้อง กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน แต่รหัสคือ <b>U51-${cipherCode}</b>`;
+                }
+            }).catch(e => {
+                fb.innerHTML = `❌ การเชื่อมต่อล้มเหลว กรุณาแคปหน้าจอนี้แจ้งครูผู้สอน แต่รหัสคือ <b>U51-${cipherCode}</b>`;
+            });
+        } else {
+            fb.className = 'master-feedback wrong'; fb.innerHTML = `❌ เลือกผิดบางข้อ ลองกลับไปอ่านวิเคราะห์ทบทวนอีกรอบนะ`;
+        }
+    }
+</script>
+</div>
+</div>
+</body>
+</html>
