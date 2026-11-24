@@ -201,7 +201,17 @@
         // --- Auto-fill Student ID ---
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const sidFromUrl = urlParams.get('sid');
+            let sidFromUrl = urlParams.get('sid');
+
+            if (!sidFromUrl || sidFromUrl === "GUEST") {
+                try {
+                    const savedSession = JSON.parse(localStorage.getItem("pd_portal_session"));
+                    if (savedSession && savedSession.user && savedSession.user.studentId) {
+                        sidFromUrl = savedSession.user.studentId;
+                    }
+                } catch (e) {}
+            }
+
             if (sidFromUrl && sidFromUrl !== "GUEST") {
                 const sidInput = document.getElementById('sid-input');
                 if (sidInput) sidInput.value = sidFromUrl;
@@ -219,7 +229,7 @@
                 { word: "affect", meaning: "(v.) ส่งผลกระทบ" },
                 { word: "anxiety", meaning: "(n.) ความวิตกกังวล" }
             ],
-            phase2: [ // Word Decoder (แทน Memory Match เพื่อความเรียบง่ายและเป็นเนื้อเดียวกันในมือถือ)
+            phase2: [ // Word Decoder
                 { word: "infection", meaning: "(n.) การติดเชื้อ" },
                 { word: "treatment", meaning: "(n.) การรักษา" },
                 { word: "artificial", meaning: "(adj.) เทียม, สังเคราะห์" },
@@ -290,9 +300,8 @@
             }
         }
 
-        // Shuffle array helper
         function shuffle(array) {
-            let currentIndex = array.length,  randomIndex;
+            let currentIndex = array.length, randomIndex;
             while (currentIndex != 0) {
                 randomIndex = Math.floor(Math.random() * currentIndex);
                 currentIndex--;
@@ -323,26 +332,21 @@
             feedback.className = "result-box text-transparent"; feedback.innerText = "...";
             
             if (currentPhase === 1 || currentPhase === 2) {
-                // --- WORD DECODER ---
                 userSpelling = [];
                 letterButtons = [];
                 
-                // Create Empty Slots
                 for(let i=0; i<targetWord.length; i++) {
                     slotsArea.innerHTML += `<div class="letter-slot" id="slot-${i}">_</div>`;
                 }
                 
-                // Prepare scrambled letters
                 let letters = targetWord.split('');
                 letters = shuffle(letters);
                 
-                // Add fake extra letter to make it slightly harder
                 const alphabet = "abcdefghijklmnopqrstuvwxyz";
                 const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
                 letters.push(randomLetter);
                 letters = shuffle(letters);
                 
-                // Create Buttons
                 letters.forEach((char, idx) => {
                     const delay = idx * 0.05;
                     controlsArea.innerHTML += `<button id="lbtn-${idx}" class="letter-btn" style="animation-delay: ${delay}s" onclick="selectLetter('${char}', ${idx})">${char.toUpperCase()}</button>`;
@@ -350,7 +354,6 @@
                 });
 
             } else if (currentPhase === 3) {
-                // --- SENTENCE BUILDER ---
                 userSentence = [];
                 sentencePieces = [];
                 slotsArea.innerHTML = `<div id="sentence-drop" class="sentence-slot-area w-full"></div>`;
@@ -360,7 +363,7 @@
                 
                 pieces.forEach((piece, idx) => {
                     const delay = idx * 0.05;
-                    controlsArea.innerHTML += `<button id="wbtn-${idx}" class="word-btn" style="animation-delay: ${delay}s" onclick="selectWord('${piece.replace(/'/g, "\'")}', ${idx})">${piece}</button>`;
+                    controlsArea.innerHTML += `<button id="wbtn-${idx}" class="word-btn" style="animation-delay: ${delay}s" onclick="selectWord('${piece.replace(/'/g, "\\'")}', ${idx})">${piece}</button>`;
                     sentencePieces.push({ id: `wbtn-${idx}`, word: piece, used: false });
                 });
             }
@@ -372,27 +375,23 @@
             const btn = document.getElementById(`lbtn-${btnIdx}`);
             if (btn.disabled) return;
             
-            // Add to user spelling
             const slotIdx = userSpelling.length;
-            if (slotIdx >= targetWord.length) return; // Full
+            if (slotIdx >= targetWord.length) return;
             
             userSpelling.push({ char: char, btnIdx: btnIdx });
             
-            // Update UI
             document.getElementById(`slot-${slotIdx}`).innerText = char.toUpperCase();
             btn.disabled = true;
             
-            // Allow undo by clicking slot
             document.getElementById(`slot-${slotIdx}`).onclick = () => undoLetter(slotIdx);
             
-            // Check Answer if full
             if (userSpelling.length === targetWord.length) {
                 checkDecoderAnswer();
             }
         }
         
         window.undoLetter = function(slotIdx) {
-            if (slotIdx !== userSpelling.length - 1) return; // Only allow undo last
+            if (slotIdx !== userSpelling.length - 1) return;
             const last = userSpelling.pop();
             document.getElementById(`slot-${slotIdx}`).innerText = "_";
             document.getElementById(`slot-${slotIdx}`).onclick = null;
@@ -406,17 +405,14 @@
             const feedback = document.getElementById("feedback-box");
             
             if (currentStr.toLowerCase() === targetWord.toLowerCase()) {
-                // CORRECT
                 feedback.innerHTML = "✔️ ACCESS GRANTED";
                 feedback.className = "result-box res-success mt-4 p-2";
-                document.getElementById("game-controls-area").innerHTML = ""; // Clear buttons
+                document.getElementById("game-controls-area").innerHTML = "";
                 document.getElementById("btn-next").classList.remove("hidden");
-                playAudio(); // Autoplay correct pronunciation
+                playAudio();
             } else {
-                // WRONG
                 feedback.innerHTML = "❌ ACCESS DENIED";
                 feedback.className = "result-box res-error mt-4 p-2";
-                // Auto undo all after 800ms
                 setTimeout(() => {
                     while(userSpelling.length > 0) undoLetter(userSpelling.length - 1);
                     feedback.className = "result-box text-transparent";
@@ -429,16 +425,11 @@
             const btn = document.getElementById(`wbtn-${btnIdx}`);
             if (btn.disabled) return;
             
-            const dropArea = document.getElementById("sentence-drop");
-            const pieceIdx = userSentence.length;
-            
             userSentence.push({ word: word, btnIdx: btnIdx });
             btn.disabled = true;
             
-            // Render drop area
             renderSentenceDropArea();
             
-            // Check Answer if all pieces used
             if (userSentence.length === currentList[currentIndex].pieces.length) {
                 checkSentenceAnswer();
             }
@@ -468,7 +459,6 @@
             const feedback = document.getElementById("feedback-box");
             
             if (currentStr === targetStr) {
-                // CORRECT
                 feedback.innerHTML = "✔️ BOSS HIT!";
                 feedback.className = "result-box res-success mt-4 p-2";
                 document.getElementById("game-controls-area").innerHTML = ""; 
@@ -476,10 +466,8 @@
                 hitBoss();
                 playAudio();
             } else {
-                // WRONG
                 feedback.innerHTML = "❌ MISS!";
                 feedback.className = "result-box res-error mt-4 p-2";
-                // Don't auto undo, let student figure it out by clicking pieces back
             }
         }
 
@@ -514,8 +502,9 @@
             document.getElementById("game-screen").classList.add("hidden");
             document.getElementById("success-screen").classList.remove("hidden");
             
+            // สูตร Cipher ตรงกับระบบหลัก index.html: (sid * 29 + 1111) แปลงเป็นฐาน 16
             const numericSid = parseInt(currentSid) || 0;
-            const cipherText = (numericSid * 17 + 5555).toString(16).toUpperCase();
+            const cipherText = (numericSid * 29 + 1111).toString(16).toUpperCase();
             document.getElementById("cipher-code").innerText = "V03-" + cipherText;
 
             try {
@@ -525,9 +514,9 @@
                     body: JSON.stringify({
                         action: "recordActivity",
                         studentId: currentSid,
-                        activityType: "VOICE_LAB_U3", // Keep same tag for DB compatibility
+                        activityType: "VOICE_LAB_U3",
                         itemId: "V_U3",
-                        xp: 0,
+                        xp: 200,
                         details: "ผ่าน Minigame Unit 3 (ปราบ The Bio-Phantom)"
                     })
                 });
