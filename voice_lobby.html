@@ -58,6 +58,10 @@
             border-color: #facc15;
             box-shadow: 0 0 25px rgba(250, 204, 21, 0.3);
         }
+        .boss-card.u5:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+        }
         
         .btn-enter {
             transition: all 0.3s ease;
@@ -69,6 +73,10 @@
         .btn-enter.u4 {
             background: linear-gradient(90deg, #d97706 0%, #f59e0b 100%);
             box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+        .btn-enter.u5 {
+            background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
         }
         .btn-enter:hover {
             filter: brightness(1.2);
@@ -105,7 +113,7 @@
 </head>
 <body class="p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center">
 
-    <div class="glass-panel rounded-3xl max-w-4xl w-full p-6 sm:p-10 relative overflow-hidden">
+    <div class="glass-panel rounded-3xl max-w-5xl w-full p-6 sm:p-10 relative overflow-hidden">
         
         <div class="text-center mb-10">
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-950/80 border border-red-500/50 shadow-[0_0_20px_rgba(244,63,94,0.4)] mb-4 animate-pulse">
@@ -117,7 +125,7 @@
             <p class="text-slate-300 text-sm sm:text-base">โถงทางเชื่อมมิติ เลือกห้องบอสที่คุณต้องการต่อสู้เพื่อทดสอบทักษะคำศัพท์</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             
             <!-- BOSS U3 -->
             <div class="boss-card u3 rounded-2xl flex flex-col">
@@ -158,6 +166,28 @@
                         <p class="text-sm text-slate-300 mb-6">ปีศาจทองคำผู้มัวเมา ทดสอบคำศัพท์หมวดหมู่ Finance & Spending</p>
                     </div>
                     <button onclick="enterBossRoom('voice_lab_u4.html')" class="btn-enter u4 w-full py-3 rounded-xl font-bold text-white font-scifi tracking-wider">
+                        ENTER COMBAT
+                    </button>
+                </div>
+            </div>
+
+            <!-- BOSS U5 -->
+            <div class="boss-card u5 rounded-2xl flex flex-col">
+                <div class="boss-img-container border-b border-sky-500/30">
+                    <!-- รูปบอสบทที่ 5 (Vespera Rift) -->
+                    <div class="absolute inset-0 flex items-center justify-center text-6xl opacity-50 z-10">🌐</div>
+                    <img src="boss_vesperarift.png" alt="Vespera Rift" class="boss-img" onerror="this.style.display='none'">
+                </div>
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold px-2.5 py-1 rounded bg-sky-950 text-sky-400 border border-sky-500/30 font-scifi">UNIT 5</span>
+                            <span class="text-xs text-amber-300 font-bold font-scifi">⭐ 200 XP</span>
+                        </div>
+                        <h3 class="font-scifi text-xl font-bold text-white mb-2">Vespera Rift</h3>
+                        <p class="text-sm text-slate-300 mb-6">ผู้คุมรอยแยกพหุวัฒนธรรม ทดสอบคำศัพท์หมวดหมู่ Cultures & Customs</p>
+                    </div>
+                    <button onclick="enterBossRoom('voice_lab_u5.html')" class="btn-enter u5 w-full py-3 rounded-xl font-bold text-white font-scifi tracking-wider">
                         ENTER COMBAT
                     </button>
                 </div>
