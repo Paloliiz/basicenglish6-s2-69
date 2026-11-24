@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Boss Rush: Vespera Rift | PARALLEL DIMENSION</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                        scifi: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        cosmic: { 950: '#070510', 900: '#0d091d', 800: '#150f2e', 700: '#211844', 600: '#2f2260' },
+                        neon: { cyan: '#38bdf8', purple: '#a855f7', pink: '#ec4899', green: '#34d399', red: '#f43f5e', orange: '#fb923c', gold: '#facc15' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #070510;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.16) 0%, transparent 45%),
+                radial-gradient(circle at 85% 20%, rgba(168, 85, 247, 0.14) 0%, transparent 45%),
+                radial-gradient(circle at 50% 85%, rgba(250, 204, 21, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(21, 15, 46, 0.88), rgba(13, 9, 29, 0.94));
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(56, 189, 248, 0.12);
+            backdrop-filter: blur(12px);
+        }
+        .btn-action {
+            background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.45);
+            transition: all 0.2s;
+        }
+        .btn-action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 25px rgba(56, 189, 248, 0.7); }
+        .btn-action:active:not(:disabled) { transform: translateY(1px); }
+        .btn-action:disabled { background: #1e293b; color: #64748b; box-shadow: none; cursor: not-allowed; }
+        
+        .spell-btn {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(56, 189, 248, 0.4);
+            color: #7dd3fc;
+            padding: 12px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        @media (min-width: 640px) { .spell-btn { font-size: 1rem; padding: 16px; } }
+        .spell-btn:hover:not(:disabled) { background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #facc15; transform: scale(1.02); }
+        .spell-btn:active:not(:disabled) { transform: scale(0.95); }
+        .spell-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+        .spell-btn.correct { background: rgba(16, 185, 129, 0.3) !important; border-color: #10b981 !important; color: #fff !important; box-shadow: 0 0 15px rgba(16,185,129,0.5); }
+        .spell-btn.wrong { background: rgba(244, 63, 94, 0.3) !important; border-color: #f43f5e !important; color: #fff !important; box-shadow: 0 0 15px rgba(244,63,94,0.5); }
+        
+        .boss-img { filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.45)); animation: floatSlow 4s ease-in-out infinite; }
+        .boss-hit { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; filter: drop-shadow(0 0 35px rgba(244, 63, 94, 0.85)) hue-rotate(300deg); }
+        .boss-attack { animation: lunge 0.8s ease-in-out; filter: drop-shadow(0 0 35px rgba(56, 189, 248, 0.85)) brightness(1.2); }
+        
+        .hp-bar-bg { background: rgba(0,0,0,0.5); border: 2px solid rgba(56, 189, 248, 0.5); border-radius: 999px; overflow: hidden; }
+        .hp-fill { background: linear-gradient(90deg, #0284c7, #38bdf8, #facc15); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 0 10px rgba(255,255,255,0.4); }
+        
+        @keyframes floatSlow { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+        @keyframes lunge { 0% { transform: scale(1); } 50% { transform: scale(1.1) translateY(10px); } 100% { transform: scale(1); } }
+        @keyframes popScore { 0% { opacity: 0; transform: translateY(0) scale(1); } 50% { opacity: 1; transform: translateY(-30px) scale(1.5); } 100% { opacity: 0; transform: translateY(-50px) scale(1); } }
+
+        .dmg-text { position: absolute; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 2rem; color: #facc15; text-shadow: 0 0 10px #38bdf8, 2px 2px 0 #000; pointer-events: none; animation: popScore 1.2s forwards; z-index: 50; }
+        .miss-text { color: #f43f5e; text-shadow: 0 0 10px #e11d48, 2px 2px 0 #000; }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-10 flex flex-col items-center">
+
+    <!-- SCREEN 1: PRE-COMBAT LOBBY -->
+    <div id="screen-lobby" class="glass-panel rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative overflow-hidden">
+        <div class="text-center mb-6">
+            <h1 class="font-scifi text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-amber-300 mb-2">BOSS RUSH: U5</h1>
+            <p class="text-slate-300 text-sm sm:text-base">Target: Vespera Rift (ผู้คุมรอยแยกพหุวัฒนธรรม)</p>
+        </div>
+        
+        <div class="bg-black/40 p-5 rounded-2xl border border-sky-500/30 text-center mb-6 shadow-inner relative">
+            <img src="boss_vesperarift.png" alt="Vespera Rift" class="w-32 h-32 object-contain mx-auto mb-4 rounded-xl boss-img" onerror="this.src='https://via.placeholder.com/150/090514/38bdf8?text=VESPERA'">
+            <div class="text-xs text-slate-300 space-y-1.5 font-medium mb-4 text-left px-4">
+                <p class="text-sky-400 font-bold mb-2">📜 COMBAT BRIEFING:</p>
+                <p>1. ระบบจะสุ่ม 3 โหมดโจมตี: <span class="text-cyan-300">แปลความหมาย, เรียงอักษร, เรียงประโยค</span></p>
+                <p>2. กดเรียงคำหรือตอบให้ถูกต้องก่อนหลอดเวลาจะหมด (สามารถกดเอาคำออกได้ถ้าเรียงผิด)</p>
+                <p>3. หากตอบถูก จะสร้างความเสียหายให้ Vespera Rift (ATK)</p>
+                <p>4. หากตอบผิด หรือเวลาหมด บอสจะโจมตีคุณ (HP ผู้เล่น -1)</p>
+                <p>5. ปราบบอสให้ครบ <strong class="text-amber-300">15 ข้อ</strong> เพื่อรับรหัส <strong class="text-amber-300">V05-{CIPHER}</strong></p>
+                <p class="text-emerald-300 text-xs mt-2 pt-2 border-t border-slate-700">✅ โหมดกดเลือก/เรียงคำล้วนๆ ไม่ต้องเปิดไมโครโฟน ใช้งานลื่นไหลไร้บัค!</p>
+            </div>
+            <div class="mb-4 text-left px-4">
+                <label class="block text-xs font-medium text-sky-200 mb-2">กรุณายืนยันรหัสนักเรียน (Student ID)</label>
+                <input type="text" id="sid-input" placeholder="******" class="w-full px-4 py-2.5 rounded-xl bg-cosmic-900 border border-sky-500/40 text-white focus:border-sky-400 focus:outline-none text-center font-scifi">
+            </div>
+        </div>
+
+        <button onclick="startCombat()" class="btn-action w-full py-3.5 rounded-xl font-bold text-sm text-slate-950 font-scifi tracking-widest flex items-center justify-center gap-2">
+            <span>ENGAGE COMBAT</span> <span>⚔️</span>
+        </button>
+        <button onclick="window.close()" class="w-full mt-3 py-3 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition">
+            กลับหน้า Lobby
+        </button>
+    </div>
+
+    <!-- SCREEN 2: BATTLE ARENA -->
+    <div id="screen-battle" class="glass-panel rounded-3xl max-w-4xl w-full p-4 sm:p-6 lg:p-8 hidden relative flex flex-col h-[95vh] max-h-[850px]">
+        
+        <!-- Top Bar: Player vs Boss HP -->
+        <div class="flex justify-between items-end mb-4 sm:mb-8 gap-4 flex-shrink-0">
+            <!-- Player Status -->
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1.5">
+                    <div class="w-8 h-8 rounded-full bg-cyan-900 border border-cyan-400 flex items-center justify-center text-xs">🦊</div>
+                    <span class="font-scifi font-bold text-xs sm:text-sm text-cyan-300">PLAYER</span>
+                </div>
+                <div class="h-3 hp-bar-bg border-cyan-500/50">
+                    <div id="player-hp-fill" class="h-full hp-fill bg-gradient-to-r from-cyan-600 to-cyan-400 shadow-[0_0_10px_#22d3ee]" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="text-2xl sm:text-4xl font-scifi font-black text-sky-400/50 italic px-2 pb-1">VS</div>
+
+            <!-- Boss Status -->
+            <div class="flex-1 text-right">
+                <div class="flex items-center justify-end gap-2 mb-1.5">
+                    <span class="font-scifi font-bold text-xs sm:text-sm text-sky-300 line-clamp-1">VESPERA RIFT</span>
+                    <div class="w-8 h-8 rounded-full bg-sky-950 border border-sky-400 flex items-center justify-center text-xs flex-shrink-0">🌐</div>
+                </div>
+                <div class="h-3 hp-bar-bg flex justify-end">
+                    <div id="boss-hp-fill" class="h-full hp-fill" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle: Boss Visual & Word Prompt -->
+        <div class="flex-grow flex flex-col items-center justify-center relative my-4 sm:my-0">
+            <!-- Boss Sprite -->
+            <div id="boss-sprite-container" class="relative mb-6">
+                <img src="boss_vesperarift.png" id="boss-sprite" class="w-40 h-40 sm:w-56 sm:h-56 object-contain rounded-2xl boss-img" onerror="this.src='https://via.placeholder.com/200/090514/38bdf8?text=VESPERA'">
+                <!-- Damage numbers will pop up here -->
+            </div>
+
+            <!-- Word Display Box -->
+            <div class="w-full max-w-lg bg-black/60 border-2 border-sky-500/40 rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden flex-shrink-0 min-h-[220px]">
+                <div id="timer-bar" class="absolute top-0 left-0 h-1.5 bg-sky-400 shadow-[0_0_10px_#38bdf8] transition-all duration-[50ms]" style="width: 100%"></div>
+                
+                <p id="mode-prompt" class="text-[10px] sm:text-xs text-amber-300 font-bold mb-3 font-scifi tracking-widest">PREPARE FOR ATTACK</p>
+                
+                <div id="target-word" class="text-2xl sm:text-3xl font-bold text-white mb-5 tracking-wide font-sans leading-relaxed min-h-[40px]">READY...</div>
+                
+                <!-- Choices / Scramble Pieces Grid -->
+                <div id="choices-grid" class="grid grid-cols-2 gap-3 w-full">
+                    <!-- Buttons injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: RESULT -->
+    <div id="screen-result" class="glass-panel rounded-3xl max-w-xl w-full p-8 hidden text-center relative">
+        <div class="text-6xl mb-4" id="result-icon">🏆</div>
+        <h2 class="font-scifi text-2xl sm:text-3xl font-bold text-white mb-2" id="result-title">BOSS DEFEATED!</h2>
+        <p class="text-slate-300 text-sm mb-6" id="result-subtitle">คุณปราบ Vespera Rift สำเร็จแล้ว</p>
+        
+        <div class="bg-black/60 rounded-2xl p-6 border border-sky-500/30 mb-6 inline-block w-full max-w-sm mx-auto shadow-lg">
+            <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-700/50">
+                <span class="text-sm text-slate-400">Word Cleared</span>
+                <span class="font-bold text-xl text-white" id="result-cleared">0</span>
+            </div>
+            <div class="flex justify-between items-center pt-1">
+                <span class="text-sm font-bold text-amber-300">XP REWARD</span>
+                <span class="font-scifi font-black text-2xl text-amber-300" id="result-xp">+200 XP</span>
+            </div>
+        </div>
+        
+        <div id="saving-status" class="text-[10px] text-slate-500 mb-6 h-4 font-scifi uppercase"></div>
+        <div id="passcode-box" class="hidden mb-6 p-4 rounded-xl bg-sky-950/50 border border-sky-400/40">
+            <p class="text-xs text-sky-200 mb-1">รหัสลับสำหรับรับ XP (V_U5)</p>
+            <p class="font-scifi font-bold text-2xl text-amber-300 tracking-widest" id="passcode-display">V05-XXXX</p>
+        </div>
+        
+        <div class="space-y-3" id="result-actions">
+            <button onclick="window.close()" class="btn-action w-full py-3.5 rounded-xl font-bold text-sm text-slate-950 shadow-lg transition">กลับสู่หน้า Dashboard</button>
+        </div>
+    </div>
+
+    <!-- API SCRIPT -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+        
+        // --- WORD DATABASE (UNIT 5: CULTURES AROUND THE WORLD) ---
+        const WORD_DB = [
+            { en: "diverse", th: "หลากหลาย / แตกต่างกัน" },
+            { en: "identity", th: "อัตลักษณ์ / ตัวตน" },
+            { en: "aspect", th: "แง่มุม / ด้าน" },
+            { en: "overwhelm", th: "ท่วมท้น / ทำให้ตั้งตัวไม่ติด" },
+            { en: "campus", th: "วิทยาเขต / บริเวณสถานศึกษา" },
+            { en: "reserved", th: "สงวนท่าที / เก็บตัว" },
+            { en: "outgoing", th: "เปิดเผย / เข้าสังคมเก่ง" },
+            { en: "pause", th: "หยุดชั่วคราว" },
+            { en: "familiar", th: "คุ้นเคย" },
+            { en: "peculiar", th: "แปลกประหลาด / เฉพาะตัว" },
+            { en: "manners", th: "มารยาท / กิริยามารยาท" },
+            { en: "obey", th: "เชื่อฟัง / ปฏิบัติตาม" },
+            { en: "strict", th: "เข้มงวด / เคร่งครัด" },
+            { en: "vary", th: "แตกต่างกันไป / ผันแปร" },
+            { en: "exceptional", th: "ยอดเยี่ยม / เป็นเลิศ" },
+            { en: "concept", th: "แนวคิด / ความคิดรวบยอด" },
+            { en: "criticize", th: "วิพากษ์วิจารณ์" },
+            { en: "frustrating", th: "น่าหงุดหงิด / ทำให้ขัดใจ" },
+            { en: "native", th: "พื้นเมือง / เจ้าของภาษา" },
+            { en: "accent", th: "สำเนียง" },
+            { en: "insult", th: "ดูหมิ่น / ทำให้เสียหน้า" },
+            { en: "straightforward", th: "ตรงไปตรงมา / เข้าใจง่าย" },
+            { en: "harsh", th: "รุนแรง / เข้มงวดเกินไป" },
+            { en: "gesture", th: "ท่าทาง / อากัปกิริยา" },
+            { en: "honor", th: "ให้เกียรติ / เคารพ" },
+            { en: "indicate", th: "บ่งชี้ / แสดงให้เห็น" }
+        ];
+
+        // --- SENTENCE DATABASE (UNIT 5: CULTURES & CUSTOMS) ---
+        const SENTENCE_DB = [
+            "Diversity enriches us as individuals",
+            "Culture shock can feel overwhelming at first",
+            "Good manners vary across different cultures",
+            "Please obey the local customs when traveling",
+            "Her outgoing personality helped her make friends",
+            "He seemed reserved when he first arrived",
+            "A straightforward answer is easy to follow",
+            "Patting someone on the head can be an insult",
+            "Please knock before entering a closed room",
+            "Tourists should honor local traditions",
+            "A thumbs up can indicate approval",
+            "Avoid chewing gum where it is banned"
+        ];
+
+        let currentSid = "";
+        let playerMaxHp = 5; let playerHp = 5;
+        let bossMaxHp = 15; let bossHp = 15; // ต้องตอบถูก 15 ข้อเพื่อปราบ
+        
+        let currentMode = ""; // "TRANSLATE", "SCRAMBLE_WORD", "SCRAMBLE_SENTENCE"
+        let currentTarget = null;
+        let currentChoices = [];
+        let scrambledArray = [];
+        let userAnswerArray = [];
+        
+        let timerInterval;
+        let timeLeft = 0; 
+        const TIME_LIMITS = {
+            "TRANSLATE": 8000,
+            "SCRAMBLE_WORD": 12000,
+            "SCRAMBLE_SENTENCE": 15000
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('sid')) {
+                document.getElementById('sid-input').value = urlParams.get('sid');
+            }
+        });
+
+        function startCombat() {
+            const sidInput = document.getElementById("sid-input").value.trim();
+            if (!sidInput) return alert("กรุณากรอกรหัสนักเรียนก่อนครับ");
+            
+            currentSid = sidInput;
+            document.getElementById("screen-lobby").classList.add("hidden");
+            document.getElementById("screen-battle").classList.remove("hidden");
+            document.getElementById("screen-battle").classList.add("flex");
+            
+            playerHp = playerMaxHp;
+            bossHp = bossMaxHp;
+            updateHpBars();
+            
+            setTimeout(nextTurn, 1000);
+        }
+
+        function updateHpBars() {
+            const playerPct = (playerHp / playerMaxHp) * 100;
+            const bossPct = (bossHp / bossMaxHp) * 100;
+            document.getElementById("player-hp-fill").style.width = `${playerPct}%`;
+            document.getElementById("boss-hp-fill").style.width = `${bossPct}%`;
+            
+            const pFill = document.getElementById("player-hp-fill");
+            if(playerPct <= 35) pFill.className = "h-full hp-fill bg-gradient-to-r from-red-600 to-red-400 shadow-[0_0_10px_#ef4444]";
+            else pFill.className = "h-full hp-fill bg-gradient-to-r from-cyan-600 to-cyan-400 shadow-[0_0_10px_#22d3ee]";
+        }
+
+        function nextTurn() {
+            if (playerHp <= 0) return gameOver(false);
+            if (bossHp <= 0) return gameOver(true);
+            
+            // สุ่มโหมด (Translate 40%, Scramble Word 30%, Scramble Sentence 30%)
+            const rMode = Math.random();
+            if (rMode < 0.4) currentMode = "TRANSLATE";
+            else if (rMode < 0.7) currentMode = "SCRAMBLE_WORD";
+            else currentMode = "SCRAMBLE_SENTENCE";
+
+            setupModeUI();
+        }
+
+        function setupModeUI() {
+            const grid = document.getElementById("choices-grid");
+            const targetWordEl = document.getElementById("target-word");
+            const modePromptEl = document.getElementById("mode-prompt");
+            
+            if (currentMode === "TRANSLATE") {
+                modePromptEl.textContent = "TRANSLATE TO ATTACK";
+                const r = Math.floor(Math.random() * WORD_DB.length);
+                currentTarget = WORD_DB[r];
+                targetWordEl.innerHTML = `<span class="text-3xl">${currentTarget.th}</span>`;
+                
+                let distractors = [];
+                while(distractors.length < 3) {
+                    let d = Math.floor(Math.random() * WORD_DB.length);
+                    if (d !== r && !distractors.includes(WORD_DB[d])) {
+                        distractors.push(WORD_DB[d]);
+                    }
+                }
+                currentChoices = [currentTarget, ...distractors].sort(() => Math.random() - 0.5);
+                
+                grid.innerHTML = currentChoices.map((choice, index) => 
+                    `<button id="choice-btn-${index}" onclick="checkTranslateAnswer(${index})" class="spell-btn truncate">${choice.en}</button>`
+                ).join("");
+                
+            } else if (currentMode === "SCRAMBLE_WORD") {
+                modePromptEl.textContent = "SPELL THE WORD";
+                const r = Math.floor(Math.random() * WORD_DB.length);
+                currentTarget = WORD_DB[r];
+                targetWordEl.innerHTML = `<span class="text-sm text-sky-300 block mb-1">ความหมาย: ${currentTarget.th}</span><div id="scramble-answer" class="text-3xl h-10 border-b-2 border-dashed border-slate-500 min-w-[200px] inline-block"></div>`;
+                
+                scrambledArray = currentTarget.en.replace(/\s+/g, '').split('').sort(() => Math.random() - 0.5);
+                userAnswerArray = [];
+                
+                grid.innerHTML = `<div class="col-span-2 flex flex-wrap justify-center gap-2" id="scramble-pieces">
+                    ${scrambledArray.map((letter, index) => 
+                        `<button id="piece-${index}" onclick="selectScramblePiece(${index}, '${letter}')" class="spell-btn w-12 h-12 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(56,189,248,0.2)]">${letter.toUpperCase()}</button>`
+                    ).join("")}
+                </div>`;
+                
+            } else if (currentMode === "SCRAMBLE_SENTENCE") {
+                modePromptEl.textContent = "ARRANGE THE SENTENCE";
+                const r = Math.floor(Math.random() * SENTENCE_DB.length);
+                currentTarget = SENTENCE_DB[r];
+                targetWordEl.innerHTML = `<div id="scramble-answer" class="text-lg sm:text-xl h-20 sm:h-24 flex flex-wrap justify-center items-center gap-2 w-full p-2 bg-black/40 rounded-xl border border-slate-700/50"></div>`;
+                
+                scrambledArray = currentTarget.replace(/[.,!?]/g, '').split(' ').sort(() => Math.random() - 0.5);
+                userAnswerArray = [];
+                
+                grid.innerHTML = `<div class="col-span-2 flex flex-wrap justify-center gap-2" id="scramble-pieces">
+                    ${scrambledArray.map((word, index) => 
+                        `<button id="piece-${index}" onclick="selectScramblePiece(${index}, '${word}')" class="spell-btn px-4 py-2">${word}</button>`
+                    ).join("")}
+                </div>`;
+            }
+
+            startStageTimer(TIME_LIMITS[currentMode]);
+        }
+
+        function startStageTimer(maxTime) {
+            timeLeft = maxTime;
+            clearInterval(timerInterval);
+            
+            const timerBar = document.getElementById("timer-bar");
+            timerBar.style.transition = "none";
+            timerBar.style.width = "100%";
+            timerBar.className = "absolute top-0 left-0 h-1.5 bg-sky-400 shadow-[0_0_10px_#38bdf8]";
+            
+            setTimeout(() => {
+                timerBar.style.transition = "width 50ms linear";
+                timerInterval = setInterval(() => {
+                    timeLeft -= 50;
+                    const timePct = (timeLeft / maxTime) * 100;
+                    timerBar.style.width = `${timePct}%`;
+                    
+                    if (timePct < 30) timerBar.className = "absolute top-0 left-0 h-1.5 bg-red-500 shadow-[0_0_10px_#ef4444]";
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        processMiss(); // เวลาหมด
+                    }
+                }, 50);
+            }, 50);
+        }
+
+        // --- Logic สำหรับ Translate ---
+        function checkTranslateAnswer(selectedIndex) {
+            clearInterval(timerInterval);
+            const btns = document.querySelectorAll('.spell-btn');
+            btns.forEach(b => b.disabled = true);
+            
+            const selectedBtn = document.getElementById(`choice-btn-${selectedIndex}`);
+            if (currentChoices[selectedIndex].en === currentTarget.en) {
+                selectedBtn.classList.add('correct');
+                processHit();
+            } else {
+                selectedBtn.classList.add('wrong');
+                currentChoices.forEach((c, idx) => {
+                    if (c.en === currentTarget.en) document.getElementById(`choice-btn-${idx}`).classList.add('correct');
+                });
+                processMiss();
+            }
+        }
+
+        // --- Logic สำหรับ Scramble ---
+        function selectScramblePiece(index, value) {
+            const btn = document.getElementById(`piece-${index}`);
+            btn.classList.add('hidden');
+            
+            userAnswerArray.push({ index, value });
+            updateScrambleAnswerDisplay();
+            
+            if (userAnswerArray.length === scrambledArray.length) {
+                checkScrambleAnswer();
+            }
+        }
+
+        function removeScramblePiece(answerIndex) {
+            const item = userAnswerArray[answerIndex];
+            document.getElementById(`piece-${item.index}`).classList.remove('hidden');
+            userAnswerArray.splice(answerIndex, 1);
+            updateScrambleAnswerDisplay();
+        }
+
+        function updateScrambleAnswerDisplay() {
+            const ansContainer = document.getElementById("scramble-answer");
+            if (currentMode === "SCRAMBLE_WORD") {
+                ansContainer.innerHTML = userAnswerArray.map((item, idx) => 
+                    `<span onclick="removeScramblePiece(${idx})" class="cursor-pointer text-amber-300 mx-0.5 hover:text-red-400 transition">${item.value.toUpperCase()}</span>`
+                ).join("");
+            } else {
+                ansContainer.innerHTML = userAnswerArray.map((item, idx) => 
+                    `<span onclick="removeScramblePiece(${idx})" class="cursor-pointer bg-cosmic-900 border border-sky-400/50 px-2 py-1 rounded-md text-sm text-amber-300 hover:bg-red-900 transition">${item.value}</span>`
+                ).join("");
+            }
+        }
+
+        function checkScrambleAnswer() {
+            clearInterval(timerInterval);
+            const userStr = userAnswerArray.map(i => i.value).join(currentMode === "SCRAMBLE_WORD" ? "" : " ").toLowerCase();
+            const targetStr = (currentMode === "SCRAMBLE_WORD" ? currentTarget.en.replace(/\s+/g, '') : currentTarget.replace(/[.,!?]/g, '')).toLowerCase();
+            
+            if (userStr === targetStr) {
+                document.getElementById("scramble-answer").classList.add("text-emerald-400", "font-bold");
+                processHit();
+            } else {
+                document.getElementById("scramble-answer").classList.add("text-red-500", "line-through");
+                processMiss();
+            }
+        }
+
+        // --- Battle Actions ---
+        function showDamage(amount, type) {
+            const spriteContainer = document.getElementById("boss-sprite-container");
+            const dmgEl = document.createElement("div");
+            dmgEl.className = type === 'hit' ? "dmg-text text-amber-300" : "dmg-text miss-text";
+            dmgEl.textContent = type === 'hit' ? `-${amount} DMG!` : "MISS!";
+            
+            const offsetX = (Math.random() - 0.5) * 40;
+            dmgEl.style.left = `calc(50% + ${offsetX}px)`;
+            dmgEl.style.top = "20%";
+            
+            spriteContainer.appendChild(dmgEl);
+            setTimeout(() => dmgEl.remove(), 1200);
+        }
+
+        function processHit() {
+            const sprite = document.getElementById("boss-sprite");
+            sprite.classList.add("boss-hit");
+            setTimeout(() => sprite.classList.remove("boss-hit"), 500);
+            
+            showDamage(1, 'hit');
+            bossHp -= 1;
+            updateHpBars();
+            
+            setTimeout(nextTurn, 1200);
+        }
+
+        function processMiss() {
+            const btns = document.querySelectorAll('.spell-btn');
+            btns.forEach(b => b.disabled = true);
+            
+            const sprite = document.getElementById("boss-sprite");
+            sprite.classList.add("boss-attack");
+            
+            setTimeout(() => {
+                sprite.classList.remove("boss-attack");
+                document.getElementById("screen-battle").style.boxShadow = "inset 0 0 50px rgba(244,63,94,0.8)";
+                setTimeout(() => document.getElementById("screen-battle").style.boxShadow = "", 300);
+                
+                showDamage(1, 'miss');
+                playerHp -= 1;
+                updateHpBars();
+                
+                setTimeout(nextTurn, 1500);
+            }, 400);
+        }
+
+        async function gameOver(isWin) {
+            document.getElementById("screen-battle").classList.add("hidden");
+            document.getElementById("screen-battle").classList.remove("flex");
+            const resultScreen = document.getElementById("screen-result");
+            resultScreen.classList.remove("hidden");
+            
+            const wordsCleared = bossMaxHp - bossHp;
+            document.getElementById("result-cleared").textContent = wordsCleared;
+            
+            if (isWin) {
+                document.getElementById("result-icon").textContent = "🏆";
+                document.getElementById("result-title").textContent = "BOSS DEFEATED!";
+                document.getElementById("result-title").className = "font-scifi text-2xl sm:text-3xl font-bold text-amber-300 mb-2";
+                document.getElementById("result-subtitle").textContent = "คุณปราบ Vespera Rift สำเร็จแล้ว";
+                document.getElementById("result-xp").textContent = "+200 XP";
+                
+                const statusEl = document.getElementById("saving-status");
+                statusEl.textContent = "SAVING COMBAT DATA...";
+                
+                try {
+                    const response = await fetch(API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify({
+                            action: "recordActivity",
+                            studentId: currentSid,
+                            activityType: "VOICE_LAB_U5",
+                            itemId: "V_U5",
+                            xp: 200,
+                            details: `ปราบ Vespera Rift สำเร็จ (Vocab Strike - 15 ด่าน)`
+                        })
+                    });
+                    const result = await response.json();
+                    if(result.status === "success") {
+                        statusEl.textContent = "✔️ บันทึกชัยชนะลงฐานข้อมูลสำเร็จ";
+                        statusEl.className = "text-[10px] text-emerald-400 mb-6 h-4 font-scifi";
+                        
+                        const sidNum = parseInt(currentSid) || 0;
+                        const cipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
+                        
+                        document.getElementById("passcode-box").classList.remove("hidden");
+                        document.getElementById("passcode-display").textContent = `V05-${cipher}`;
+                    } else {
+                        throw new Error("Server Error");
+                    }
+                } catch (error) {
+                    statusEl.textContent = "⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ แต่คุณได้รับรหัสผ่านแล้วแคปจอไว้ได้เลย";
+                    statusEl.className = "text-[10px] text-rose-400 mb-6 h-4 font-scifi";
+                    
+                    const sidNum = parseInt(currentSid) || 0;
+                    const cipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
+                    document.getElementById("passcode-box").classList.remove("hidden");
+                    document.getElementById("passcode-display").textContent = `V05-${cipher}`;
+                }
+            } else {
+                document.getElementById("result-icon").textContent = "☠️";
+                document.getElementById("result-title").textContent = "DEFEATED...";
+                document.getElementById("result-title").className = "font-scifi text-2xl sm:text-3xl font-bold text-rose-500 mb-2";
+                document.getElementById("result-subtitle").textContent = "คุณถูก Vespera Rift จัดการแล้ว";
+                document.getElementById("result-xp").textContent = "+0 XP";
+                document.getElementById("result-actions").innerHTML = `
+                    <button onclick="startCombat()" class="btn-action w-full py-3.5 rounded-xl font-bold text-sm text-slate-950 shadow-lg transition mb-3">🔄 ลองสู้อีกครั้ง (RETRY)</button>
+                    <button onclick="window.close()" class="w-full py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white bg-cosmic-900 border border-slate-700 transition">กลับหน้า Lobby</button>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
