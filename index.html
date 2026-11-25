@@ -382,6 +382,7 @@
                             <select id="grammar-topic-select" onchange="changeGrammarTopic(this.value)" class="bg-cosmic-900 border border-cyan-500/40 text-cyan-300 font-bold text-sm sm:text-base rounded-xl px-4 py-2 focus:outline-none focus:border-cyan-400 shadow-md cursor-pointer appearance-none pr-10">
                                 <option value="future_forms">Unit 3: Future Forms</option>
                                 <option value="future_perfect">Unit 3: Future Perfect Simple & Continuous</option>
+                                <option value="conditionals_1">Unit 4: Zero & Type 1 Conditionals</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-cyan-400">
                                 <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
@@ -674,8 +675,9 @@
         // ระบบสไลด์ Grammar Codex
         // ==========================================
         const GRAMMAR_TOPICS = {
-            "future_forms": { folder: "U3_Future_Form/", prefix: "U3_Future_Form_", ext: ".PNG", total: 21 },
-            "future_perfect": { folder: "U3_Future_Perfect/", prefix: "Future_Perfect_", ext: ".PNG", total: 20 }
+            "future_forms": { folder: "U3_Future_Form/", prefix: "U3_Future_Form_", ext: ".PNG", total: 21, pad: false },
+            "future_perfect": { folder: "U3_Future_Perfect/", prefix: "Future_Perfect_", ext: ".PNG", total: 20, pad: false },
+            "conditionals_1": { folder: "U4_Zero_Type1/", prefix: "Zero & Type 1 Conditionals_Page_", ext: ".jpg", total: 20, pad: true }
         };
         let currentGrammarTopic = "future_forms";
         let currentSlide = 1;
@@ -686,7 +688,11 @@
             imgEl.style.opacity = 0.5; 
             
             setTimeout(() => {
-                imgEl.src = `${topic.folder}${topic.prefix}${currentSlide}${topic.ext}`;
+                let slideNumStr = currentSlide.toString();
+                if (topic.pad) {
+                    slideNumStr = slideNumStr.padStart(2, '0');
+                }
+                imgEl.src = `${topic.folder}${topic.prefix}${slideNumStr}${topic.ext}`;
                 document.getElementById('slide-counter').innerText = `${currentSlide} / ${topic.total}`;
                 imgEl.style.opacity = 1;
             }, 150);
