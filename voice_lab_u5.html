@@ -285,11 +285,15 @@
             
             currentSid = sidInput;
             document.getElementById("screen-lobby").classList.add("hidden");
+            
+            // รีเซ็ตค่าหากกดลองใหม่ (Retry)
+            document.getElementById("screen-result").classList.add("hidden");
+            document.getElementById("screen-battle").style.display = ""; // รีเซ็ต style ที่อาจโดนซ่อน
             document.getElementById("screen-battle").classList.remove("hidden");
-            document.getElementById("screen-battle").classList.add("flex");
             
             playerHp = playerMaxHp;
             bossHp = bossMaxHp;
+            currentIndex = 0;
             updateHpBars();
             
             setTimeout(nextTurn, 1000);
@@ -517,8 +521,12 @@
         }
 
         async function gameOver(isWin) {
-            document.getElementById("screen-battle").classList.add("hidden");
-            document.getElementById("screen-battle").classList.remove("flex");
+            // เคลียร์จอต่อสู้เก่าให้ซ่อน 100%
+            const screenBattle = document.getElementById("screen-battle");
+            screenBattle.style.display = "none";
+            screenBattle.classList.add("hidden");
+            
+            // เปิดหน้าสรุปผล
             const resultScreen = document.getElementById("screen-result");
             resultScreen.classList.remove("hidden");
             
@@ -531,6 +539,9 @@
                 document.getElementById("result-title").className = "font-scifi text-2xl sm:text-3xl font-bold text-amber-300 mb-2";
                 document.getElementById("result-subtitle").textContent = "คุณปราบ Vespera Rift สำเร็จแล้ว";
                 document.getElementById("result-xp").textContent = "+200 XP";
+                document.getElementById("result-actions").innerHTML = `
+                    <button onclick="window.close()" class="btn-action w-full py-3.5 rounded-xl font-bold text-sm text-slate-950 shadow-lg transition">กลับสู่หน้า Dashboard</button>
+                `;
                 
                 const statusEl = document.getElementById("saving-status");
                 statusEl.textContent = "SAVING COMBAT DATA...";
@@ -576,6 +587,8 @@
                 document.getElementById("result-title").className = "font-scifi text-2xl sm:text-3xl font-bold text-rose-500 mb-2";
                 document.getElementById("result-subtitle").textContent = "คุณถูก Vespera Rift จัดการแล้ว";
                 document.getElementById("result-xp").textContent = "+0 XP";
+                document.getElementById("passcode-box").classList.add("hidden");
+                document.getElementById("saving-status").textContent = "";
                 document.getElementById("result-actions").innerHTML = `
                     <button onclick="startCombat()" class="btn-action w-full py-3.5 rounded-xl font-bold text-sm text-slate-950 shadow-lg transition mb-3">🔄 ลองสู้อีกครั้ง (RETRY)</button>
                     <button onclick="window.close()" class="w-full py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white bg-cosmic-900 border border-slate-700 transition">กลับหน้า Lobby</button>
