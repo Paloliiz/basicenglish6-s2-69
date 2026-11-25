@@ -193,8 +193,10 @@
             <h2 id="cipher-code" class="font-scifi text-2xl text-neon-gold tracking-[0.2em] font-bold">V03-XXXX</h2>
         </div>
         
-        <button class="w-full py-3.5 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 transition" onclick="window.location.href='index.html'">⬅️ กลับหน้าหลัก (Dashboard)</button>
-        <div id="saving-status" class="mt-4 text-xs text-neon-cyan h-4">⏳ กำลังบันทึกคะแนนลงระบบ...</div>
+        <div id="saving-status" class="mt-4 text-xs text-neon-cyan h-4 mb-6">⏳ กำลังบันทึกคะแนนลงระบบ...</div>
+        <div class="space-y-3" id="result-actions">
+            <button class="w-full py-3.5 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 transition" onclick="window.location.href='index.html'">⬅️ กลับหน้าหลัก (Dashboard)</button>
+        </div>
     </div>
 
     <script>
@@ -253,6 +255,8 @@
         let letterButtons = [];
         let sentencePieces = [];
         let userSentence = [];
+        let timerInterval;
+        let timeLeft = 0;
 
         function startGame() {
             const sidInput = document.getElementById("sid-input");
@@ -262,7 +266,16 @@
             
             currentSid = sid;
             document.getElementById("welcome-screen").classList.add("hidden");
+            
+            document.getElementById("screen-result").classList.add("hidden");
+            document.getElementById("game-screen").style.display = ""; 
             document.getElementById("game-screen").classList.remove("hidden");
+            document.getElementById("game-screen").classList.add("flex");
+            
+            bossHP = 100;
+            currentIndex = 0;
+            document.getElementById("hp-fill").style.width = "100%";
+            document.getElementById("hp-text").innerText = "100%";
             
             loadPhase(1);
         }
@@ -300,8 +313,9 @@
             }
         }
 
+        // Shuffle array helper
         function shuffle(array) {
-            let currentIndex = array.length, randomIndex;
+            let currentIndex = array.length,  randomIndex;
             while (currentIndex != 0) {
                 randomIndex = Math.floor(Math.random() * currentIndex);
                 currentIndex--;
@@ -332,21 +346,26 @@
             feedback.className = "result-box text-transparent"; feedback.innerText = "...";
             
             if (currentPhase === 1 || currentPhase === 2) {
+                // --- WORD DECODER ---
                 userSpelling = [];
                 letterButtons = [];
                 
+                // Create Empty Slots
                 for(let i=0; i<targetWord.length; i++) {
                     slotsArea.innerHTML += `<div class="letter-slot" id="slot-${i}">_</div>`;
                 }
                 
+                // Prepare scrambled letters
                 let letters = targetWord.split('');
                 letters = shuffle(letters);
                 
+                // Add fake extra letter to make it slightly harder
                 const alphabet = "abcdefghijklmnopqrstuvwxyz";
                 const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
                 letters.push(randomLetter);
                 letters = shuffle(letters);
                 
+                // Create Buttons
                 letters.forEach((char, idx) => {
                     const delay = idx * 0.05;
                     controlsArea.innerHTML += `<button id="lbtn-${idx}" class="letter-btn" style="animation-delay: ${delay}s" onclick="selectLetter('${char}', ${idx})">${char.toUpperCase()}</button>`;
@@ -354,6 +373,7 @@
                 });
 
             } else if (currentPhase === 3) {
+                // --- SENTENCE BUILDER ---
                 userSentence = [];
                 sentencePieces = [];
                 slotsArea.innerHTML = `<div id="sentence-drop" class="sentence-slot-area w-full"></div>`;
@@ -375,23 +395,27 @@
             const btn = document.getElementById(`lbtn-${btnIdx}`);
             if (btn.disabled) return;
             
+            // Add to user spelling
             const slotIdx = userSpelling.length;
-            if (slotIdx >= targetWord.length) return;
+            if (slotIdx >= targetWord.length) return; // Full
             
             userSpelling.push({ char: char, btnIdx: btnIdx });
             
+            // Update UI
             document.getElementById(`slot-${slotIdx}`).innerText = char.toUpperCase();
             btn.disabled = true;
             
+            // Allow undo by clicking slot
             document.getElementById(`slot-${slotIdx}`).onclick = () => undoLetter(slotIdx);
             
+            // Check Answer if full
             if (userSpelling.length === targetWord.length) {
                 checkDecoderAnswer();
             }
         }
         
         window.undoLetter = function(slotIdx) {
-            if (slotIdx !== userSpelling.length - 1) return;
+            if (slotIdx !== userSpelling.length - 1) return; // Only allow undo last
             const last = userSpelling.pop();
             document.getElementById(`slot-${slotIdx}`).innerText = "_";
             document.getElementById(`slot-${slotIdx}`).onclick = null;
@@ -405,14 +429,17 @@
             const feedback = document.getElementById("feedback-box");
             
             if (currentStr.toLowerCase() === targetWord.toLowerCase()) {
+                // CORRECT
                 feedback.innerHTML = "✔️ ACCESS GRANTED";
                 feedback.className = "result-box res-success mt-4 p-2";
-                document.getElementById("game-controls-area").innerHTML = "";
+                document.getElementById("game-controls-area").innerHTML = ""; // Clear buttons
                 document.getElementById("btn-next").classList.remove("hidden");
-                playAudio();
+                playAudio(); // Autoplay correct pronunciation
             } else {
+                // WRONG
                 feedback.innerHTML = "❌ ACCESS DENIED";
                 feedback.className = "result-box res-error mt-4 p-2";
+                // Auto undo all after 800ms
                 setTimeout(() => {
                     while(userSpelling.length > 0) undoLetter(userSpelling.length - 1);
                     feedback.className = "result-box text-transparent";
@@ -425,11 +452,16 @@
             const btn = document.getElementById(`wbtn-${btnIdx}`);
             if (btn.disabled) return;
             
+            const dropArea = document.getElementById("sentence-drop");
+            const pieceIdx = userSentence.length;
+            
             userSentence.push({ word: word, btnIdx: btnIdx });
             btn.disabled = true;
             
+            // Render drop area
             renderSentenceDropArea();
             
+            // Check Answer if all pieces used
             if (userSentence.length === currentList[currentIndex].pieces.length) {
                 checkSentenceAnswer();
             }
@@ -459,6 +491,7 @@
             const feedback = document.getElementById("feedback-box");
             
             if (currentStr === targetStr) {
+                // CORRECT
                 feedback.innerHTML = "✔️ BOSS HIT!";
                 feedback.className = "result-box res-success mt-4 p-2";
                 document.getElementById("game-controls-area").innerHTML = ""; 
@@ -466,8 +499,10 @@
                 hitBoss();
                 playAudio();
             } else {
+                // WRONG
                 feedback.innerHTML = "❌ MISS!";
                 feedback.className = "result-box res-error mt-4 p-2";
+                // Don't auto undo, let student figure it out by clicking pieces back
             }
         }
 
@@ -498,11 +533,40 @@
             }
         }
 
-        async function showSuccess() {
-            document.getElementById("game-screen").classList.add("hidden");
-            document.getElementById("success-screen").classList.remove("hidden");
+        function gameOver(isWin) {
+            const screenBattle = document.getElementById("game-screen");
+            screenBattle.style.display = "none";
+            screenBattle.classList.add("hidden");
             
-            // สูตร Cipher ตรงกับระบบหลัก index.html: (sid * 29 + 1111) แปลงเป็นฐาน 16
+            const resultScreen = document.getElementById("success-screen");
+            resultScreen.classList.remove("hidden");
+            
+            if (!isWin) {
+                document.querySelector("#success-screen h1").innerText = "DEFEATED...";
+                document.querySelector("#success-screen h1").className = "font-scifi text-3xl font-black text-rose-500 mb-2";
+                document.querySelector("#success-screen p").innerText = "คุณถูก The Bio-Phantom จัดการแล้ว";
+                document.querySelector(".bg-green-900\\/20").classList.add("hidden");
+                document.getElementById("saving-status").textContent = "";
+                document.getElementById("result-actions").innerHTML = `
+                    <button onclick="startGame()" class="btn-start w-full py-3.5 rounded-xl font-bold text-black shadow-lg transition mb-3">🔄 ลองสู้อีกครั้ง (RETRY)</button>
+                    <button onclick="window.location.href='index.html'" class="w-full py-3 rounded-xl font-bold text-slate-400 hover:text-white bg-slate-800 border border-slate-600 transition">กลับหน้า Lobby</button>
+                `;
+            }
+        }
+
+        async function showSuccess() {
+            const screenBattle = document.getElementById("game-screen");
+            screenBattle.style.display = "none";
+            screenBattle.classList.add("hidden");
+            
+            const resultScreen = document.getElementById("success-screen");
+            resultScreen.classList.remove("hidden");
+            
+            document.querySelector("#success-screen h1").innerText = "BOSS DEFEATED!";
+            document.querySelector("#success-screen h1").className = "font-scifi text-3xl font-black text-neon-green mb-2";
+            document.querySelector("#success-screen p").innerText = "คุณเคลียร์มินิเกมและกำจัด The Bio-Phantom สำเร็จ!";
+            document.querySelector(".bg-green-900\\/20").classList.remove("hidden");
+            
             const numericSid = parseInt(currentSid) || 0;
             const cipherText = (numericSid * 29 + 1111).toString(16).toUpperCase();
             document.getElementById("cipher-code").innerText = "V03-" + cipherText;
@@ -514,7 +578,7 @@
                     body: JSON.stringify({
                         action: "recordActivity",
                         studentId: currentSid,
-                        activityType: "VOICE_LAB_U3",
+                        activityType: "VOICE_LAB_U3", 
                         itemId: "V_U3",
                         xp: 200,
                         details: "ผ่าน Minigame Unit 3 (ปราบ The Bio-Phantom)"
