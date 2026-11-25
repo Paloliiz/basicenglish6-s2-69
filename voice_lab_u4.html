@@ -286,8 +286,13 @@
             
             currentSid = sidInput;
             document.getElementById("screen-lobby").classList.add("hidden");
-            document.getElementById("screen-battle").classList.remove("hidden");
-            document.getElementById("screen-battle").classList.add("flex");
+            
+            const screenBattle = document.getElementById("screen-battle");
+            screenBattle.style.display = ""; 
+            screenBattle.classList.remove("hidden");
+            screenBattle.classList.add("flex");
+            
+            document.getElementById("screen-result").classList.add("hidden");
             
             playerHp = playerMaxHp;
             bossHp = bossMaxHp;
@@ -518,8 +523,10 @@
         }
 
         async function gameOver(isWin) {
-            document.getElementById("screen-battle").classList.add("hidden");
-            document.getElementById("screen-battle").classList.remove("flex");
+            const screenBattle = document.getElementById("screen-battle");
+            screenBattle.style.display = "none";
+            screenBattle.classList.add("hidden");
+            
             const resultScreen = document.getElementById("screen-result");
             resultScreen.classList.remove("hidden");
             
@@ -577,6 +584,8 @@
                 document.getElementById("result-title").className = "font-scifi text-2xl sm:text-3xl font-bold text-rose-500 mb-2";
                 document.getElementById("result-subtitle").textContent = "คุณถูก The Gilded Glitch จัดการแล้ว";
                 document.getElementById("result-xp").textContent = "+0 XP";
+                document.getElementById("passcode-box").classList.add("hidden");
+                document.getElementById("saving-status").textContent = "";
                 document.getElementById("result-actions").innerHTML = `
                     <button onclick="startCombat()" class="btn-action w-full py-3.5 rounded-xl font-bold text-sm text-white shadow-lg transition mb-3">🔄 ลองสู้อีกครั้ง (RETRY)</button>
                     <button onclick="window.close()" class="w-full py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white bg-cosmic-900 border border-slate-700 transition">กลับหน้า Lobby</button>
