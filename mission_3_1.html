@@ -254,7 +254,7 @@
                         </ul>
                         <div style="background: rgba(24acc1, 0.15); padding: 8px; border-radius: 6px; font-size: 0.85rem;">
                             <span style="color: var(--gold);">💡 ทริค:</span> มักเจอคู่กับคำว่า <i>I think, I hope, probably, maybe</i><br>
-                            <i style="color: #94a3b8;">Ex: "I will answer the phone." (เดี๋ยวฉันรับสายเอง - เพิ่งตัดสินใจตอนกริ่งดัง)</i>
+                            <i style="color: #94a3b8;">Ex: "I promises I will answer the phone." (ฉันสัญญาว่าเดี๋ยวฉันรับสายเอง - เพิ่งตัดสินใจตอนกริ่งดัง)</i>
                         </div>
                     </div>
 
@@ -367,8 +367,8 @@
             <!-- Ex 5 -->
             <p style="color: var(--neon-cyan); margin-bottom: 10px; font-size: 0.95rem;"><b>5. Listen to the conversations. Then answer the questions.</b></p>
             <div class="audio-container">
-                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 3-02</span>
-                <audio controls><source src="Track 3-02.mp3" type="audio/mpeg"></audio>
+                <span style="font-size: 0.85rem; color: #cbd5e1; display: block; margin-bottom: 5px;">🎧 Track 3-01</span>
+                <audio controls><source src="audio_u3/Track 3-01.mp3" type="audio/mpeg"></audio>
             </div>
             <div class="question"><div class="q-text">1. What is NOT on Grace's shopping list?</div><select id="l35_1"><option value="">-- เลือกคำตอบ --</option><option value="a">a. blueberries</option><option value="b">b. mushrooms</option><option value="c">c. meat</option><option value="d">d. carrots</option></select></div>
             <div class="question"><div class="q-text">2. What is true about Sarah?</div><select id="l35_2"><option value="">-- เลือกคำตอบ --</option><option value="a">a. She will start training Marco.</option><option value="b">b. She doesn't think working out is important.</option><option value="c">c. She thinks a good diet is the best way to lose weight.</option><option value="d">d. She thinks jogging is better than cycling.</option></select></div>
@@ -571,9 +571,9 @@
             fb.className = 'master-feedback correct'; 
             fb.innerHTML = `✔️ ตอบถูกทั้งหมด กำลังประมวลผลรหัสลับ...`;
             
-            // --- ระบบบันทึกคะแนนรายแบบฝึกหัด & สร้างรหัสผ่าน Sci-Fi ---
+            // 📍 เปลี่ยนสูตรคำนวณรหัสลับให้ตรงกับหน้า index.html (sid * 29 + 1111)
             const numericSid = parseInt(currentSessionSid) || 0;
-            const cipherText = (numericSid * 13 + 9999).toString(16).toUpperCase();
+            const cipherText = (numericSid * 29 + 1111).toString(16).toUpperCase();
             const uniqueCode = "U31-" + cipherText;
 
             try {
@@ -586,7 +586,7 @@
                         studentId: currentSessionSid,
                         activityType: "WORKSHEET_M01",
                         itemId: "M01",
-                        xp: 0, // ให้ไปรับ XP ที่หน้า Dashboard ด้วยรหัสลับแทน
+                        xp: 0, 
                         details: "ผ่านแบบฝึกหัด M01 (Vocab, Grammar, Listening) สมบูรณ์"
                     })
                 });
