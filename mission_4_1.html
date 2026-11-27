@@ -558,7 +558,7 @@
             
             // คำนวณรหัสลับ (Cipher) = (รหัสนักเรียน * 29) + 1111 แปลงเป็นเลขฐาน 16 (เหมือนใน Apps Script)
             const sidNum = parseInt(verifiedStudentId) || 0;
-            const cipherCode = (sidNum * 29 + 1111).toString(16).toUpperCase();
+            const cipherCode = (sidNum * 31 + 4444).toString(16).toUpperCase();
             
             // บันทึก Log ไปยังระบบ
             fetch(API_URL, {
