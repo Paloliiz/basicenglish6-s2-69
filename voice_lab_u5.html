@@ -565,7 +565,7 @@
                         statusEl.className = "text-[10px] text-emerald-400 mb-6 h-4 font-scifi";
                         
                         const sidNum = parseInt(currentSid) || 0;
-                        const cipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
+                        const cipher = (sidNum * 71 + 6060).toString(16).toUpperCase();
                         
                         document.getElementById("passcode-box").classList.remove("hidden");
                         document.getElementById("passcode-display").textContent = `V05-${cipher}`;
