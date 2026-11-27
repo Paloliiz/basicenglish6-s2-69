@@ -586,7 +586,7 @@
                 
                 // คำนวณรหัสลับ (Cipher) = (รหัสนักเรียน * 29) + 1111 แปลงเป็นเลขฐาน 16
                 const sidNum = parseInt(verifiedStudentId) || 0;
-                const cipherCode = (sidNum * 29 + 1111).toString(16).toUpperCase();
+                const cipherCode = (sidNum * 67 + 5050).toString(16).toUpperCase();
 
                 // บันทึก Log ไปยังระบบ
                 fetch(API_URL, {
