@@ -1411,10 +1411,22 @@
                 if (mId === "M01") correctCipher = (sidNum * 13 + 9999).toString(16).toUpperCase();
                 else if (mId === "M02") correctCipher = (sidNum * 17 + 8888).toString(16).toUpperCase();
                 else if (mId === "M03") correctCipher = (sidNum * 23 + 7777).toString(16).toUpperCase();
-                else if (mId === "M04") correctCipher = (sidNum * 29 + 1111).toString(16).toUpperCase(); // ใช้ตามแบบเดิมของครู
+                else if (mId === "M04") correctCipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
                 else if (mId === "V_U3") correctCipher = (sidNum * 17 + 5555).toString(16).toUpperCase();
-                // สูตรพื้นฐานสำหรับด่านใหม่ๆ ที่ไม่ได้ระบุเจาะจง
-                else correctCipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
+                else if (mId === "M05") correctCipher = (sidNum * 31 + 4444).toString(16).toUpperCase();
+                else if (mId === "M06") correctCipher = (sidNum * 37 + 3333).toString(16).toUpperCase();
+                else if (mId === "M07") correctCipher = (sidNum * 41 + 2222).toString(16).toUpperCase();
+                else if (mId === "M08") correctCipher = (sidNum * 43 + 1111).toString(16).toUpperCase();
+                else if (mId === "V_U4") correctCipher = (sidNum * 47 + 1010).toString(16).toUpperCase();
+                else if (mId === "M09") correctCipher = (sidNum * 53 + 2020).toString(16).toUpperCase();
+                else if (mId === "M10") correctCipher = (sidNum * 59 + 3030).toString(16).toUpperCase();
+                else if (mId === "M11") correctCipher = (sidNum * 61 + 4040).toString(16).toUpperCase();
+                else if (mId === "M12") correctCipher = (sidNum * 67 + 5050).toString(16).toUpperCase();
+                else if (mId === "V_U5") correctCipher = (sidNum * 71 + 6060).toString(16).toUpperCase();
+                else if (mId === "EXAM_U3") correctCipher = (sidNum * 73 + 7070).toString(16).toUpperCase();
+                else if (mId === "EXAM_U4") correctCipher = (sidNum * 79 + 8080).toString(16).toUpperCase();
+                else if (mId === "EXAM_U5") correctCipher = (sidNum * 83 + 9090).toString(16).toUpperCase();
+                else correctCipher = (sidNum * 29 + 1111).toString(16).toUpperCase(); // สำรองกันพลาด
 
                 const expectedPasscode = preset.demoPasscode.replace("{CIPHER}", correctCipher);
                 
