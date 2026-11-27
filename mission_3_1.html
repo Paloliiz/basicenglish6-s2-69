@@ -573,7 +573,7 @@
             
             // 📍 เปลี่ยนสูตรคำนวณรหัสลับให้ตรงกับหน้า index.html (sid * 29 + 1111)
             const numericSid = parseInt(currentSessionSid) || 0;
-            const cipherText = (numericSid * 29 + 1111).toString(16).toUpperCase();
+            const cipherText = (numericSid * 13 + 9999).toString(16).toUpperCase();
             const uniqueCode = "U31-" + cipherText;
 
             try {
