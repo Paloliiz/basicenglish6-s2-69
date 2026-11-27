@@ -566,7 +566,7 @@
             document.querySelector(".bg-green-900\\/20").classList.remove("hidden");
             
             const numericSid = parseInt(currentSid) || 0;
-            const cipherText = (numericSid * 29 + 1111).toString(16).toUpperCase();
+            const cipherText = (numericSid * 17 + 5555).toString(16).toUpperCase();
             document.getElementById("cipher-code").innerText = "V03-" + cipherText;
 
             try {
