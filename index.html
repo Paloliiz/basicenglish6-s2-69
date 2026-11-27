@@ -462,4 +462,993 @@
             <div class="cosmic-card rounded-3xl p-5 space-y-3">
                 <h4 class="font-scifi font-bold text-sm tracking-wider text-white flex items-center gap-2"><span>📢</span> SYSTEM ANNOUNCEMENT</h4>
                 <div class="p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/90 to-indigo-950/80 border border-purple-400/30 flex items-start gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-
+                    <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-lg flex-shrink-0">🚧</div>
+                    <div class="text-xs space-y-1">
+                        <p class="font-semibold text-purple-100">ประกาศต้อนรับเทอม 2</p>
+                        <p class="text-slate-300 leading-relaxed">ขณะนี้เปิดให้ผจญภัยเริ่มจาก <b>Unit 3 (M01)</b> เป็นต้นไป หมวดอื่นๆ จะทยอยปลดล็อกเมื่อเนื้อหาพร้อมครับ!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cosmic-card cosmic-card-active rounded-3xl p-5 space-y-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-fuchsia-400 animate-ping"></span>
+                    <h4 class="font-scifi font-bold text-sm tracking-wider text-white">NEXT MISSION</h4>
+                </div>
+                <div id="next-mission-box" class="p-3.5 rounded-2xl bg-cosmic-950/70 border border-purple-500/30 space-y-3"></div>
+            </div>
+            
+            <div class="cosmic-card rounded-3xl p-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-scifi font-bold text-sm tracking-wider text-white flex items-center gap-2"><span>🦊</span> AVATAR SKINS</h4>
+                    <button onclick="openWardrobeModal()" class="text-xs text-purple-300 hover:text-white underline">เปิดตู้เสื้อผ้า</button>
+                </div>
+                <div id="sidebar-skins-list" class="grid grid-cols-3 gap-2.5"></div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ================= MOBILE BOTTOM NAV ================= -->
+    <div class="lg:hidden fixed bottom-0 inset-x-0 z-40 cosmic-card border-t border-purple-500/40 px-2 py-1.5 flex items-center justify-around">
+        <button onclick="switchModule('missions')" id="nav-missions-mobile" class="module-nav-btn flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-purple-200">
+            <span class="text-base">🏠</span><span>ภารกิจ</span>
+        </button>
+        <button onclick="switchModule('grammar')" id="nav-grammar-mobile" class="module-nav-btn flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500 hover:text-purple-200 transition">
+            <span class="text-base">📘</span><span>แกรมม่า</span>
+        </button>
+        <button onclick="checkSoloWorksheetAndOpen()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-amber-300 hover:text-amber-200 transition">
+            <span class="text-base">🚀</span><span>Raid</span>
+        </button>
+        <button onclick="openALevelArena()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-300 hover:text-cyan-300 transition">
+            <span class="text-base">🎯</span><span>A-Level</span>
+        </button>
+        <button id="nav-exam-lobby-mobile" onclick="openExamLobby()" class="flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] text-slate-500 transition cursor-not-allowed grayscale">
+            <span class="text-base">⚠️</span><span id="exam-btn-text-mobile">ห้องสอบ</span>
+        </button>
+    </div>
+
+    <!-- ================= MISSION MODAL ================= -->
+    <div id="mission-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="cosmic-card cosmic-card-active rounded-3xl max-w-md w-full p-6 sm:p-7 relative">
+            <button onclick="closeMissionModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200 flex items-center justify-center">✕</button>
+
+            <div class="flex items-center gap-2 mb-2">
+                <span id="modal-mission-id" class="px-2.5 py-1 rounded-lg bg-purple-900 border border-purple-400 font-scifi text-xs text-purple-200 font-bold">M01</span>
+                <span class="text-xs text-emerald-300 font-medium">● ปลดล็อกรับ XP</span>
+            </div>
+
+            <h3 id="modal-mission-title" class="text-xl sm:text-2xl font-bold text-white mb-1">Mission Title</h3>
+            
+            <form onsubmit="submitMissionPasscode(event)" class="space-y-4 mt-5">
+                <div>
+                    <label class="block text-xs font-medium text-purple-200 mb-2">🔑 กรอกรหัสลับที่ได้จากใบงาน / เว็บภารกิจย่อย</label>
+                    <div class="relative">
+                        <input type="password" id="modal-passcode-input" required placeholder="***-*****"
+                            class="w-full px-12 py-3.5 rounded-xl bg-cosmic-950 border-2 border-purple-500/50 text-center font-scifi text-base sm:text-lg tracking-widest text-white uppercase focus:outline-none focus:border-fuchsia-400">
+                        <button type="button" onclick="togglePasswordVisibility('modal-passcode-input', 'eye-icon-mission')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-purple-400 hover:text-purple-200 transition">
+                            <span id="eye-icon-mission" class="text-xl">👁️</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="modal-error-msg" class="hidden p-3 rounded-xl bg-rose-950/90 border border-rose-500/50 text-xs text-rose-200 text-center"></div>
+                <button type="submit" id="modal-submit-btn" class="w-full btn-portal py-3 rounded-xl font-semibold text-sm">
+                    ⚡ ยืนยันรหัสปลดล็อกมิติ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= WARDROBE MODAL ================= -->
+    <div id="wardrobe-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="cosmic-card cosmic-card-active rounded-3xl max-w-4xl w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeWardrobeModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200 z-50">✕</button>
+            <h3 class="font-scifi text-xl sm:text-2xl font-bold text-white mb-6 flex items-center gap-2"><span>🦊</span> DIMENSION WARDROBE</h3>
+            
+            <!-- TABS -->
+            <div class="flex border-b border-purple-500/30 mb-6">
+                <button onclick="switchWardrobeTab('skins')" id="tab-skins" class="px-6 py-3 text-sm font-bold text-purple-200 border-b-2 border-purple-400">เสื้อผ้า (Skins)</button>
+                <button onclick="switchWardrobeTab('frames')" id="tab-frames" class="px-6 py-3 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-purple-200">กรอบรูป (Frames)</button>
+            </div>
+
+            <!-- SKINS TAB -->
+            <div id="wardrobe-skins-view">
+                <div id="wardrobe-modal-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6"></div>
+                <div class="mt-6 pt-5 border-t border-purple-500/30">
+                    <h4 class="font-scifi font-bold text-sm text-cyan-300 mb-3">✨ สร้างตัวละครของคุณเอง (Custom Hologram)</h4>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="url" id="custom-avatar-url" placeholder="วางลิงก์รูปภาพ (เช่น PNG จาก Canva หรือ Imgur)" class="flex-grow px-4 py-2.5 rounded-xl bg-cosmic-950 border border-purple-500/40 text-xs text-white focus:border-cyan-400 focus:outline-none">
+                        <button onclick="saveCustomAvatar()" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold whitespace-nowrap shadow-[0_0_10px_rgba(6,182,212,0.4)]">บันทึก & สวมใส่รูปนี้</button>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2">คำแนะนำ: คัดลอกลิงก์รูปภาพ (Image Address) ที่ไม่มีพื้นหลัง (Transparent PNG) สัดส่วน 1:1 เพื่อความสวยงาม</p>
+                </div>
+            </div>
+
+            <!-- FRAMES TAB -->
+            <div id="wardrobe-frames-view" class="hidden">
+                <div id="wardrobe-frames-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6"></div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- ================= TEACHER GUIDE MODAL ================= -->
+    <div id="teacher-guide-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="cosmic-card cosmic-card-active rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative">
+            <button onclick="closeTeacherGuideModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200">✕</button>
+            <h3 class="font-scifi text-lg font-bold text-white mb-4">📋 คู่มือใช้งานสำหรับครู</h3>
+            <div class="text-xs text-slate-300 space-y-2 mb-4">
+                <p>คุณครูสามารถนำรหัสนักเรียนและรหัส PIN จาก Google Sheets (แผ่นงาน Users) มาล็อกอินเข้าใช้งานระบบได้เลยครับ</p>
+                <p>และสามารถนำรหัสผ่านมิติของแต่ละด่าน (จากแผ่นงาน Missions) มากรอกเพื่อดูการปลดล็อกสกินได้ทันที</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyCUcYJFaTdqjR17Mopw4tcqKJdR99eGVvqIsP4eIOcQeKItN6uqriJo_Un8YbAmUnn/exec";
+
+        const SKIN_CATALOG = {
+            "Skin01": { id: "Skin01", name: "Skin 01: Rookie", subtitle: "ชุดนักเรียนเขาฉกรรจ์วิทยาคม", unlockHint: "ปลดล็อกตั้งแต่เริ่มต้น", svg: `<img src="skin01.png" alt="Rookie" class="w-full h-full object-cover">` },
+            "Skin02": { id: "Skin02", name: "Skin 02: Explorer", subtitle: "แจ็คเก็ตเรโทรยุค 80s", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M01", svg: `<img src="skin02.png" alt="Explorer" class="w-full h-full object-cover">` },
+            "Skin03": { id: "Skin03", name: "Skin 03: Mastermind", subtitle: "ชุดนักสำรวจมิติพิศวง", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M03", svg: `<img src="skin03.png" alt="Mastermind" class="w-full h-full object-cover">` },
+            "Skin04": { id: "Skin04", name: "Skin 04: Cyber Ninja", subtitle: "นินจาไซเบอร์แห่งมิติเวลา", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M05", svg: `<img src="skin04.png" alt="Cyber Ninja" class="w-full h-full object-cover">` },
+            "Skin05": { id: "Skin05", name: "Skin 05: Galactic Scholar", subtitle: "นักปราชญ์จักรวาลคู่ขนาน", unlockHint: "ปลดล็อกเมื่อเคลียร์ทุกด่าน", svg: `<img src="skin05.png" alt="Galactic Scholar" class="w-full h-full object-cover">` },
+            "Skin06": { id: "Skin06", name: "Skin 06: Time Warden", subtitle: "ผู้พิทักษ์กาลเวลา", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M02", svg: `<img src="skin06.png" alt="Time Warden" class="w-full h-full object-cover">` },
+            "Skin07": { id: "Skin07", name: "Skin 07: Void Walker", subtitle: "ผู้ท่องความว่างเปล่า", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M04", svg: `<img src="skin07.png" alt="Void Walker" class="w-full h-full object-cover">` },
+            "Skin08": { id: "Skin08", name: "Skin 08: The Merchant", subtitle: "พ่อค้าจอมเจ้าเล่ห์", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M05", svg: `<img src="skin08.png" alt="The Merchant" class="w-full h-full object-cover">` },
+            "Skin09": { id: "Skin09", name: "Skin 09: Coin Collector", subtitle: "นักล่าสมบัติหูแมว", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M06", svg: `<img src="skin09.png" alt="Coin Collector" class="w-full h-full object-cover">` },
+            "Skin10": { id: "Skin10", name: "Skin 10: Cyber Knight", subtitle: "อัศวินโลกอนาคต", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M07", svg: `<img src="skin10.png" alt="Cyber Knight" class="w-full h-full object-cover">` },
+            "Skin11": { id: "Skin11", name: "Skin 11: Oracle of Wealth", subtitle: "นักพยากรณ์ความมั่งคั่ง", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M08", svg: `<img src="skin11.png" alt="Oracle of Wealth" class="w-full h-full object-cover">` },
+            "Skin12": { id: "Skin12", name: "Skin 12: The Mascot", subtitle: "ตุ๊กตามาสคอตนำโชค", unlockHint: "ปลดล็อกเมื่อปราบบอส V_U4", svg: `<img src="skin12.png" alt="The Mascot" class="w-full h-full object-cover">` },
+            "Skin13": { id: "Skin13", name: "Skin 13: Dimension Traveler", subtitle: "นักเดินทางข้ามวัฒนธรรม", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M09", svg: `<img src="skin13.png" alt="Dimension Traveler" class="w-full h-full object-cover">` },
+            "Skin14": { id: "Skin14", name: "Skin 14: Neo-Samurai", subtitle: "นักรบไซเบอร์แห่งตะวันออก", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M10", svg: `<img src="skin14.png" alt="Neo-Samurai" class="w-full h-full object-cover">` },
+            "Skin15": { id: "Skin15", name: "Skin 15: Astral Pharaoh", subtitle: "ผู้พิทักษ์อารยธรรมโบราณ", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M11", svg: `<img src="skin15.png" alt="Astral Pharaoh" class="w-full h-full object-cover">` },
+            "Skin16": { id: "Skin16", name: "Skin 16: Galactic Diplomat", subtitle: "ทูตสันถวไมตรีแห่งจักรวาล", unlockHint: "ปลดล็อกเมื่อผ่านด่าน M12", svg: `<img src="skin16.png" alt="Galactic Diplomat" class="w-full h-full object-cover">` },
+            "Skin17": { id: "Skin17", name: "Skin 17: Mythic Guardian", subtitle: "เทพผู้พิทักษ์พหุวัฒนธรรม", unlockHint: "ปลดล็อกเมื่อปราบบอส V_U5", svg: `<img src="skin17.png" alt="Mythic Guardian" class="w-full h-full object-cover">` },
+            "Skin99": { id: "Skin99", name: "Custom Avatar", subtitle: "ตัวละครที่คุณสร้างเอง", unlockHint: "ปลดล็อกเมื่อใส่ลิงก์รูปภาพ", svg: `<svg viewBox="0 0 200 200" class="w-full h-full"><rect width="200" height="200" fill="#070510"/><rect x="40" y="40" width="120" height="120" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="8 8"/><circle cx="100" cy="100" r="20" fill="#38bdf8" opacity="0.5" class="animate-ping"/></svg>` }
+        };
+
+        const FRAME_CATALOG = {
+            "Frame00": { id: "Frame00", name: "No Frame", subtitle: "ซ่อนกรอบ", cssClass: "", reqLevel: 0 },
+            "FrameBio": { id: "FrameBio", name: "Biohazard Aura", subtitle: "ปราบบอส U3 (V_U3)", cssClass: "frame-biohazard", reqMission: "V_U3" },
+            "FrameU3": { id: "FrameU3", name: "Medic Aura", subtitle: "จบภารกิจ Unit 3 (M04)", cssClass: "frame-medic", reqMission: "M04" },
+            "FrameEx3": { id: "FrameEx3", name: "Crimson Conqueror", subtitle: "สอบผ่าน Unit 3 (EXAM_U3)", cssClass: "frame-crimson", reqMission: "EXAM_U3" },
+            "FrameU4": { id: "FrameU4", name: "Wealth Whisperer", subtitle: "จบภารกิจ Unit 4 (M08)", cssClass: "frame-wealth", reqMission: "M08" },
+            "FrameEx4": { id: "FrameEx4", name: "Emerald Elite", subtitle: "สอบผ่าน Unit 4 (EXAM_U4)", cssClass: "frame-emerald", reqMission: "EXAM_U4" },
+            "FrameV5": { id: "FrameV5", name: "Astral Rift", subtitle: "ปราบบอส U5 (V_U5)", cssClass: "frame-astral", reqMission: "V_U5" },
+            "FrameU5": { id: "FrameU5", name: "Celestial Compass", subtitle: "จบภารกิจ Unit 5 (M12)", cssClass: "frame-celestial", reqMission: "M12" },
+            "FrameEx5": { id: "FrameEx5", name: "Sovereign Horizon", subtitle: "สอบผ่าน Unit 5 (EXAM_U5)", cssClass: "frame-sovereign", reqMission: "EXAM_U5" },
+            "FrameLv5": { id: "FrameLv5", name: "Gold Standard", subtitle: "กรอบสำหรับเลเวล 5 ขึ้นไป", cssClass: "frame-level5", reqLevel: 5 },
+            "FrameLv10": { id: "FrameLv10", name: "Diamond Master", subtitle: "กรอบสำหรับเลเวล 10 ขึ้นไป", cssClass: "frame-level10", reqLevel: 10 }
+        };
+
+        const MISSION_META_PRESETS = {
+            "M01": { unit: "Unit 3", subtitle: "ฟังเสียงและทำแบบฝึกหัด Fitness Plan (หน้า 34-35)", category: "Listening & Vocab", difficulty: "Medium", xp: 100, demoPasscode: "***-*****", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_1.html" },
+            "M02": { unit: "Unit 3", subtitle: "เรียนรู้คำศัพท์และฝึกฟังบทสนทนาเรื่อง Medical Advice (หน้า 36-37)", category: "Vocab & Listening", difficulty: "Medium", xp: 100, demoPasscode: "***-*****", artType: "book", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_2.html" },
+            "M03": { unit: "Unit 3", subtitle: "เรียนรู้คำศัพท์และการอ่านจับใจความเรื่อง Medical Breakthroughs (หน้า 38-39)", category: "Vocab & Reading", difficulty: "Hard", xp: 150, demoPasscode: "***-*****", artType: "mirror", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_3.html" },
+            "M04": { unit: "Unit 3", subtitle: "เรียนรู้คำศัพท์ และแกรมม่าเรื่อง Health & Writing (หน้า 40-41)", category: "Writing & Grammar", difficulty: "Hard", xp: 100, demoPasscode: "***-*****", artType: "castle", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_3_4.html" },
+            "V_U3": { unit: "Unit 3", subtitle: "ภารกิจมินิเกมคำศัพท์: ปราบ The Bio-Phantom", category: "Vocab", difficulty: "Boss", xp: 200, demoPasscode: "V03-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/voice_lab.html" },
+            "M05": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และแกรมม่าเรื่อง Money Talks (หน้า 46-47)", category: "Vocab & Grammar", difficulty: "Medium", xp: 100, demoPasscode: "U41-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_1.html" },
+            "M06": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และแต่งประโยคเรื่อง Spending Habits (หน้า 48-49)", category: "Vocab & Grammar", difficulty: "Medium", xp: 100, demoPasscode: "U42-{CIPHER}", artType: "book", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_2.html" },
+            "M07": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และอ่านบทความเรื่อง Market Trends (หน้า 50-51)", category: "Vocab & Reading", difficulty: "Hard", xp: 150, demoPasscode: "U43-{CIPHER}", artType: "mirror", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_3.html" },
+            "M08": { unit: "Unit 4", subtitle: "เรียนรู้คำศัพท์และการเขียนเรื่อง Financial Problem (หน้า 52-53)", category: "Vocab & Writing", difficulty: "Hard", xp: 150, demoPasscode: "U44-{CIPHER}", artType: "castle", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/mission_4_4.html" },
+            
+            // ภารกิจกลุ่ม Team Raid (Optional - ซ่อนจากหน้าหลัก)
+            "RAID_U4": { 
+                unit: "Unit 4", 
+                subtitle: "ภารกิจจำลองอนาคต: Future Snapshot (Team Raid)", 
+                category: "Grammar & Speaking", 
+                difficulty: "Hard", 
+                xp: 200, 
+                demoPasscode: "FUT-2030",
+                artType: "mirror", 
+                isWebLink: true, 
+                linkUrl: "team_raid_lobby.html" 
+            },
+
+            // Unit 5 Missions (M09, M10, M11, M12, V_U5)
+            "M09": { unit: "Unit 5", subtitle: "เรียนรู้คำศัพท์และอ่านบทความ Cultures Around the World (หน้า 60-61)", category: "Vocab & Reading", difficulty: "Medium", xp: 100, demoPasscode: "U51-{CIPHER}", artType: "book", isWebLink: true, linkUrl: "mission_5_1.html" },
+            "M10": { unit: "Unit 5", subtitle: "เรียนรู้คำศัพท์ แกรมม่า และการฟัง Different Cultural Values (หน้า 62-63)", category: "Vocab & Grammar", difficulty: "Medium", xp: 100, demoPasscode: "U52-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "mission_5_2.html" },
+            "M11": { unit: "Unit 5", subtitle: "เรียนรู้คำศัพท์และการอ่านบทความเรื่อง Differences Between Culture (หน้า 64-65)", category: "Vocab & Reading", difficulty: "Hard", xp: 150, demoPasscode: "U53-{CIPHER}", artType: "mirror", isWebLink: true, linkUrl: "mission_5_3.html" },
+            "M12": { unit: "Unit 5", subtitle: "เรียนรู้คำศัพท์ แกรมม่า และการเขียน Guide on the Dos and Don'ts (หน้า 66-67)", category: "Vocab & Writing", difficulty: "Hard", xp: 150, demoPasscode: "U54-{CIPHER}", artType: "castle", isWebLink: true, linkUrl: "mission_5_4.html" },
+            "V_U5": { unit: "Unit 5", subtitle: "ภารกิจมินิเกมคำศัพท์: ปราบ Vespera Rift", category: "Vocab", difficulty: "Boss", xp: 200, demoPasscode: "V05-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "voice_lab_u5.html" },
+
+            "V_U4": { unit: "Unit 4", subtitle: "ภารกิจมินิเกมคำศัพท์: ปราบ The Gilded Glitch", category: "Vocab", difficulty: "Boss", xp: 200, demoPasscode: "V04-{CIPHER}", artType: "corridor", isWebLink: true, linkUrl: "https://paloliiz.github.io/basicenglish6-s2-69/voice_lab_u4.html" },
+            "EXAM_U3": { unit: "Unit 3", subtitle: "สอบเก็บคะแนน Unit 3 (10 คะแนน)", category: "Exam", difficulty: "Boss", xp: 100, demoPasscode: "EX3-{CIPHER}", artType: "castle", isWebLink: false },
+            "EXAM_U4": { unit: "Unit 4", subtitle: "สอบเก็บคะแนน Unit 4 (10 คะแนน)", category: "Exam", difficulty: "Boss", xp: 100, demoPasscode: "EX4-{CIPHER}", artType: "castle", isWebLink: false },
+            "EXAM_U5": { unit: "Unit 5", subtitle: "สอบเก็บคะแนน Unit 5 (10 คะแนน)", category: "Exam", difficulty: "Boss", xp: 100, demoPasscode: "EX5-{CIPHER}", artType: "castle", isWebLink: false }
+        };
+
+        let appState = {
+            activeModule: "missions",
+            studentPin: "",
+            currentFilter: "ALL",
+            currentUnitFilter: "ALL",
+            activeModalMissionId: null,
+            customAvatarUrl: localStorage.getItem("pd_custom_avatar") || "",
+            currentFrameId: localStorage.getItem("pd_current_frame") || "Frame00",
+            user: null,
+            missions: []
+        };
+
+        // ==========================================
+        // ระบบสไลด์ Grammar Codex
+        // ==========================================
+        const GRAMMAR_TOPICS = {
+            "future_forms": { folder: "U3_Future_Form/", prefix: "U3_Future_Form_", ext: ".PNG", total: 21, pad: false },
+            "future_perfect": { folder: "U3_Future_Perfect/", prefix: "Future_Perfect_", ext: ".PNG", total: 20, pad: false },
+            "conditionals_1": { folder: "U4_Zero_Type1/", prefix: "Zero & Type 1 Conditionals_Page_", ext: ".jpg", total: 20, pad: true }
+        };
+        let currentGrammarTopic = "future_forms";
+        let currentSlide = 1;
+
+        function updateSlide() {
+            const topic = GRAMMAR_TOPICS[currentGrammarTopic];
+            const imgEl = document.getElementById('current-slide-img');
+            imgEl.style.opacity = 0.5; 
+            
+            setTimeout(() => {
+                let slideNumStr = currentSlide.toString();
+                if (topic.pad) {
+                    slideNumStr = slideNumStr.padStart(2, '0');
+                }
+                imgEl.src = `${topic.folder}${topic.prefix}${slideNumStr}${topic.ext}`;
+                document.getElementById('slide-counter').innerText = `${currentSlide} / ${topic.total}`;
+                imgEl.style.opacity = 1;
+            }, 150);
+        }
+
+        function nextSlide() {
+            const topic = GRAMMAR_TOPICS[currentGrammarTopic];
+            if (currentSlide < topic.total) {
+                currentSlide++;
+                updateSlide();
+            } else {
+                showToast('คุณอ่านสไลด์หน้าสุดท้ายจบแล้วครับ! 🎉', 'success');
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function changeGrammarTopic(topicKey) {
+            currentGrammarTopic = topicKey;
+            currentSlide = 1;
+            updateSlide();
+        }
+
+        // ==========================================
+        // ระบบนำทางสลับโมดูล
+        // ==========================================
+        function switchModule(modId) {
+            appState.activeModule = modId;
+            
+            document.querySelectorAll('.module-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('module-' + modId).classList.remove('hidden');
+            
+            document.querySelectorAll('.module-nav-btn').forEach(btn => {
+                btn.classList.remove('nav-btn-active', 'text-white');
+                if(!btn.classList.contains('border-rose-500/30')) {
+                    btn.classList.add('text-slate-300');
+                }
+            });
+            const desktopBtn = document.getElementById('nav-' + modId);
+            if(desktopBtn) {
+                desktopBtn.classList.remove('text-slate-300');
+                desktopBtn.classList.add('nav-btn-active', 'text-white');
+            }
+            
+            const mobileBtnMissions = document.getElementById('nav-missions-mobile');
+            const mobileBtnGrammar = document.getElementById('nav-grammar-mobile');
+            const mobileBtnQuestlog = document.getElementById('nav-questlog-mobile');
+            
+            if(mobileBtnMissions && mobileBtnGrammar) {
+                [mobileBtnMissions, mobileBtnGrammar, mobileBtnQuestlog].forEach(btn => {
+                    if(btn) { btn.classList.replace('text-purple-200', 'text-slate-500'); btn.classList.replace('text-pink-300', 'text-slate-500'); }
+                });
+                if(modId === 'missions') {
+                    mobileBtnMissions.classList.replace('text-slate-500', 'text-purple-200');
+                } else if (modId === 'grammar') {
+                    mobileBtnGrammar.classList.replace('text-slate-500', 'text-purple-200');
+                } else if (modId === 'questlog') {
+                    if(mobileBtnQuestlog) mobileBtnQuestlog.classList.replace('text-slate-500', 'text-pink-300');
+                }
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openVoiceLab() {
+            const sid = appState.user ? appState.user.studentId : "GUEST";
+            window.open('voice_lobby.html?sid=' + sid, '_blank');
+        }
+
+        function openALevelArena() {
+            const sid = appState.user ? appState.user.studentId : "GUEST";
+            window.open('alevel_arena.html?sid=' + sid, '_blank');
+        }
+
+        function openExamLobby() {
+            const sid = appState.user ? appState.user.studentId : "GUEST";
+            window.open('exam_lobby.html?sid=' + sid, '_blank');
+        }
+
+        function checkSoloWorksheetAndOpen() {
+            const isDone = confirm("⚠️ ตรวจสอบสิทธิ์เข้ามิติภารกิจกลุ่ม:\n\nให้นักเรียนทำ 'แบบฝึกหัดเดี่ยว 10 ข้อ' ลงในใบงานให้เสร็จเรียบร้อย\n\n(หากทำเสร็จแล้วจึงจะปรากฎปุ่มนำทางเพื่อเข้าสู่หน้า Lobby กิจกรรมกลุ่ม)");
+            
+            if (isDone) {
+                const sid = appState.user ? appState.user.studentId : "GUEST";
+                window.open('team_raid_lobby.html?sid=' + sid, '_blank');
+            } else {
+                showToast('กรุณาทำแบบฝึกหัดเดี่ยว 10 ข้อให้เสร็จก่อนเข้าภารกิจกลุ่มนะครับ!', 'error');
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedSession = localStorage.getItem("pd_portal_session");
+            if (savedSession) {
+                try {
+                    const parsed = JSON.parse(savedSession);
+                    appState = {...appState, ...parsed};
+                    appState.customAvatarUrl = localStorage.getItem("pd_custom_avatar") || "";
+                    appState.currentFrameId = localStorage.getItem("pd_current_frame") || "Frame00";
+                    document.getElementById("login-screen").classList.add("hidden");
+                    renderAllModules();
+                } catch (e) {
+                    localStorage.removeItem("pd_portal_session");
+                }
+            }
+            updateSlide();
+        });
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.innerHTML = "🙈"; 
+            } else {
+                input.type = "password";
+                icon.innerHTML = "👁️";
+            }
+        }
+
+        function getSkinVisualHtml(skinId) {
+            if (skinId === "Skin99" && appState.customAvatarUrl) {
+                return `<img src="${appState.customAvatarUrl}" alt="Custom Avatar" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150/090514/38bdf8?text=ERROR'; showToast('ลิงก์รูปภาพไม่ถูกต้อง', 'error');">`;
+            }
+            const skinObj = SKIN_CATALOG[skinId] || SKIN_CATALOG["Skin01"];
+            return skinObj.svg;
+        }
+        
+        function getFrameCssClass(frameId) {
+            const frameObj = FRAME_CATALOG[frameId];
+            return frameObj ? frameObj.cssClass : "";
+        }
+
+        function checkFrameUnlockStatus(frame) {
+            if (frame.id === "Frame00") return true;
+            if (frame.reqLevel) {
+                const totalXp = Number(appState.user.totalXp) || 0;
+                const level = Math.floor(totalXp / 500) + 1;
+                return level >= frame.reqLevel;
+            }
+            if (frame.reqMission) {
+                const mission = appState.missions.find(m => m.missionId === frame.reqMission);
+                return mission && mission.state === "COMPLETED";
+            }
+            return false;
+        }
+
+        function openExternalMission(missionId) {
+            const preset = MISSION_META_PRESETS[missionId];
+            if(preset && preset.isWebLink && preset.linkUrl) {
+                const sid = appState.user ? appState.user.studentId : "GUEST";
+                window.open(preset.linkUrl + '?sid=' + sid, '_blank');
+            }
+        }
+
+        async function callPortalApi(payload) {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+            return await response.json();
+        }
+
+        async function handleLoginSubmit(event) {
+            event.preventDefault();
+            const sid = document.getElementById("login-student-id").value.trim();
+            const pin = document.getElementById("login-pin").value.trim();
+            const btn = document.getElementById("login-submit-btn");
+            const err = document.getElementById("login-error-box");
+            err.classList.add("hidden"); btn.disabled = true; btn.innerHTML = "กำลังตรวจสอบ...";
+
+            try {
+                const res = await callPortalApi({ action: "login", studentId: sid, pin: pin });
+                if (res.status === "success") {
+                    appState.studentPin = pin;
+                    appState.user = res.user; appState.missions = res.missions || [];
+                    if (appState.customAvatarUrl && !appState.user.unlockedSkins.includes("Skin99")) {
+                        appState.user.unlockedSkins.push("Skin99"); 
+                    }
+                    saveSession();
+                    document.getElementById("login-screen").classList.add("hidden");
+                    renderAllModules();
+                    showToast(`ยินดีต้อนรับ ${res.user.name} เข้าสู่มิติคู่ขนาน!`, "success");
+                } else {
+                    err.innerHTML = `⚠️ ${res.message}`; err.classList.remove("hidden");
+                }
+            } catch (e) {
+                err.innerHTML = `⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาลองใหม่อีกครั้ง`; err.classList.remove("hidden");
+            } finally {
+                btn.disabled = false; btn.innerHTML = "เชื่อมต่อเข้าสู่มิติ (Login)";
+            }
+        }
+
+        function logoutPortal() {
+            localStorage.removeItem("pd_portal_session");
+            location.reload();
+        }
+
+        async function refreshStudentData() {
+            showToast("กำลังซิงค์...", "info");
+            try {
+                const res = await callPortalApi({ action: "login", studentId: appState.user.studentId, pin: appState.studentPin });
+                if (res.status === "success") {
+                    appState.user = res.user; appState.missions = res.missions || [];
+                    if (appState.customAvatarUrl && !appState.user.unlockedSkins.includes("Skin99")) {
+                        appState.user.unlockedSkins.push("Skin99");
+                    }
+                    saveSession(); renderAllModules();
+                    showToast("ซิงค์สำเร็จ!", "success");
+                }
+            } catch(e) { showToast("ซิงค์ล้มเหลว", "error"); }
+        }
+
+        function saveSession() {
+            localStorage.setItem("pd_portal_session", JSON.stringify(appState));
+        }
+
+        function renderAllModules() {
+            renderProfileHeader(); renderMissionsGrid(); renderRightWidgets(); renderWardrobeItems(); renderQuestLog();
+            checkUnit3Completion(); 
+        }
+
+        // ==========================================
+        // ระบบ Quest Log (ติดตามงาน)
+        // ==========================================
+        function renderQuestLog() {
+            const webList = document.getElementById("quest-web-list");
+            const bookList = document.getElementById("quest-book-list");
+            
+            const missions = appState.missions || [];
+            const offline = (appState.user && appState.user.offlineTasks) || {}; 
+            
+            // 1. Render Web Quests (งานออนไลน์)
+            const webQuests = [
+                { id: "M01", name: "ภารกิจ M01" },
+                { id: "M02", name: "ภารกิจ M02" },
+                { id: "M03", name: "ภารกิจ M03" },
+                { id: "M04", name: "ภารกิจ M04" },
+                { id: "V_U3", name: "มินิเกมคำศัพท์ Voice Lab" },
+                { id: "M05", name: "ภารกิจ M05" },
+                { id: "M06", name: "ภารกิจ M06" },
+                { id: "M07", name: "ภารกิจ M07" },
+                { id: "M08", name: "ภารกิจ M08" },
+                { id: "V_U4", name: "มินิเกมคำศัพท์ Voice Lab (U4)" },
+                { id: "M09", name: "ภารกิจ M09: Cultures Around the World" },
+                { id: "M10", name: "ภารกิจ M10: Different Cultural Values" },
+                { id: "M11", name: "ภารกิจ M11: Differences Between Culture" },
+                { id: "M12", name: "ภารกิจ M12: Guide on the Dos and Don'ts" },
+                { id: "V_U5", name: "มินิเกมคำศัพท์ Voice Lab (U5)" }
+            ];
+            
+            webList.innerHTML = webQuests.map(q => {
+                const m = missions.find(x => x.missionId === q.id);
+                const isCompleted = m && m.state === "COMPLETED";
+                return `
+                    <div class="flex items-center justify-between bg-cosmic-900 p-3 rounded-xl border ${isCompleted ? 'border-cyan-500/50 shadow-[0_0_10px_rgba(56,189,248,0.1)]' : 'border-slate-700'}">
+                        <span class="text-sm ${isCompleted ? 'text-cyan-300 font-medium' : 'text-slate-400'}">${q.name}</span>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded font-scifi tracking-wider ${isCompleted ? 'bg-cyan-900/50 text-cyan-400' : 'bg-slate-800 text-slate-500'}">
+                            ${isCompleted ? '✓ CLEARED' : 'PENDING'}
+                        </span>
+                    </div>
+                `;
+            }).join("");
+
+            // 2. Render Real-world Quests (งานออฟไลน์)
+            const bookQuests = [
+                { id: "M01_Book", name: "ส่งแบบฝึกหัดหน้า 34-35" },
+                { id: "M02_Book", name: "ส่งแบบฝึกหัดหน้า 36-37" },
+                { id: "M03_Book", name: "ส่งแบบฝึกหัดหน้า 38-39" },
+                { id: "M04_Book", name: "ส่งแบบฝึกหัดหน้า 40-41" },
+                { id: "M05_Book", name: "ส่งแบบฝึกหัดหน้า 46-47" },
+                { id: "M06_Book", name: "ส่งแบบฝึกหัดหน้า 48-49" },
+                { id: "M07_Book", name: "ส่งแบบฝึกหัดหน้า 50-51" },
+                { id: "M08_Book", name: "ส่งแบบฝึกหัดหน้า 52-53" },
+                { id: "M09_Book", name: "ส่งแบบฝึกหัดหน้า 60-61" },
+                { id: "M10_Book", name: "ส่งแบบฝึกหัดหน้า 62-63" },
+                { id: "M11_Book", name: "ส่งแบบฝึกหัดหน้า 64-65" },
+                { id: "M12_Book", name: "ส่งแบบฝึกหัดหน้า 66-67" },
+                { id: "XmasCard", name: "ทำการ์ดคริสต์มาส 🎄" }
+            ];
+
+            bookList.innerHTML = bookQuests.map(q => {
+                const isCompleted = offline[q.id] === true || offline[q.id] === "TRUE";
+                return `
+                    <div class="flex items-center justify-between bg-cosmic-900 p-3 rounded-xl border ${isCompleted ? 'border-pink-500/50 shadow-[0_0_10px_rgba(236,72,153,0.1)]' : 'border-slate-700'}">
+                        <span class="text-sm ${isCompleted ? 'text-pink-300 font-medium' : 'text-slate-400'}">${q.name}</span>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded font-scifi tracking-wider ${isCompleted ? 'bg-pink-900/50 text-pink-400' : 'bg-slate-800 text-slate-500'}">
+                            ${isCompleted ? '★ VERIFIED' : '⏳ MISSING'}
+                        </span>
+                    </div>
+                `;
+            }).join("");
+            
+            // อัปเดตตัวเลขแจ้งเตือนบนปุ่มภารกิจ
+            const pendingCount = webQuests.filter(q => {
+                const m = missions.find(x => x.missionId === q.id);
+                return !(m && m.state === "COMPLETED");
+            }).length;
+            const badge = document.getElementById("badge-nav-missions");
+            if(badge) {
+                if (pendingCount > 0) {
+                    badge.innerText = pendingCount;
+                    badge.classList.remove("hidden");
+                } else {
+                    badge.classList.add("hidden");
+                }
+            }
+        }
+
+        setInterval(() => {
+            const deadline = new Date("2026-11-30T23:59:59").getTime(); 
+            const now = new Date().getTime();
+            const distance = deadline - now;
+            
+            if (distance < 0) {
+                document.getElementById("quest-countdown").innerHTML = "EXPIRED";
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            document.getElementById("quest-countdown").innerHTML = 
+                `${days}d : ${hours.toString().padStart(2, '0')}h : ${minutes.toString().padStart(2, '0')}m : ${seconds.toString().padStart(2, '0')}s`;
+        }, 1000);
+
+        function checkUnit3Completion() {
+            const btnDesktop = document.getElementById("nav-exam-lobby");
+            const btnMobile = document.getElementById("nav-exam-lobby-mobile");
+            const badgeDesktop = document.getElementById("exam-btn-badge");
+            
+            if (btnDesktop) {
+                btnDesktop.classList.remove("opacity-50", "cursor-not-allowed", "grayscale");
+                badgeDesktop.classList.remove("hidden");
+            }
+            if (btnMobile) {
+                btnMobile.classList.remove("text-slate-500", "cursor-not-allowed", "grayscale");
+                btnMobile.classList.add("text-slate-300", "hover:text-rose-400");
+            }
+        }
+
+        function renderProfileHeader() {
+            if (!appState.user) return;
+            document.getElementById("student-name-display").textContent = appState.user.name;
+            document.getElementById("student-id-badge").textContent = `ID: ${appState.user.studentId}`;
+            document.getElementById("student-class-display").textContent = appState.user.className;
+            
+            const totalXp = Number(appState.user.totalXp) || 0;
+            const level = Math.floor(totalXp / 500) + 1;
+            const xpPercent = Math.min(100, Math.round(((totalXp % 500) / 500) * 100));
+            
+            document.getElementById("student-level-display").textContent = level;
+            document.getElementById("student-xp-display").textContent = totalXp;
+            document.getElementById("next-level-xp-display").textContent = level * 500;
+            document.getElementById("xp-bar-fill").style.width = `${xpPercent}%`;
+            
+            const curSkin = appState.user.currentSkin || "Skin01";
+            document.getElementById("hero-skin-container").innerHTML = getSkinVisualHtml(curSkin);
+            document.getElementById("current-skin-badge").textContent = (SKIN_CATALOG[curSkin] || SKIN_CATALOG["Skin01"]).name;
+            
+            const frameClass = getFrameCssClass(appState.currentFrameId);
+            document.getElementById("hero-frame-container").className = `frame-base ${frameClass}`;
+        }
+
+        function renderMissionsGrid() {
+            const grid = document.getElementById("missions-grid");
+            const missions = appState.missions || [];
+            
+            const completedMissions = missions.filter(x => x.state === "COMPLETED").map(x => x.missionId);
+            
+            const filtered = missions.filter(m => {
+                const preset = MISSION_META_PRESETS[m.missionId] || { unit: "Unit 3" };
+                const matchStatus = appState.currentFilter === "ALL" || m.state === appState.currentFilter;
+                const matchUnit = appState.currentUnitFilter === "ALL" || preset.unit === appState.currentUnitFilter;
+                const isNotExam = preset.category !== "Exam";
+                const isNotRaid = m.missionId !== "RAID_U4";
+                
+                return matchStatus && matchUnit && isNotExam && isNotRaid;
+            });
+
+            grid.innerHTML = filtered.map((m, idx) => {
+                const preset = MISSION_META_PRESETS[m.missionId] || { unit: "Unit 3", subtitle: "ภารกิจ", category: "Mission", difficulty: "Normal", xp: 100 };
+                const isLocked = m.state === "LOCKED";
+                const isUnlocked = m.state === "UNLOCKED";
+                const isCompleted = m.state === "COMPLETED";
+
+                let btnHtml = "";
+                if (isCompleted) {
+                    btnHtml = `<span class="text-emerald-400 text-xs font-bold">ผ่านด่านแล้ว ✓</span>`;
+                } else if (isUnlocked) {
+                    if (preset.isWebLink) {
+                        btnHtml = `
+                            <div class="flex flex-col gap-2 w-full sm:w-auto">
+                                <button onclick="openExternalMission('${m.missionId}')" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold border border-purple-400 transition shadow-[0_0_10px_rgba(168,85,247,0.4)]">
+                                    🚀 ทำภารกิจหน้าเว็บ
+                                </button>
+                                <button onclick="openMissionModal('${m.missionId}')" class="btn-portal px-4 py-2 rounded-xl text-xs font-semibold">
+                                    🔑 ส่งรหัสรับ XP
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        btnHtml = `
+                            <button onclick="openMissionModal('${m.missionId}')" class="btn-portal px-4 py-2 rounded-xl text-xs font-semibold w-full sm:w-auto">
+                                🔑 ส่งรหัสลับ
+                            </button>
+                        `;
+                    }
+                } else {
+                    btnHtml = `<span class="text-slate-500 text-[11px]">ต้องผ่านด่าน ${m.prerequisite || 'ก่อนหน้า'} ก่อน</span>`;
+                }
+
+                let rewardBadge = "";
+                if (m.missionId === "V_U3" || m.missionId === "V_U4" || m.missionId === "V_U5") {
+                     rewardBadge = `<span class="px-2 py-0.5 rounded bg-green-900/80 border border-green-400/50 text-[9px] text-green-200">🖼️ กรอบบอส!</span>`;
+                } else if (m.rewardSkin && !m.missionId.includes("EXAM")) {
+                     rewardBadge = `<span class="px-2 py-0.5 rounded bg-pink-900/80 border border-pink-400/50 text-[9px] text-pink-200">🎁 สกิน: ${m.rewardSkin}</span>`;
+                }
+
+                return `
+                    <article class="${isLocked ? 'locked-card' : 'cosmic-card cosmic-card-active'} rounded-2xl overflow-hidden flex flex-col p-3.5">
+                        <div class="h-28 bg-cosmic-900 rounded-xl mb-3 border border-purple-500/30 flex items-center justify-center relative">
+                            ${isLocked ? '<span class="text-2xl">🔒</span>' : '<span class="text-2xl">🪐</span>'}
+                            <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-cosmic-950 border border-purple-400/40 text-[10px] text-purple-200">${m.missionId}</div>
+                            <div class="absolute top-2 right-2">${rewardBadge}</div>
+                        </div>
+                        <div class="space-y-1 mb-3">
+                            <h4 class="font-bold text-white text-sm line-clamp-1">${m.title}</h4>
+                            <p class="text-xs text-slate-300 line-clamp-2 leading-relaxed">${preset.subtitle}</p>
+                        </div>
+                        <div class="mt-auto pt-3 border-t border-purple-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <span class="font-scifi text-xs font-bold text-amber-300">⭐ +${preset.xp} XP</span>
+                            ${btnHtml}
+                        </div>
+                    </article>
+                `;
+            }).join("");
+            
+            // ส่วนแสดง EXAM
+            const examMissions = missions.filter(m => {
+                const preset = MISSION_META_PRESETS[m.missionId];
+                return preset && preset.category === "Exam" && (appState.currentUnitFilter === "ALL" || preset.unit === appState.currentUnitFilter);
+            });
+            
+            if(examMissions.length > 0) {
+                const examHtml = examMissions.map(m => {
+                    const preset = MISSION_META_PRESETS[m.missionId];
+                    const isCompleted = m.state === "COMPLETED";
+                    
+                    let isLocked = true;
+                    if (isCompleted) {
+                        isLocked = false;
+                    } else if (m.missionId === "EXAM_U3") {
+                        const reqU3 = ["M01", "M02", "M03", "M04", "V_U3"];
+                        isLocked = !reqU3.every(req => completedMissions.includes(req));
+                    } else if (m.missionId === "EXAM_U4") {
+                        const reqU4 = ["M05", "M06", "M07", "M08", "V_U4"];
+                        isLocked = !reqU4.every(req => completedMissions.includes(req));
+                    } else if (m.missionId === "EXAM_U5") {
+                        const reqU5 = ["M09", "M10", "M11", "M12", "V_U5"];
+                        isLocked = !reqU5.every(req => completedMissions.includes(req));
+                    } else {
+                        isLocked = m.state === "LOCKED"; 
+                    }
+                    
+                    let rewardBadge = "";
+                    if (m.missionId === "EXAM_U3" || m.missionId === "EXAM_U4" || m.missionId === "EXAM_U5") {
+                         rewardBadge = `<span class="px-2 py-0.5 rounded bg-blue-900/80 border border-blue-400/50 text-[10px] text-blue-200 ml-2">🖼️ กรอบพิเศษ!</span>`;
+                    }
+                    
+                    let btnHtml = "";
+                    if (isCompleted) {
+                        btnHtml = `<span class="text-emerald-400 text-xs font-bold">สอบผ่านแล้ว ✓</span>`;
+                    } else if (isLocked) {
+                        btnHtml = `<span class="text-slate-500 text-[11px]">ต้องผ่านภารกิจย่อยก่อน</span>`;
+                    } else {
+                        btnHtml = `<button onclick="openMissionModal('${m.missionId}')" class="btn-portal px-6 py-2 rounded-xl text-xs font-semibold">🔑 ส่งรหัสลับ XP</button>`;
+                    }
+                    
+                    return `
+                        <article class="col-span-1 sm:col-span-2 xl:col-span-3 ${isLocked ? 'locked-card opacity-60' : 'cosmic-card cosmic-card-active'} rounded-2xl overflow-hidden flex flex-row items-center p-4 border-rose-500/50">
+                            <div class="w-16 h-16 bg-rose-950 rounded-xl border border-rose-500/50 flex items-center justify-center relative flex-shrink-0 mr-4">
+                                <span class="text-2xl">${isLocked ? '🔒' : '⚠️'}</span>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span class="px-2 py-0.5 rounded bg-rose-900 border border-rose-400/40 text-[10px] text-rose-200">${m.missionId}</span>
+                                    <h4 class="font-bold text-rose-300 text-sm">${m.title}</h4>
+                                    ${rewardBadge}
+                                </div>
+                                <p class="text-xs text-slate-300">${preset.subtitle}</p>
+                            </div>
+                            <div class="flex-shrink-0 ml-4">
+                                ${btnHtml}
+                            </div>
+                        </article>
+                    `;
+                }).join("");
+                
+                grid.innerHTML += `<div class="col-span-1 sm:col-span-2 xl:col-span-3 border-t border-rose-500/30 pt-4 mt-2"><h4 class="text-rose-400 font-bold mb-4 font-scifi">FINAL CHALLENGES</h4></div>` + examHtml;
+            }
+        }
+
+        function renderRightWidgets() {
+            const missions = appState.missions || [];
+            const nextMission = missions.find(m => m.state === "UNLOCKED" && m.missionId !== "RAID_U4" && !m.missionId.includes("EXAM"));
+            const box = document.getElementById("next-mission-box");
+            if (nextMission) {
+                const preset = MISSION_META_PRESETS[nextMission.missionId] || { xp: 100 };
+                box.innerHTML = `
+                    <div class="flex justify-between items-center mb-2"><span class="px-2 py-0.5 rounded bg-purple-900 text-xs">${nextMission.missionId}</span><span class="text-xs text-amber-300">⭐ +${preset.xp} XP</span></div>
+                    <p class="font-bold text-white text-sm mb-3">${nextMission.title}</p>
+                    <button onclick="document.getElementById('nav-missions').scrollIntoView({behavior: 'smooth'})" class="w-full btn-portal py-2 rounded-xl text-xs font-semibold">ลุยภารกิจเลย</button>
+                `;
+            } else {
+                box.innerHTML = `<p class="text-xs text-center text-slate-400 py-3">ยังไม่มีภารกิจหลักที่เปิดอยู่</p>`;
+            }
+        }
+
+        function switchWardrobeTab(tabName) {
+            document.getElementById('wardrobe-skins-view').classList.add('hidden');
+            document.getElementById('wardrobe-frames-view').classList.add('hidden');
+            
+            document.getElementById('tab-skins').classList.remove('text-purple-200', 'border-purple-400');
+            document.getElementById('tab-skins').classList.add('text-slate-500', 'border-transparent');
+            document.getElementById('tab-frames').classList.remove('text-purple-200', 'border-purple-400');
+            document.getElementById('tab-frames').classList.add('text-slate-500', 'border-transparent');
+            
+            if(tabName === 'skins') {
+                document.getElementById('wardrobe-skins-view').classList.remove('hidden');
+                document.getElementById('tab-skins').classList.replace('text-slate-500', 'text-purple-200');
+                document.getElementById('tab-skins').classList.replace('border-transparent', 'border-purple-400');
+            } else {
+                document.getElementById('wardrobe-frames-view').classList.remove('hidden');
+                document.getElementById('tab-frames').classList.replace('text-slate-500', 'text-purple-200');
+                document.getElementById('tab-frames').classList.replace('border-transparent', 'border-purple-400');
+            }
+        }
+
+        function renderWardrobeItems() {
+            const list = document.getElementById("sidebar-skins-list");
+            const grid = document.getElementById("wardrobe-modal-grid");
+            const unlocked = (appState.user && appState.user.unlockedSkins) || ["Skin01"];
+            const curSkin = (appState.user && appState.user.currentSkin) || "Skin01";
+            
+            const renderSkinFn = (skin, showName = true) => {
+                const isUnl = unlocked.includes(skin.id);
+                const isEq = curSkin === skin.id;
+                return `
+                    <button onclick="${isUnl ? `selectSkin('${skin.id}')` : `showToast('🔒 สกินนี้ถูกล็อก: ${skin.unlockHint}', 'info')`}" 
+                        class="p-2 rounded-xl border flex flex-col items-center justify-between gap-2 h-full ${isEq ? 'bg-purple-900/60 border-fuchsia-400' : isUnl ? 'bg-cosmic-950/70 border-purple-500/30 hover:border-purple-400' : 'bg-cosmic-950/40 border-slate-800 grayscale opacity-50'}">
+                        <div class="w-14 h-14 rounded-full overflow-hidden bg-cosmic-900 border border-purple-400/50 flex-shrink-0">${getSkinVisualHtml(skin.id)}</div>
+                        <div class="flex flex-col items-center">
+                            ${showName ? `<span class="text-[10px] text-white font-bold leading-tight line-clamp-1">${skin.name.split(': ')[1] || skin.id}</span>` : `<span class="text-[10px] text-white font-bold">${skin.id}</span>`}
+                            ${isEq ? `<span class="text-[9px] text-emerald-400 mt-1">● ใส่อยู่</span>` : ""}
+                        </div>
+                    </button>`;
+            };
+            
+            list.innerHTML = Object.values(SKIN_CATALOG).slice(0, 3).map(s => renderSkinFn(s, false)).join(""); 
+            grid.innerHTML = Object.values(SKIN_CATALOG).map(s => renderSkinFn(s, true)).join("");
+            
+            const customInput = document.getElementById("custom-avatar-url");
+            if (customInput) customInput.value = appState.customAvatarUrl || "";
+
+            const framesGrid = document.getElementById("wardrobe-frames-grid");
+            const curFrame = appState.currentFrameId;
+            
+            const renderFrameFn = (frame) => {
+                const isUnl = checkFrameUnlockStatus(frame);
+                const isEq = curFrame === frame.id;
+                
+                let hint = "";
+                if(frame.reqLevel) hint = `ต้องใช้เลเวล ${frame.reqLevel} ขึ้นไป`;
+                else if(frame.reqMission) hint = `ต้องผ่านด่าน ${frame.reqMission} ก่อน`;
+                
+                return `
+                    <button onclick="${isUnl ? `selectFrame('${frame.id}')` : `showToast('🔒 กรอบถูกล็อก: ${hint}', 'info')`}" 
+                        class="p-3 rounded-xl border flex flex-col items-center justify-between gap-3 h-full ${isEq ? 'bg-purple-900/60 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]' : isUnl ? 'bg-cosmic-950/70 border-purple-500/30 hover:border-cyan-400' : 'bg-cosmic-950/40 border-slate-800 grayscale opacity-50'}">
+                        
+                        <div class="relative w-16 h-16 flex items-center justify-center flex-shrink-0 mt-2">
+                            <div class="absolute inset-0 bg-cosmic-900 rounded-full"></div>
+                            <div class="absolute inset-1 rounded-full overflow-hidden opacity-50">${getSkinVisualHtml(curSkin)}</div>
+                            <div class="frame-base ${frame.cssClass}"></div>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center">
+                            <span class="text-[11px] text-white font-bold leading-tight">${frame.name}</span>
+                            <span class="text-[9px] text-slate-400 mt-1">${frame.subtitle}</span>
+                            ${isEq ? `<span class="text-[9px] text-cyan-400 mt-1 font-bold">● กำลังใช้</span>` : ""}
+                            ${!isUnl ? `<span class="text-[9px] text-rose-400 mt-1">🔒 ${hint}</span>` : ""}
+                        </div>
+                    </button>`;
+            };
+            
+            framesGrid.innerHTML = Object.values(FRAME_CATALOG).map(f => renderFrameFn(f)).join("");
+        }
+
+        function saveCustomAvatar() {
+            const urlInput = document.getElementById("custom-avatar-url").value.trim();
+            if (!urlInput) {
+                showToast("กรุณาใส่ลิงก์รูปภาพก่อนบันทึกครับ", "error");
+                return;
+            }
+            
+            appState.customAvatarUrl = urlInput;
+            localStorage.setItem("pd_custom_avatar", urlInput);
+            
+            if (!appState.user.unlockedSkins.includes("Skin99")) {
+                appState.user.unlockedSkins.push("Skin99");
+            }
+            
+            showToast("สร้างตัวละคร Custom สำเร็จ!", "success");
+            selectSkin("Skin99"); 
+        }
+
+        async function selectSkin(skinId) {
+            if(!appState.user.unlockedSkins.includes(skinId)) return;
+            const prev = appState.user.currentSkin;
+            appState.user.currentSkin = skinId;
+            saveSession(); renderProfileHeader(); renderWardrobeItems();
+            
+            try {
+                await callPortalApi({ action: "updateSkin", studentId: appState.user.studentId, skin: skinId });
+            } catch(e) {
+                appState.user.currentSkin = prev;
+                saveSession(); renderProfileHeader(); renderWardrobeItems();
+                showToast("ไม่สามารถอัปเดตสกินกับระบบฐานข้อมูลได้", "error");
+            }
+        }
+        
+        function selectFrame(frameId) {
+            const frameObj = FRAME_CATALOG[frameId];
+            if(!frameObj || !checkFrameUnlockStatus(frameObj)) return;
+            
+            appState.currentFrameId = frameId;
+            localStorage.setItem("pd_current_frame", frameId);
+            renderProfileHeader(); 
+            renderWardrobeItems();
+            showToast(`เปลี่ยนกรอบเป็น ${frameObj.name} เรียบร้อย!`, "success");
+        }
+
+        function setMissionFilter(f) { 
+            appState.currentFilter = f;
+            document.querySelectorAll(".filter-pill").forEach(btn => btn.className = "filter-pill px-2.5 py-1 rounded-lg text-xs font-medium text-purple-200 transition");
+            document.getElementById(`filter-${f}`).className = "filter-pill px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-600 text-white shadow transition";
+            renderMissionsGrid(); 
+        }
+
+        function setMissionUnitFilter(u) {
+            appState.currentUnitFilter = u;
+            document.querySelectorAll(".unit-pill").forEach(btn => btn.className = "unit-pill px-3 py-1 rounded-lg text-xs font-medium bg-cosmic-950 text-purple-200 border border-purple-500/30 whitespace-nowrap transition");
+            document.getElementById(`unit-filter-${u}`).className = "unit-pill px-3 py-1 rounded-lg text-xs font-medium bg-fuchsia-600/80 text-white border border-fuchsia-400/50 whitespace-nowrap transition";
+            renderMissionsGrid();
+        }
+
+        function openWardrobeModal() { renderWardrobeItems(); document.getElementById("wardrobe-modal").classList.remove("hidden"); document.getElementById("wardrobe-modal").classList.add("flex"); switchWardrobeTab('skins'); }
+        function closeWardrobeModal() { document.getElementById("wardrobe-modal").classList.add("hidden"); document.getElementById("wardrobe-modal").classList.remove("flex"); }
+        function openTeacherGuideModal() { document.getElementById("teacher-guide-modal").classList.remove("hidden"); document.getElementById("teacher-guide-modal").classList.add("flex"); }
+        function closeTeacherGuideModal() { document.getElementById("teacher-guide-modal").classList.add("hidden"); document.getElementById("teacher-guide-modal").classList.remove("flex"); }
+        
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            const borderColors = { success: "border-emerald-400 bg-cosmic-900/95 text-emerald-100", error: "border-rose-400 bg-rose-950/95 text-rose-100", info: "border-purple-400 bg-cosmic-900/95 text-purple-100" };
+            const icons = { success: "✨", error: "⚠️", info: "🪐" };
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-2xl border-l-4 shadow-[0_10px_25px_rgba(0,0,0,0.6)] backdrop-blur-md text-xs sm:text-sm font-medium transition-all duration-300 transform translate-x-full opacity-0 ${borderColors[type] || borderColors.info}`;
+            toast.innerHTML = `<span class="text-base">${icons[type] || "🪐"}</span><span class="leading-snug">${message}</span>`;
+            
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove("translate-x-full", "opacity-0"));
+            setTimeout(() => { toast.classList.add("translate-x-full", "opacity-0"); setTimeout(() => toast.remove(), 300); }, 3800);
+        }
+
+        function openMissionModal(mId) {
+            appState.activeModalMissionId = mId;
+            document.getElementById("modal-mission-id").textContent = mId;
+            document.getElementById("modal-mission-title").textContent = appState.missions.find(m=>m.missionId===mId)?.title;
+            
+            const passInput = document.getElementById("modal-passcode-input");
+            passInput.value = "";
+            passInput.type = "password";
+            document.getElementById("eye-icon-mission").innerHTML = "👁️";
+            
+            document.getElementById("modal-error-msg").classList.add("hidden");
+            const modal = document.getElementById("mission-modal");
+            modal.classList.remove("hidden"); modal.classList.add("flex");
+        }
+        
+        function closeMissionModal() {
+            document.getElementById("mission-modal").classList.add("hidden");
+            document.getElementById("mission-modal").classList.remove("flex");
+        }
+
+        async function submitMissionPasscode(e) {
+            e.preventDefault();
+            const codeInput = document.getElementById("modal-passcode-input").value.trim().toUpperCase();
+            const btn = document.getElementById("modal-submit-btn");
+            const err = document.getElementById("modal-error-msg");
+            err.classList.add("hidden"); btn.disabled = true; btn.innerHTML = "กำลังตรวจ...";
+            
+            // --- FRONTEND SECURITY CHECK สำหรับรหัสลับแบบ CIPHER ---
+            const mId = appState.activeModalMissionId;
+            const preset = MISSION_META_PRESETS[mId];
+            let finalCodeToSend = codeInput;
+
+            if (preset && preset.demoPasscode && preset.demoPasscode.includes("{CIPHER}")) {
+                const sidNum = parseInt(appState.user.studentId) || 0;
+                let correctCipher = "";
+                
+                // 📍 กำหนดสูตรคำนวณแยกอิสระให้แต่ละภารกิจ
+                if (mId === "M01") correctCipher = (sidNum * 13 + 9999).toString(16).toUpperCase();
+                else if (mId === "M02") correctCipher = (sidNum * 17 + 8888).toString(16).toUpperCase();
+                else if (mId === "M03") correctCipher = (sidNum * 23 + 7777).toString(16).toUpperCase();
+                else if (mId === "V_U3") correctCipher = (sidNum * 17 + 5555).toString(16).toUpperCase();
+                // ด่านอื่นๆ ที่ยังไม่ได้ตั้งสูตรแยก จะใช้สูตรพื้นฐาน (รวมถึง M04, บทที่ 4, บทที่ 5)
+                else correctCipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
+
+                const expectedPasscode = preset.demoPasscode.replace("{CIPHER}", correctCipher);
+                
+                if (codeInput !== expectedPasscode) {
+                    err.textContent = "❌ รหัสปลดล็อกไม่ถูกต้อง! (รหัสลับเฉพาะบุคคล กรุณาทำภารกิจ)"; 
+                    err.classList.remove("hidden");
+                    btn.disabled = false; btn.innerHTML = "⚡ ยืนยันรหัสปลดล็อกมิติ";
+                    return;
+                }
+                
+                finalCodeToSend = preset.demoPasscode; 
+            }
+            // ----------------------------------------------------
+            
+            try {
+                const res = await callPortalApi({ action: "submitMission", studentId: appState.user.studentId, missionId: mId, passcode: finalCodeToSend });
+                if(res.status==="success") {
+                    appState.user.totalXp = res.totalXp;
+                    if(res.currentSkin) appState.user.currentSkin = res.currentSkin;
+                    if(res.unlockedSkins) appState.user.unlockedSkins = res.unlockedSkins;
+                    appState.missions = res.missions;
+                    saveSession(); renderAllModules(); closeMissionModal();
+                    
+                    if (mId === "V_U3" || mId === "V_U4" || mId === "V_U5" || mId.includes("EXAM")) {
+                         showToast("🎉 ยินดีด้วย! คุณได้รับกรอบโปรไฟล์ใหม่ ไปดูที่ตู้เสื้อผ้าได้เลย!", "success");
+                    } else {
+                         showToast(res.message, "success");
+                    }
+                } else throw new Error(res.message);
+            } catch(error) {
+                err.textContent = error.message; err.classList.remove("hidden");
+            } finally {
+                btn.disabled = false; btn.innerHTML = "⚡ ยืนยันรหัสปลดล็อกมิติ";
+            }
+        }
+    </script>
+</body>
+</html>
