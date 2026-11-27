@@ -413,9 +413,9 @@
             fb.innerHTML = `✔️ ตรวจสอบถูกต้อง! กำลังบันทึกข้อมูล...`; 
             document.getElementById('btn-check-2').disabled = true;
             
-            // คำนวณรหัสลับ (Cipher) = (รหัสนักเรียน * 29) + 1111 แปลงเป็นเลขฐาน 16 (เหมือนใน Apps Script)
+            // คำนวณรหัสลับ (Cipher) = (รหัสนักเรียน * 43) + 1111 แปลงเป็นเลขฐาน 16 (เหมือนใน Apps Script)
             const sidNum = parseInt(verifiedStudentId) || 0;
-            const cipherCode = (sidNum * 29 + 1111).toString(16).toUpperCase();
+            const cipherCode = (sidNum * 43 + 1111).toString(16).toUpperCase();
 
             // บันทึก Log ไปยังระบบ
             fetch(API_URL, {
