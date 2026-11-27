@@ -1407,12 +1407,13 @@
                 const sidNum = parseInt(appState.user.studentId) || 0;
                 let correctCipher = "";
                 
-                // 📍 กำหนดสูตรคำนวณแยกอิสระให้แต่ละภารกิจ
+                // 📍 กำหนดสูตรคำนวณแยกอิสระให้แต่ละภารกิจ เพื่อความปลอดภัยสูงสุด (Anti-Cheat)
                 if (mId === "M01") correctCipher = (sidNum * 13 + 9999).toString(16).toUpperCase();
                 else if (mId === "M02") correctCipher = (sidNum * 17 + 8888).toString(16).toUpperCase();
                 else if (mId === "M03") correctCipher = (sidNum * 23 + 7777).toString(16).toUpperCase();
+                else if (mId === "M04") correctCipher = (sidNum * 29 + 1111).toString(16).toUpperCase(); // ใช้ตามแบบเดิมของครู
                 else if (mId === "V_U3") correctCipher = (sidNum * 17 + 5555).toString(16).toUpperCase();
-                // ด่านอื่นๆ ที่ยังไม่ได้ตั้งสูตรแยก จะใช้สูตรพื้นฐาน (รวมถึง M04, บทที่ 4, บทที่ 5)
+                // สูตรพื้นฐานสำหรับด่านใหม่ๆ ที่ไม่ได้ระบุเจาะจง
                 else correctCipher = (sidNum * 29 + 1111).toString(16).toUpperCase();
 
                 const expectedPasscode = preset.demoPasscode.replace("{CIPHER}", correctCipher);
